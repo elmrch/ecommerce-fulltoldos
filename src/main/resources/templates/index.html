@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle : 'FULL TOLDOS — Toldos & Carpas Profesionales'}">FULL TOLDOS — Toldos &amp; Carpas Profesionales</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{estilo.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="topbar-ft">
+    <div class="container">
+        <div class="topbar-inner">
+      <span class="topbar-item">
+        <i class="bi bi-truck-front-fill"></i>
+        <span th:text="${topbar?.envios ?: 'Envíos a todo el Perú'}">Envíos a todo el Perú</span>
+      </span>
+            <span class="topbar-sep">·</span>
+            <span class="topbar-item">
+        <i class="bi bi-telephone-fill"></i>
+        <span th:text="${topbar?.telefono ?: '+51 999 999 999'}">+51 999 999 999</span>
+      </span>
+            <span class="topbar-sep">·</span>
+            <span class="topbar-item">
+        <i class="bi bi-clock-fill"></i>
+        <span th:text="${topbar?.horario ?: 'Lun–Sáb 8am–7pm'}">Lun–Sáb 8am–7pm</span>
+      </span>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar-ft">
+    <!-- Fila principal: logo + búsqueda + carrito -->
+    <div class="container">
+        <div class="navbar-inner">
+            <a href="#" class="logo-wrap">
+                <img th:src="@{logofulltoldos.png}" src="logofulltoldos.png" alt="Full Toldos" class="logo-img">
+            </a>
+            <div class="nav-search-wrap">
+                <select class="nav-search-cat" id="navSearchCat">
+                    <option value="">Todas las categorías</option>
+                </select>
+                <input type="text" class="nav-search-input" id="navSearchInput"
+                       placeholder="Buscar toldos, carpas, inflables..."
+                       onkeydown="if(event.key==='Enter')doNavSearch()">
+                <button class="nav-search-btn" onclick="doNavSearch()">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            <div class="nav-right">
+
+                <!-- Sin login -->
+                <div sec:authorize="!isAuthenticated()" style="display:inline-flex;gap:6px;align-items:center;">
+                    <a th:href="@{/login}" class="btn-login-nav">
+                        <i class="bi bi-person-fill"></i> Login
+                    </a>
+                    <a th:href="@{/registro}" class="btn-registro-nav">
+                        <i class="bi bi-person-plus-fill"></i> Registro
+                    </a>
+                </div>
+
+                <!-- Con login -->
+                <div sec:authorize="isAuthenticated()" style="display:inline-flex;align-items:center;">
+                    <a th:href="@{/cliente/inicio}" class="btn-perfil-nav">
+                        <i class="bi bi-person-circle"></i>
+                        <span sec:authentication="name">Usuario</span>
+                    </a>
+                </div>
+
+                <div class="cart-btn" onclick="openCart()">
+                    <i class="bi bi-bag"></i>
+                    <span class="cart-badge" id="cartCount">0</span>
+                </div>
+                <a href="#contacto" class="btn-cotizar">
+                    <i class="bi bi-chat-text-fill"></i> Cotizar
+                </a>
+                <button class="mob-ham" onclick="openMobileMenu()" aria-label="Menú">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Fila de navegación -->
+    <div class="navbar-nav-row">
+        <div class="container">
+            <div class="nav-links">
+                <a href="#inicio">Inicio</a>
+                <div class="nav-dropdown">
+                    <a href="#categorias" class="nav-dropdown-toggle">Categorías <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu" id="navCatMenu"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#productos" class="nav-dropdown-toggle">Productos <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu nav-dropdown-wide" id="navProdMenu"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-dropdown-toggle">Por Medida <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu" id="navMedidaMenu"></div>
+                </div>
+                <a href="#materiales">Materiales</a>
+                <a href="#" onclick="event.preventDefault();openGallery()">Galería</a>
+                <a href="#contacto">Contacto</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div id="mainView">
+
+    <!-- ═══ HERO SLIDER ═══ -->
+    <section class="hero-section" id="inicio">
+        <div id="heroSlider">
+
+            <!-- SLIDE 1 — renderizado con Thymeleaf si se pasa lista de slides desde el controller,
+                 de lo contrario se usa el bloque estático de fallback -->
+            <th:block th:if="${slides != null and !slides.isEmpty()}">
+                <div th:each="slide, iterStat : ${slides}"
+                     th:id="'slide-' + ${iterStat.index}"
+                     th:class="'hero-slide' + (${iterStat.first} ? ' active' : '')">
+                    <div class="slide-bg"
+                         th:style="'background-image:url(\'' + @{CARPAS.png}__} + '\'); background-size:cover; background-position:center right;'"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container h-100" style="position:relative;z-index:2;">
+                        <div class="row align-items-center" style="min-height:86vh;">
+                            <div class="col-lg-6">
+                                <div class="slide-content">
+                                    <div class="slide-tag">
+                                        <i th:class="'bi ' + ${slide.tagIcon}"></i>
+                                        <span th:text="${slide.tagText}">Tag</span>
+                                    </div>
+                                    <h1 class="slide-title" th:utext="${slide.titulo}">Título</h1>
+                                    <p class="slide-desc" th:text="${slide.descripcion}">Descripción</p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <button class="btn-slide-primary"
+                                                th:onclick="'openCatPage(\'' + ${slide.btnPrimaryAction} + '\')'"
+                                                th:if="${slide.btnPrimaryText != null}">
+                                            <i th:class="'bi ' + ${slide.btnPrimaryIcon}"></i>
+                                            <span th:text="${slide.btnPrimaryText}">Ver</span>
+                                        </button>
+                                        <a th:href="${slide.btnSecondaryHref}"
+                                           class="btn-slide-secondary"
+                                           target="_blank"
+                                           th:if="${slide.btnSecondaryText != null}">
+                                            <i th:class="'bi ' + ${slide.btnSecondaryIcon}"></i>
+                                            <span th:text="${slide.btnSecondaryText}">Acción</span>
+                                        </a>
+                                    </div>
+                                    <!-- Stats solo en el primer slide -->
+                                    <div class="hero-stats" th:if="${iterStat.first and heroStats != null}">
+                                        <div th:each="stat : ${heroStats}">
+                                            <div class="stat-num">
+                                                <span th:text="${stat.numero}">0</span>
+                                                <span th:text="${stat.sufijo}">+</span>
+                                            </div>
+                                            <div class="stat-lbl" th:text="${stat.label}">Label</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+
+            <!-- FALLBACK ESTÁTICO (cuando no hay modelo Thymeleaf inyectado) -->
+            <th:block th:unless="${slides != null and !slides.isEmpty()}">
+
+                <!-- SLIDE 1 -->
+                <div class="hero-slide active" id="slide-0">
+                    <div class="slide-bg" style="background-image:url('CARPAS.png'); background-size:cover; background-position:center right;"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container h-100" style="position:relative;z-index:2;">
+                        <div class="row align-items-center" style="min-height:86vh;">
+                            <div class="col-lg-6">
+                                <div class="slide-content">
+                                    <div class="slide-tag"><i class="bi bi-award-fill"></i> Fabricantes desde 1999</div>
+                                    <h1 class="slide-title">TOLDOS &amp;<br><span class="hl">CARPAS</span><br>A MEDIDA</h1>
+                                    <p class="slide-desc">Diseño, fabricación e instalación profesional. Estructuras de acero galvanizado con lona PVC premium para tu negocio.</p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <button class="btn-slide-primary" onclick="openCatPage('all')"><i class="bi bi-grid-3x3-gap-fill"></i> Ver Catálogo</button>
+                                        <a href="https://wa.me/51999999999" class="btn-slide-secondary" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a>
+                                    </div>
+                                    <div class="hero-stats">
+                                        <div><div class="stat-num">25<span>+</span></div><div class="stat-lbl">Años exp.</div></div>
+                                        <div><div class="stat-num">2K<span>+</span></div><div class="stat-lbl">Clientes</div></div>
+                                        <div><div class="stat-num">8<span>+</span></div><div class="stat-lbl">Líneas</div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2 -->
+                <div class="hero-slide" id="slide-1">
+                    <div class="slide-bg" style="background-image:url('ChatGPT Image 3 jun 2026, 21_46_35.png'); background-size:cover; background-position:center;"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container h-100" style="position:relative;z-index:2;">
+                        <div class="row align-items-center" style="min-height:86vh;">
+                            <div class="col-lg-6">
+                                <div class="slide-content">
+                                    <div class="slide-tag"><i class="bi bi-triangle-fill"></i> Carpas Profesionales</div>
+                                    <h1 class="slide-title">CARPAS<br><span class="hl">ARMABLES</span><br>A MEDIDA</h1>
+                                    <p class="slide-desc">Para ferias, eventos y exposiciones corporativas. Acero galvanizado, lona PVC resistente. Desde 2×2 hasta 6×6m.</p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <button class="btn-slide-primary" onclick="openCatPage('carpas')"><i class="bi bi-triangle-fill"></i> Ver Carpas</button>
+                                        <a href="https://wa.me/51999999999" class="btn-slide-secondary" target="_blank"><i class="bi bi-telephone-fill"></i> Cotizar ahora</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3 -->
+                <div class="hero-slide" id="slide-2">
+                    <div class="slide-bg" style="background-image:url('toldoplegable.png'); background-size:cover; background-position:center;"></div>
+                    <div class="slide-overlay"></div>
+                    <div class="container h-100" style="position:relative;z-index:2;">
+                        <div class="row align-items-center" style="min-height:86vh;">
+                            <div class="col-lg-6">
+                                <div class="slide-content">
+                                    <div class="slide-tag"><i class="bi bi-megaphone-fill"></i> Publicidad Exterior</div>
+                                    <h1 class="slide-title">INFLABLES &amp;<br><span class="hl">MÓDULOS</span><br>PUBLICITARIOS</h1>
+                                    <p class="slide-desc">Inflables gigantes, plumas y módulos para ferias. Impresión full color, sublimación de alta resolución. Entrega rápida.</p>
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <button class="btn-slide-primary" onclick="openCatPage('inflables')"><i class="bi bi-balloon-fill"></i> Ver Inflables</button>
+                                        <a href="https://wa.me/51999999999" class="btn-slide-secondary" target="_blank"><i class="bi bi-envelope-fill"></i> Solicitar info</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </th:block>
+        </div><!-- /#heroSlider -->
+
+        <button class="hero-prev" onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
+        <button class="hero-next" onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
+        <div class="hero-controls" id="heroDots">
+            <!-- Los dots se generan con Thymeleaf si hay slides, sino JS los gestiona -->
+            <th:block th:if="${slides != null and !slides.isEmpty()}">
+                <div th:each="slide, iterStat : ${slides}"
+                     th:class="'hero-dot' + (${iterStat.first} ? ' active' : '')"
+                     th:onclick="'goSlide(' + ${iterStat.index} + ')'"></div>
+            </th:block>
+            <th:block th:unless="${slides != null and !slides.isEmpty()}">
+                <div class="hero-dot active" onclick="goSlide(0)"></div>
+                <div class="hero-dot" onclick="goSlide(1)"></div>
+                <div class="hero-dot" onclick="goSlide(2)"></div>
+            </th:block>
+        </div>
+    </section>
+
+    <!-- ═══ TICKER ═══ -->
+    <div class="ticker-bar">
+        <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <!-- ═══ CATEGORÍAS ═══ -->
+    <section class="section-pad bg-white" id="categorias">
+        <div class="container">
+            <div class="row align-items-end justify-content-between mb-2">
+                <div class="col-lg-6">
+                    <div class="eyebrow">Línea completa</div>
+                    <h2 class="section-title">NUESTRAS <span class="hl">CATEGORÍAS</span></h2>
+                    <div class="divider-blue"></div>
+                    <p class="section-desc">Desde toldos publicitarios hasta materiales técnicos — todo fabricado con los más altos estándares.</p>
+                </div>
+                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                    <button class="btn-slide-primary" style="display:inline-flex;" onclick="openCatPage('all')">Ver todos los productos <i class="bi bi-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!--
+              OPCIÓN A: Thymeleaf renderiza las tarjetas desde el controller (lista 'categorias' en el modelo).
+              OPCIÓN B (fallback): el div vacío es llenado por JS igual que antes.
+            -->
+            <div class="cat-grid" id="catGrid">
+                <th:block th:if="${categorias != null and !categorias.isEmpty()}">
+                    <div th:each="cat : ${categorias}"
+                         class="cat-card"
+                         th:onclick="'openCatPage(\'' + ${cat.id} + '\')'"
+                         th:attr="data-catid=${cat.id}">
+                        <div class="cat-arrow"><i class="bi bi-arrow-right"></i></div>
+                        <div class="cat-img-area" th:style="'background:' + ${cat.color}">
+                            <img th:src="${cat.img}" th:alt="${cat.name}"
+                                 class="cat-img-real" loading="lazy"
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <div class="cat-img-icon" style="display:none;position:absolute;font-size:3.5rem;color:rgba(255,255,255,0.5)">
+                                <i th:class="'bi ' + ${cat.icon}"></i>
+                            </div>
+                            <div class="cat-overlay"></div>
+                        </div>
+                        <div class="cat-body">
+                            <div class="cat-name" th:text="${cat.name}">Nombre</div>
+                            <div class="cat-count"
+                                 th:text="${cat.count} + ' producto' + (${cat.count} > 1 ? 's' : '')">0 productos</div>
+                        </div>
+                    </div>
+                </th:block>
+                <!-- Si 'categorias' es null el JS buildCats() llena este div como antes -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ PRODUCTOS ═══ -->
+    <section class="section-pad bg-light-blue" id="productos">
+        <div class="container">
+            <div class="row align-items-end justify-content-between mb-4">
+                <div class="col-lg-6">
+                    <div class="eyebrow">Catálogo completo</div>
+                    <h2 class="section-title">TODOS NUESTROS <span class="hl">PRODUCTOS</span></h2>
+                    <div class="divider-blue"></div>
+                </div>
+                <div class="col-auto">
+                    <button class="btn-slide-primary" onclick="openCatPage('all')"
+                            style="font-size:0.78rem;padding:10px 20px;">
+                        Ver catálogo completo <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!--
+              OPCIÓN A: Thymeleaf renderiza los productos desde el controller (lista 'productos' en el modelo).
+              OPCIÓN B (fallback): el div vacío es llenado por renderProducts() en JS.
+            -->
+            <div class="products-grid-4" id="productsGrid">
+                <th:block th:if="${productos != null and !productos.isEmpty()}">
+                    <div th:each="p : ${productos}"
+                         class="prod-card"
+                         th:onclick="'openModal(' + ${p.id} + ')'">
+                        <div class="prod-img-area" th:style="'background:' + ${p.gradiente}">
+                            <th:block th:if="${p.imagenPrincipal != null}">
+                                <img th:src="${p.imagenPrincipal}" th:alt="${p.name}"
+                                     class="prod-img-real" loading="lazy"
+                                     onerror="this.style.display='none';this.parentElement.querySelector('.prod-img-placeholder').style.display='flex'">
+                                <div class="prod-img-placeholder" style="display:none;position:absolute;inset:0">
+                                    <i th:class="'bi ' + ${p.icon}" style="font-size:3rem;color:rgba(0,0,0,0.2)"></i>
+                                </div>
+                            </th:block>
+                            <th:block th:unless="${p.imagenPrincipal != null}">
+                                <div class="prod-img-placeholder">
+                                    <i th:class="'bi ' + ${p.icon}" style="font-size:3rem;color:rgba(0,0,0,0.2)"></i>
+                                </div>
+                            </th:block>
+                            <div class="prod-badge-wrap">
+                                <span th:if="${p.badge == 'new'}"  class="prod-badge badge-new">Nuevo</span>
+                                <span th:if="${p.badge == 'hot'}"  class="prod-badge badge-hot">Popular</span>
+                                <span th:if="${p.badge == 'sale'}" class="prod-badge badge-sale">Oferta</span>
+                            </div>
+                            <button class="prod-eye-btn"
+                                    th:onclick="'event.stopPropagation();openProductPage(' + ${p.id} + ')'"
+                                    title="Ver producto completo">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="prod-body">
+                            <div class="prod-cat-tag"  th:text="${p.catName}">Categoría</div>
+                            <div class="prod-name"     th:text="${p.name}">Nombre</div>
+                            <!-- Estrellas -->
+                            <span class="prod-stars" th:if="${p.rating != null}">
+              <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                <i th:class="${i <= p.ratingFloor ? 'bi bi-star-fill' : (i == p.ratingFloor + 1 and p.ratingHalf ? 'bi bi-star-half' : 'bi bi-star')}"></i>
+              </th:block>
+              <span class="prod-reviews"
+                    th:text="${#numbers.formatDecimal(p.rating,1,1)} + ' (' + ${p.reviews} + ')'">5.0 (0)</span>
+            </span>
+                            <div class="prod-desc" th:text="${#strings.abbreviate(p.desc, 95)}">Descripción</div>
+                            <div class="prod-footer">
+                                <div>
+                                    <div th:if="${p.precio != null}"
+                                         class="prod-price"
+                                         th:style="'font-size:1.5rem'"
+                                         th:text="'S/ ' + ${p.precio}">S/ 0</div>
+                                    <div th:unless="${p.precio != null}"
+                                         class="prod-price"
+                                         style="color:var(--azul-claro)">Consultar</div>
+                                    <div class="prod-price-note">desde med. base</div>
+                                </div>
+                                <a class="btn-wsp-card"
+                                   th:href="'https://wa.me/51999999999?text=' + ${p.wspMsg}"
+                                   target="_blank">
+                                    <i class="bi bi-whatsapp"></i> Pedir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <!-- Si 'productos' es null, renderProducts() en JS llena este div -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ MATERIALES ═══ -->
+    <section class="section-pad bg-white" id="materiales">
+        <div class="container">
+            <div class="row align-items-end justify-content-between mb-4">
+                <div class="col-lg-6">
+                    <div class="eyebrow">Insumos &amp; Lonas</div>
+                    <h2 class="section-title">MATERIALES DE <span class="hl">PRIMERA</span></h2>
+                    <div class="divider-blue"></div>
+                    <p class="section-desc">Trabajamos solo con los mejores materiales técnicos del mercado para garantizar durabilidad.</p>
+                </div>
+            </div>
+
+            <!--
+              OPCIÓN A: Thymeleaf renderiza materiales desde el controller (lista 'materiales' en el modelo).
+              OPCIÓN B (fallback): el div vacío es llenado por buildMaterials() en JS.
+            -->
+            <div class="row g-4" id="matGrid">
+                <th:block th:if="${materiales != null and !materiales.isEmpty()}">
+                    <div th:each="mat : ${materiales}" class="col-lg-4 col-md-6">
+                        <div class="mat-card">
+                            <i th:class="'bi ' + ${mat.icon} + ' mat-icon'"></i>
+                            <div class="mat-name" th:text="${mat.name}">Nombre</div>
+                            <div class="mat-sub"  th:text="${mat.sub}">Sub</div>
+                            <div class="mat-desc" th:text="${mat.desc}">Descripción</div>
+                            <div class="mat-tags">
+                                <span th:each="tag : ${mat.tags}" class="mat-tag" th:text="${tag}">TAG</span>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+                <!-- Si 'materiales' es null, buildMaterials() en JS llena este div -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ POR QUÉ ELEGIRNOS ═══ -->
+    <section class="section-pad bg-light-blue">
+        <div class="container">
+            <div class="text-center mb-5">
+                <div class="eyebrow" style="justify-content:center">Por qué elegirnos</div>
+                <h2 class="section-title">COMPROMISO CON LA <span class="hl">EXCELENCIA</span></h2>
+                <div class="divider-blue mx-auto"></div>
+            </div>
+
+            <!--
+              OPCIÓN A: Thymeleaf renderiza desde el controller (lista 'razones' en el modelo).
+              OPCIÓN B (fallback): el div vacío es llenado por buildWhy() en JS.
+            -->
+            <div class="row g-4" id="whyGrid">
+                <th:block th:if="${razones != null and !razones.isEmpty()}">
+                    <div th:each="w : ${razones}" class="col-lg-4 col-md-6">
+                        <div class="why-card">
+                            <div class="why-icon-wrap"><i th:class="'bi ' + ${w.icon}"></i></div>
+                            <div class="why-title" th:text="${w.title}">Título</div>
+                            <div class="why-desc"  th:text="${w.desc}">Descripción</div>
+                        </div>
+                    </div>
+                </th:block>
+                <!-- Si 'razones' es null, buildWhy() en JS llena este div -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CTA ═══ -->
+    <section class="cta-section">
+        <div class="container" style="position:relative;z-index:1;">
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-7">
+                    <div class="eyebrow" style="color:var(--celeste-light);">¿Tienes un proyecto?</div>
+                    <h2 class="cta-title">HABLEMOS HOY Y<br><span class="hl">COTIZAMOS EN 24H</span></h2>
+                    <p class="cta-desc">Fabricamos a medida para empresas, comercios y particulares en todo el Perú.</p>
+                </div>
+                <div class="col-lg-5 text-lg-end">
+                    <a th:href="${wspLink ?: 'https://wa.me/51999999999'}"
+                       class="btn-slide-primary"
+                       style="display:inline-flex;background:linear-gradient(135deg,#25d366,#128c7e);margin-bottom:10px;"
+                       target="_blank">
+                        <i class="bi bi-whatsapp"></i> WhatsApp Directo
+                    </a><br>
+                    <a href="#contacto" class="btn-slide-secondary" style="display:inline-flex;">
+                        <i class="bi bi-envelope"></i> Formulario de contacto
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer class="footer-main">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-4">
+                    <div class="footer-logo">
+                        <img th:src="@{/img/logofulltoldos.png}" src="logofulltoldos.png"
+                             alt="Full Toldos" class="footer-logo-img">
+                    </div>
+                    <div class="footer-tagline">Coberturas &amp; Estructuras · Desde 1999</div>
+                    <p class="footer-about">Fabricamos toldos, carpas, inflables y todo tipo de coberturas publicitarias con los más altos estándares de calidad y servicio.</p>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <div class="footer-heading">Productos</div>
+                    <ul class="footer-links" id="footerProd">
+                        <!-- Llenado por buildFooter() en JS (o desde Thymeleaf si se pasa 'footerCats') -->
+                        <th:block th:if="${footerCats != null}">
+                            <li th:each="fc : ${footerCats}">
+                                <a href="#productos"
+                                   th:onclick="'filterProducts(\'' + ${fc.id} + '\')'"
+                                   th:text="${fc.name}">
+                                    <i class="bi bi-chevron-right"></i> Categoría
+                                </a>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <div class="footer-heading">Materiales</div>
+                    <ul class="footer-links" id="footerMat">
+                        <!-- Llenado por buildFooter() en JS (o desde Thymeleaf si se pasa 'footerMats') -->
+                        <th:block th:if="${footerMats != null}">
+                            <li th:each="fm : ${footerMats}">
+                                <a href="#materiales">
+                                    <i class="bi bi-chevron-right"></i>
+                                    <span th:text="${fm}">Material</span>
+                                </a>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <div class="footer-heading">Newsletter</div>
+                    <p style="font-size:0.82rem;color:rgba(255,255,255,0.35);margin-bottom:14px;font-weight:300;">
+                        Recibe novedades, catálogos y ofertas especiales.
+                    </p>
+                    <div style="display:flex;">
+                        <input type="email" class="form-inp" placeholder="tu@email.com"
+                               style="border-radius:8px 0 0 8px;border-right:none;border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:white;flex:1;">
+                        <button style="background:linear-gradient(135deg,var(--azul-claro),var(--celeste));color:white;border:none;padding:0 18px;border-radius:0 8px 8px 0;font-family:var(--font-mono);font-size:0.68rem;letter-spacing:1px;font-weight:700;cursor:pointer;"
+                                onclick="showToast('¡Suscrito! Gracias.')">OK</button>
+                    </div>
+                    <div style="margin-top:20px;">
+                        <div class="footer-heading">Redes Sociales</div>
+                        <div class="social-links">
+                            <a th:href="${redes?.facebook  ?: '#'}" class="soc-link"><i class="bi bi-facebook"></i></a>
+                            <a th:href="${redes?.instagram ?: '#'}" class="soc-link"><i class="bi bi-instagram"></i></a>
+                            <a th:href="${redes?.tiktok    ?: '#'}" class="soc-link"><i class="bi bi-tiktok"></i></a>
+                            <a th:href="${redes?.whatsapp  ?: '#'}" class="soc-link"><i class="bi bi-whatsapp"></i></a>
+                            <a th:href="${redes?.youtube   ?: '#'}" class="soc-link"><i class="bi bi-youtube"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+      <span class="footer-copy"
+            th:text="'© ' + ${#dates.year(#dates.createNow())} + ' Full Toldos · Lima, Perú · Todos los derechos reservados'">
+        © 2026 Full Toldos · Lima, Perú · Todos los derechos reservados
+      </span>
+                <span style="font-size:0.72rem;color:rgba(255,255,255,0.2);font-family:var(--font-mono);"
+                      th:text="${ruc ?: 'RUC: 20XXXXXXXXX'}">RUC: 20XXXXXXXXX</span>
+            </div>
+        </div>
+    </footer>
+
+</div><!-- /#mainView -->
+
+<!-- ═══ CATEGORY PAGE VIEW ═══ -->
+<div id="catPageView" style="display:none; background:#f8faff; min-height:100vh; padding-top:148px;">
+    <div class="cat-page-header">
+        <div class="container" style="display:flex;align-items:center;gap:16px;">
+            <button class="cat-back-btn" onclick="closeCatPage()"><i class="bi bi-arrow-left"></i> Volver</button>
+            <h1 id="catPageTitle" class="cat-page-title"></h1>
+        </div>
+    </div>
+    <div class="container" style="padding:28px 12px 60px;">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="sidebar-box">
+                    <div class="sidebar-title">Buscar</div>
+                    <div class="sidebar-search">
+                        <input type="text" id="catSearchInput" placeholder="Buscar productos..."
+                               onkeydown="if(event.key==='Enter')doCatSearch()">
+                        <button onclick="doCatSearch()">BUSCAR</button>
+                    </div>
+                </div>
+                <div class="sidebar-box">
+                    <div class="sidebar-title">Categorías</div>
+                    <div id="sidebarCatLinks"></div>
+                </div>
+                <div class="sidebar-box" id="sidebarFiltersBox"></div>
+            </div>
+            <div class="col-lg-9">
+                <div class="cat-desc-box" id="catDescBox"></div>
+                <div class="cat-toolbar">
+                    <div id="catBreadcrumb" class="cat-breadcrumb"></div>
+                    <div class="cat-toolbar-right">
+                        <div class="toolbar-show-group">
+                            <span>Show:</span>
+                            <button class="tsb active" onclick="setCatPerPage(9)">9</button>
+                            <button class="tsb" onclick="setCatPerPage(12)">12</button>
+                            <button class="tsb" onclick="setCatPerPage(18)">18</button>
+                            <button class="tsb" onclick="setCatPerPage(24)">24</button>
+                        </div>
+                        <div class="toolbar-view-group">
+                            <button class="tvb active" onclick="setCatGrid(3)" title="3 columnas"><i class="bi bi-grid-3x3-gap"></i></button>
+                            <button class="tvb" onclick="setCatGrid(4)" title="4 columnas"><i class="bi bi-grid-fill"></i></button>
+                            <button class="tvb" onclick="setCatGrid(2)" title="2 columnas"><i class="bi bi-layout-split"></i></button>
+                        </div>
+                        <select class="toolbar-sort-sel" onchange="setCatSort(this.value)">
+                            <option value="default">Orden predeterminado</option>
+                            <option value="name-asc">Nombre A-Z</option>
+                            <option value="name-desc">Nombre Z-A</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="catProductGrid" class="cat-page-grid cat-grid-3"></div>
+                <div id="catLoadMoreArea" style="text-align:center;margin-top:32px;display:none;">
+                    <button class="btn-slide-secondary" style="color:var(--azul-marino);border-color:var(--azul-claro);" onclick="catLoadMore()">
+                        <i class="bi bi-plus-circle"></i> Cargar más productos
+                    </button>
+                </div>
+                <div id="catTambienSection"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ PRODUCT PAGE VIEW ═══ -->
+<div id="prodPageView" style="display:none; background:#f8faff; min-height:100vh; padding-top:148px;">
+    <div class="prod-page-topbar">
+        <div class="container">
+            <div id="prodBreadcrumb" class="prod-breadcrumb"></div>
+            <div class="prod-nav-arrows">
+                <button class="prod-nav-btn" id="prodNavPrevBtn" onclick="prodNavPrev()" title="Producto anterior"><i class="bi bi-chevron-left"></i></button>
+                <button class="prod-nav-btn" onclick="closeProdPage()" title="Volver a categoría"><i class="bi bi-grid-3x3-gap"></i></button>
+                <button class="prod-nav-btn" id="prodNavNextBtn" onclick="prodNavNext()" title="Producto siguiente"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="padding:28px 12px 60px;">
+        <div class="row g-4 align-items-start">
+            <div class="col-lg-6 prod-img-col">
+                <div class="prod-img-section">
+                    <div class="prod-thumb-strip" id="prodThumbStrip"></div>
+                    <div class="prod-main-img-area">
+                        <img id="prodMainImg" src="" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="prod-info-card" id="prodInfoCard"></div>
+            </div>
+        </div>
+        <div id="prodRelatedSection"></div>
+        <div id="prodTambienSection"></div>
+    </div>
+</div>
+
+<!-- ═══ CART DRAWER ═══ -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+    <div class="cart-head">
+        <div>
+            <div class="cart-head-title">CARRITO</div>
+            <div class="cart-head-count" id="cartHeadCount">0 productos</div>
+        </div>
+        <button class="cart-x" onclick="closeCart()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-foot" id="cartFoot"></div>
+</div>
+
+<!-- ═══ MODAL PRODUCTO ═══ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+    <div class="modal-box" id="modalBox">
+        <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+        <div class="row g-0">
+            <div class="col-lg-5" id="modalLeftCol"></div>
+            <div class="col-lg-7" id="modalRightCol"></div>
+        </div>
+        <div class="modal-related" id="modalRelated"></div>
+    </div>
+</div>
+
+<!-- ═══ GALERÍA PAGE ═══ -->
+<div id="galPageView" style="display:none; background:#f5f5f5; min-height:100vh; padding-top:148px;">
+    <div class="cat-page-header">
+        <div class="container" style="display:flex;align-items:center;gap:16px;">
+            <button class="cat-back-btn" onclick="closeGallery()"><i class="bi bi-arrow-left"></i> Volver</button>
+            <h1 class="cat-page-title">GALERÍA DE FOTOS</h1>
+        </div>
+    </div>
+    <div class="container" style="padding:28px 12px 60px;">
+        <div class="filter-bar" id="galFilterBar" style="margin-bottom:24px;"></div>
+        <div class="gal-grid" id="galGrid"></div>
+        <div id="galTambienSection"></div>
+    </div>
+</div>
+
+<!-- ═══ LIGHTBOX ═══ -->
+<div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+    <button class="lightbox-prev" onclick="lightboxNav(-1)"><i class="bi bi-chevron-left"></i></button>
+    <button class="lightbox-next" onclick="lightboxNav(1)"><i class="bi bi-chevron-right"></i></button>
+    <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="">
+        <div class="lightbox-info">
+            <div>
+                <div id="lightboxName" class="lightbox-name"></div>
+                <div id="lightboxCat" class="lightbox-cat"></div>
+            </div>
+            <button class="lightbox-view-btn" id="lightboxViewBtn" onclick="lightboxGoProduct()">
+                <i class="bi bi-eye-fill"></i> Ver producto
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ MOBILE MENU ═══ -->
+<div class="mob-overlay" id="mobOverlay" onclick="closeMobileMenu()"></div>
+<div class="mob-drawer" id="mobDrawer">
+    <div class="mob-head">
+        <img th:src="@{/img/logofulltoldos.png}" src="logofulltoldos.png"
+             alt="Full Toldos" class="mob-logo">
+        <button class="mob-close-btn" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="mob-search-row">
+        <div class="mob-search-box">
+            <input type="text" id="mobSearchInput" placeholder="Buscar productos...">
+            <button onclick="doMobSearch()"><i class="bi bi-search"></i></button>
+        </div>
+    </div>
+    <div id="mobNav" class="mob-nav"></div>
+    <div class="mob-footer">
+        <a href="#contacto" class="btn-cotizar" onclick="closeMobileMenu()" style="width:100%;justify-content:center;">
+            <i class="bi bi-chat-text-fill"></i> Solicitar Cotización
+        </a>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-ft" id="toastFt"><i class="bi bi-check-circle-fill"></i> <span id="toastMsg">Agregado</span></div>
+
+<!-- WhatsApp FAB -->
+<a th:href="${wspLink ?: 'https://wa.me/51999999999'}" class="wsp-fab" target="_blank">
+    <i class="bi bi-whatsapp"></i>
+</a>
+
+<!-- Scroll Top -->
+<button class="scroll-top" id="scrollTopBtn"
+        onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="bi bi-chevron-up"></i>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{scrip.js}"></script>
+
+</body>
+</html>
