@@ -29,8 +29,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/login", "/registro",
                                 "/css/**", "/js/**", "/img/**",
+                                "/uploads/**",
                                 "/estilo.css", "/scrip.js",
-                                "/*.png", "/*.jpg", "/*.ico",
+                                "/*.png", "/*.jpg", "/*.ico", "/*.jfif",
                                 "/webjars/**", "/error"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")

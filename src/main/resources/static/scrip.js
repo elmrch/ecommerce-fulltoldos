@@ -188,6 +188,25 @@ const PRICES = {
   15:{precio:35,  precioAntes:48},
 };
 
+function getYouTubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?#\s]+)/);
+  return m ? m[1] : null;
+}
+
+function buildVideoPlayer(url, opts) {
+  const ytId = getYouTubeId(url);
+  if (ytId) {
+    const autoplay = opts && opts.autoplay ? '?autoplay=1' : '';
+    return `<iframe src="https://www.youtube.com/embed/${ytId}${autoplay}"
+              frameborder="0" allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              style="width:100%;height:100%;min-height:320px;"></iframe>`;
+  }
+  return `<video controls ${opts && opts.autoplay ? 'autoplay' : ''}
+            src="${url}" style="max-width:100%;max-height:100%;"></video>`;
+}
+
 function getStarsHTML(p) {
   if(!p.rating) return '';
   const full = Math.floor(p.rating);
@@ -203,10 +222,11 @@ function getStarsHTML(p) {
 
 function getPriceHTML(p, large) {
   const pr = PRICES[p.id];
-  if(!pr) return `<span class="prod-price" style="color:var(--azul-claro);">Consultar</span>`;
+  const precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
+  if(precio == null) return `<span class="prod-price" style="color:var(--azul-claro);">Consultar</span>`;
   const sz = large ? 'font-size:2.2rem' : 'font-size:1.5rem';
   return `<div class="prod-price-block">
-    <span class="prod-price-now" style="${sz}">S/ ${pr.precio.toLocaleString('es-PE')}</span>
+    <span class="prod-price-now" style="${sz}">S/ ${precio.toLocaleString('es-PE')}</span>
   </div>`;
 }
 function getWspCardBtn(p) {
@@ -271,8 +291,9 @@ function goSlide(idx) {
   });
   currentSlide = idx;
 }
-function nextSlide() { goSlide((currentSlide+1) % 3); }
-function prevSlide() { goSlide((currentSlide+2) % 3); }
+const totalSlides = document.querySelectorAll('.hero-slide').length;
+function nextSlide() { goSlide((currentSlide+1) % totalSlides); }
+function prevSlide() { goSlide((currentSlide+totalSlides-1) % totalSlides); }
 function startAutoSlide() {
   slideInterval = setInterval(nextSlide, 5000);
 }
@@ -461,7 +482,10 @@ function renderProdPage(p) {
 
   document.getElementById('prodInfoCard').innerHTML = `
     <div class="prod-page-cat-tag">${p.catName}</div>
-    <div class="prod-page-name">${p.name}</div>
+    <div class="prod-page-name-row">
+      <div class="prod-page-name">${p.name}</div>
+      <button class="btn-share-prod" onclick="shareProduct()" title="Compartir"><i class="bi bi-share-fill"></i></button>
+    </div>
     ${getStarsHTML(p)}
     <div class="prod-page-desc">${p.longDesc}</div>
     <span class="prod-page-section-lbl">Características principales</span>
@@ -955,8 +979,8 @@ function renderCatPage() {
           <div class="prod-desc">${p.desc.substring(0,95)}...</div>
           <div class="prod-footer">
             <div>
-              <div class="prod-price" style="font-size:1.1rem;color:var(--azul-claro);">Consultar precio</div>
-              <div class="prod-price-note">Fabricación a medida</div>
+              ${getPriceHTML(p)}
+              <div class="prod-price-note">desde med. base</div>
             </div>
             ${getWspCardBtn(p)}
           </div>
@@ -1657,7 +1681,158 @@ function buildNavSearch() {
     o.value = c.id; o.textContent = c.name;
     sel.appendChild(o);
   });
+  initNavSearchDropdown();
 }
+
+// ── Search dropdown ──────────────────────────────────────────────
+let _searchTimer = null;
+let _searchKbdIdx = -1;
+
+function initNavSearchDropdown() {
+  const input = document.getElementById('navSearchInput');
+  if (!input) return;
+  input.addEventListener('focus', () => { _searchKbdIdx = -1; showSearchDropdown(input.value); });
+  input.addEventListener('input', () => {
+    _searchKbdIdx = -1;
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => showSearchDropdown(input.value), 110);
+  });
+  document.addEventListener('mousedown', (e) => {
+    const c = document.querySelector('.nav-search-container');
+    if (c && !c.contains(e.target)) hideSearchDropdown();
+  });
+}
+
+function handleNavSearchKey(e) {
+  const d = document.getElementById('navSearchDropdown');
+  const items = d ? [...d.querySelectorAll('.search-drop-item')] : [];
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _searchKbdIdx = Math.min(_searchKbdIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('kbd-focus', i === _searchKbdIdx));
+    if (items[_searchKbdIdx]) {
+      const nameEl = items[_searchKbdIdx].querySelector('.search-drop-name');
+      if (nameEl) document.getElementById('navSearchInput').value = nameEl.textContent;
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _searchKbdIdx = Math.max(_searchKbdIdx - 1, -1);
+    items.forEach((el, i) => el.classList.toggle('kbd-focus', i === _searchKbdIdx));
+  } else if (e.key === 'Enter') {
+    if (_searchKbdIdx >= 0 && items[_searchKbdIdx]) { items[_searchKbdIdx].click(); }
+    else { doNavSearch(); hideSearchDropdown(); }
+  } else if (e.key === 'Escape') {
+    hideSearchDropdown();
+  }
+}
+
+function hideSearchDropdown() {
+  const d = document.getElementById('navSearchDropdown');
+  if (d) { d.classList.remove('open'); d.innerHTML = ''; }
+  _searchKbdIdx = -1;
+}
+
+function showSearchDropdown(rawQuery) {
+  const d = document.getElementById('navSearchDropdown');
+  if (!d) return;
+  const query = (rawQuery || '').trim().toLowerCase();
+
+  let results, sectionTitle, alsoItems;
+
+  if (!query) {
+    // Featured: hot/new first, fill to 6
+    const featured = PRODUCTS.filter(p => p.badge === 'hot' || p.badge === 'new');
+    const rest     = PRODUCTS.filter(p => !featured.includes(p));
+    results        = [...featured, ...rest].slice(0, 6);
+    sectionTitle   = 'Productos destacados';
+    // Also: categories
+    alsoItems = CATS.slice(0, 6).map(c => ({
+      icon: c.icon, label: c.name, type: 'cat', id: c.id
+    }));
+  } else {
+    results = PRODUCTS.filter(p =>
+      p.name.toLowerCase().includes(query) ||
+      (p.desc || '').toLowerCase().includes(query) ||
+      (p.catName || '').toLowerCase().includes(query)
+    ).slice(0, 6);
+    sectionTitle = results.length
+      ? 'Resultados para "' + rawQuery.trim() + '"'
+      : null;
+    // Also: products from categories not already in results
+    const usedCats = new Set(results.map(p => p.cat));
+    const alsoProd = PRODUCTS.filter(p => !results.includes(p) && !usedCats.has(p.cat)).slice(0, 4);
+    alsoItems = alsoProd.map(p => ({ icon: p.icon, label: p.name, type: 'prod', id: p.id }));
+    // Pad with categories
+    if (alsoItems.length < 4) {
+      CATS.filter(c => !usedCats.has(c.id)).slice(0, 4 - alsoItems.length).forEach(c => {
+        alsoItems.push({ icon: c.icon, label: c.name, type: 'cat', id: c.id });
+      });
+    }
+  }
+
+  let html = '';
+
+  if (results.length) {
+    html += `<div class="search-drop-section">
+      <span class="search-drop-section-title">${escHtml(sectionTitle)}</span>
+      ${results.map(p => buildSearchItem(p, query)).join('')}
+    </div>`;
+    if (query) {
+      html += `<div class="search-drop-all" onclick="doNavSearch();hideSearchDropdown();">
+        <i class="bi bi-search"></i> Ver todos los resultados de &ldquo;${escHtml(rawQuery.trim())}&rdquo;
+      </div>`;
+    }
+  } else if (query) {
+    html += `<div class="search-no-results">
+      <i class="bi bi-search"></i>
+      Sin resultados para <strong>"${escHtml(rawQuery.trim())}"</strong>
+    </div>`;
+  }
+
+  if (alsoItems.length) {
+    const chips = alsoItems.map(it =>
+      `<span class="search-also-chip" data-type="${it.type}" data-id="${it.id}"
+             onclick="searchChipClick(this)">
+         <i class="bi ${it.icon}"></i> ${escHtml(it.label)}
+       </span>`
+    ).join('');
+    html += `<div class="search-also-section">
+      <span class="search-also-title">Quizás también necesites</span>
+      <div class="search-also-chips">${chips}</div>
+    </div>`;
+  }
+
+  d.innerHTML = html;
+  d.classList.add('open');
+}
+
+function buildSearchItem(p, query) {
+  const imgHtml = (p.imgs && p.imgs[0])
+    ? `<img src="${p.imgs[0]}" alt="${escHtml(p.name)}" loading="lazy">`
+    : `<i class="bi ${p.icon}" style="font-size:1.25rem;color:rgba(255,255,255,0.85);"></i>`;
+  const bg = (p.imgs && p.imgs[0]) ? '' : `style="background:${(p.colores||['#1949c9'])[0]};width:100%;height:100%;display:flex;align-items:center;justify-content:center;"`;
+  const nameHl = query
+    ? escHtml(p.name).replace(new RegExp('(' + escRe(query) + ')', 'gi'),
+        '<span class="search-drop-hl">$1</span>')
+    : escHtml(p.name);
+  return `<div class="search-drop-item" onclick="openModal(${p.id});hideSearchDropdown();">
+    <div class="search-drop-thumb"><div ${bg}>${imgHtml}</div></div>
+    <div>
+      <div class="search-drop-name">${nameHl}</div>
+      <div class="search-drop-cat">${escHtml(p.catName || '')}</div>
+    </div>
+  </div>`;
+}
+
+function searchChipClick(el) {
+  const type = el.dataset.type, id = el.dataset.id;
+  hideSearchDropdown();
+  if (type === 'cat') openCatPage(id);
+  else if (type === 'prod') openModal(parseInt(id));
+}
+
+function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escRe(s)   { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 function doNavSearch() {
   const q   = (document.getElementById('navSearchInput').value || '').trim();
@@ -1674,6 +1849,29 @@ function doNavSearch() {
   renderCatPage();
   window.scrollTo({top:0, behavior:'smooth'});
 }
+
+// ═══════════════════════════ MERGE DB DATA ═══════════════════════════
+// Los IDs de BD se suman a 100000 para evitar conflicto con los IDs hardcodeados (1-15)
+(function mergeDbData() {
+  if (typeof DB_CATS !== 'undefined' && Array.isArray(DB_CATS)) {
+    DB_CATS.forEach(function(c) {
+      // Las cats DB tienen id numérico-string ('1','2'...), las hardcoded tienen slug ('toldos'...)
+      // No hay conflicto de id, se agregan directamente
+      CATS.push(c);
+    });
+  }
+  if (typeof DB_PRODUCTS !== 'undefined' && Array.isArray(DB_PRODUCTS)) {
+    DB_PRODUCTS.forEach(function(p) {
+      // Usar offset para evitar conflicto con IDs hardcodeados 1-15
+      p.id = 100000 + Number(p.id);
+      // El cat del producto ya es string del id de categoría DB ('1','2'...)
+      PRODUCTS.push(p);
+      // Actualizar contador en la categoría correspondiente
+      var cat = CATS.find(function(c) { return c.id === p.cat; });
+      if (cat) cat.count = (cat.count || 0) + 1;
+    });
+  }
+})();
 
 // ═══════════════════════════ INIT ═══════════════════════════
 buildTicker();
@@ -1710,3 +1908,147 @@ if(_ft) document.body.appendChild(_ft);
   apply();
   window.addEventListener('resize', apply);
 })();
+
+// ═══ GALLERY FULL VIEW MODAL ═══
+function openGalleryModal() {
+  const p = currentModalProduct;
+  if (!p) return;
+  const hasVids = p.videos && p.videos.length > 0;
+  switchGalleryTab(hasVids ? 'vids' : 'imgs');
+  document.getElementById('galleryLikeBtn').classList.remove('liked');
+  document.getElementById('galleryLikeCount').textContent = String(Math.floor(Math.random() * 80) + 10);
+  document.getElementById('galleryModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGalleryModal(e) {
+  if (e && e.target !== document.getElementById('galleryModal')) return;
+  document.getElementById('galleryModal').classList.remove('active');
+  const vid = document.querySelector('#galleryMainVid video');
+  if (vid) vid.pause();
+  document.body.style.overflow = '';
+}
+
+function switchGalleryTab(tab) {
+  const p = currentModalProduct;
+  if (!p) return;
+  document.getElementById('tabImgs').classList.toggle('active', tab === 'imgs');
+  document.getElementById('tabVids').classList.toggle('active', tab === 'vids');
+  const mainImg = document.getElementById('galleryMainImg');
+  const mainVid = document.getElementById('galleryMainVid');
+  const panel   = document.getElementById('galleryThumbPanel');
+
+  if (tab === 'imgs') {
+    mainImg.style.display = 'block';
+    mainVid.style.display = 'none';
+    const imgs = p.imgs || [];
+    if (imgs.length) {
+      mainImg.src = imgs[0];
+      mainImg.alt = p.name;
+      panel.innerHTML =
+        `<div class="gallery-section-title">Imágenes del producto</div>` +
+        imgs.map((src, i) =>
+          `<div class="gallery-list-item${i===0?' active':''}" onclick="selectGalleryImg(${i})">
+            <div class="gallery-list-thumb">
+              <img src="${src}" alt="${p.name} ${i+1}" loading="lazy" onerror="this.parentElement.style.background='#eee'">
+            </div>
+            <div class="gallery-list-info">
+              <div class="gallery-list-title">${p.name} — Imagen ${i+1}</div>
+              <div class="gallery-list-author">${p.catName || ''}</div>
+            </div>
+          </div>`
+        ).join('');
+      setGalleryMeta(p.name + ' — Imagen 1', p.catName || '');
+    } else {
+      mainImg.src = '';
+      mainImg.style.display = 'none';
+      panel.innerHTML = `<div class="gallery-no-content"><i class="bi bi-images"></i><span>Sin imágenes</span></div>`;
+      setGalleryMeta('', '');
+    }
+  } else {
+    mainImg.style.display = 'none';
+    mainVid.style.display = 'flex';
+    const vids = p.videos || [];
+    if (vids.length) {
+      mainVid.innerHTML = buildVideoPlayer(vids[0]);
+      panel.innerHTML =
+        `<div class="gallery-section-title">Videos del producto</div>` +
+        vids.map((v, i) => {
+          const isYt = !!getYouTubeId(v);
+          return `<div class="gallery-list-item${i===0?' active':''}" onclick="selectGalleryVid(${i})">
+            <div class="gallery-list-thumb" style="background:#1a1a2e;">
+              ${isYt
+                ? `<img src="https://img.youtube.com/vi/${getYouTubeId(v)}/mqdefault.jpg"
+                       style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">`
+                : `<div class="gallery-list-play"><i class="bi bi-play-circle-fill"></i></div>`}
+            </div>
+            <div class="gallery-list-info">
+              <div class="gallery-list-title">${p.name} — Video ${i+1}</div>
+              <div class="gallery-list-author">${isYt ? 'YouTube' : 'Video local'}</div>
+            </div>
+          </div>`;
+        }).join('');
+      setGalleryMeta(p.name + ' — Video 1', p.catName || '');
+    } else {
+      mainVid.innerHTML = `<div class="gallery-no-content"><i class="bi bi-camera-video-off"></i><span>Sin videos disponibles</span></div>`;
+      panel.innerHTML = `<div class="gallery-no-content"><i class="bi bi-camera-video-off"></i><span>Sin videos</span></div>`;
+      setGalleryMeta('', '');
+    }
+  }
+}
+
+function setGalleryMeta(title, author) {
+  document.getElementById('galleryMediaTitle').textContent = title;
+  document.getElementById('galleryMediaAuthor').textContent = author;
+}
+
+function selectGalleryImg(idx) {
+  const p = currentModalProduct;
+  const imgs = (p && p.imgs) || [];
+  const img = document.getElementById('galleryMainImg');
+  if (img && imgs[idx]) {
+    img.style.opacity = '0';
+    setTimeout(() => { img.src = imgs[idx]; img.style.opacity = '1'; }, 140);
+  }
+  document.querySelectorAll('#galleryThumbPanel .gallery-list-item').forEach((el, i) =>
+    el.classList.toggle('active', i === idx));
+  if (p) setGalleryMeta(p.name + ' — Imagen ' + (idx + 1), p.catName || '');
+}
+
+function selectGalleryVid(idx) {
+  const p = currentModalProduct;
+  const vids = (p && p.videos) || [];
+  const vid = document.getElementById('galleryMainVid');
+  if (vid && vids[idx]) {
+    vid.innerHTML = buildVideoPlayer(vids[idx], { autoplay: true });
+  }
+  document.querySelectorAll('#galleryThumbPanel .gallery-list-item').forEach((el, i) =>
+    el.classList.toggle('active', i === idx));
+  if (p) setGalleryMeta(p.name + ' — Video ' + (idx + 1), p.catName || '');
+}
+
+function galleryToggleLike(btn) {
+  btn.classList.toggle('liked');
+  const span = document.getElementById('galleryLikeCount');
+  const n = parseInt(span.textContent) || 0;
+  span.textContent = btn.classList.contains('liked') ? n + 1 : Math.max(0, n - 1);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const gm = document.getElementById('galleryModal');
+    if (gm && gm.classList.contains('active')) closeGalleryModal();
+  }
+});
+
+function shareProduct() {
+  const p = currentModalProduct;
+  if (!p) return;
+  const title = p.name + ' — Full Toldos';
+  const url = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title, url }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(url).then(() => showToast('Enlace copiado al portapapeles'));
+  }
+}

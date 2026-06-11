@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorías — Full Toldos Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background:#f0f4ff; font-family:'Montserrat',sans-serif; margin:0; }
+        .sidebar {
+          position:fixed; top:0; left:0; width:240px; height:100vh;
+          background:#111; display:flex; flex-direction:column; z-index:100;
+        }
+        .sidebar-logo { padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-logo img { height:40px; filter:brightness(0) invert(1); }
+        .sidebar-role { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-top:6px; }
+        .sidebar-nav { flex:1; padding:16px 10px; overflow-y:auto; }
+        .nav-section-lbl { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:10px 10px 6px; display:block; }
+        .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.82rem; font-weight:500; transition:all 0.18s; margin-bottom:2px; }
+        .nav-item:hover { background:rgba(255,255,255,0.07); color:white; }
+        .nav-item.active { background:#1949c9; color:white; }
+        .sidebar-foot { padding:16px 10px; border-top:1px solid rgba(255,255,255,0.08); }
+        .user-info { display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:8px; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:#1949c9; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:white; }
+        .user-email { font-size:0.72rem; color:rgba(255,255,255,0.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; border-radius:8px; background:rgba(244,67,54,0.12); color:#ef9a9a; border:1px solid rgba(244,67,54,0.2); font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; font-family:'Montserrat',sans-serif; }
+        .btn-logout:hover { background:rgba(244,67,54,0.22); color:#ff8a80; }
+        .main-content { margin-left:240px; padding:32px; min-height:100vh; }
+        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+        .page-title { font-size:1.6rem; font-weight:800; color:#111; margin:0; }
+        .card-admin { background:white; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); border:1px solid #f0f0f0; overflow:hidden; }
+        .table th { font-family:'Montserrat',sans-serif; font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:#90a4ae; font-weight:700; border-bottom:2px solid #f0f0f0; padding:14px 16px; }
+        .table td { font-size:0.88rem; padding:14px 16px; vertical-align:middle; border-bottom:1px solid #f5f5f5; color:#333; }
+        .badge-activo { background:#e8f5e9; color:#2e7d32; font-size:0.65rem; padding:4px 10px; border-radius:20px; font-weight:700; letter-spacing:1px; }
+        .badge-inactivo { background:#fce4ec; color:#c62828; font-size:0.65rem; padding:4px 10px; border-radius:20px; font-weight:700; letter-spacing:1px; }
+        .cat-img { width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid #f0f0f0; }
+        .cat-img-ph { width:48px; height:48px; background:#f5f5f5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#ccc; font-size:1.2rem; }
+        .btn-accion { padding:6px 12px; border-radius:7px; font-size:0.72rem; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:5px; text-decoration:none; transition:all 0.2s; font-family:'Montserrat',sans-serif; }
+        .btn-editar { background:#e3f2fd; color:#1565c0; }
+        .btn-editar:hover { background:#1949c9; color:white; }
+        .btn-eliminar { background:#fce4ec; color:#c62828; }
+        .btn-eliminar:hover { background:#c62828; color:white; }
+        .btn-nuevo { background:linear-gradient(135deg,#1949c9,#1237a8); color:white; padding:10px 22px; border-radius:10px; font-size:0.82rem; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; transition:all 0.2s; font-family:'Montserrat',sans-serif; }
+        .btn-nuevo:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(25,73,201,0.35); color:white; }
+        .alert-exito { background:#e8f5e9; border:1px solid #a5d6a7; border-radius:10px; color:#2e7d32; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        .alert-error { background:#fce4ec; border:1px solid #ef9a9a; border-radius:10px; color:#c62828; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        .empty-state { text-align:center; padding:60px 20px; color:#b0bec5; }
+        .empty-state i { font-size:3rem; display:block; margin-bottom:12px; }
+        .empty-state p { font-size:0.78rem; letter-spacing:2px; text-transform:uppercase; }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+        <div class="sidebar-role"><i class="bi bi-shield-fill-check"></i> Panel Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+        <span class="nav-section-lbl">Principal</span>
+        <a th:href="@{/admin/dashboard}" class="nav-item"><i class="bi bi-grid-fill"></i> Dashboard</a>
+        <span class="nav-section-lbl">Gestión</span>
+        <a th:href="@{/admin/productos}" class="nav-item"><i class="bi bi-box-seam"></i> Productos</a>
+        <a th:href="@{/admin/categorias}" class="nav-item active"><i class="bi bi-tags"></i> Categorías</a>
+        <a th:href="@{/admin/pedidos}" class="nav-item"><i class="bi bi-bag-check"></i> Pedidos</a>
+        <a th:href="@{/admin/cotizaciones}" class="nav-item"><i class="bi bi-file-earmark-text"></i> Cotizaciones</a>
+        <a th:href="@{/admin/usuarios}" class="nav-item"><i class="bi bi-people"></i> Usuarios</a>
+        <span class="nav-section-lbl">Tienda</span>
+        <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
+    </nav>
+    <div class="sidebar-foot">
+        <div class="user-info">
+            <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="user-email" sec:authentication="name">admin</div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</button>
+        </form>
+    </div>
+</aside>
+
+<!-- Contenido -->
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Categorías</h1>
+        <a th:href="@{/admin/categorias/nueva}" class="btn-nuevo">
+            <i class="bi bi-plus-lg"></i> Nueva Categoría
+        </a>
+    </div>
+
+    <!-- Mensajes -->
+    <div class="alert-exito" th:if="${exito}">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${exito}"></span>
+    </div>
+    <div class="alert-error" th:if="${error}">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        <span th:text="${error}"></span>
+    </div>
+
+    <div class="card-admin">
+        <!-- Sin categorías -->
+        <div class="empty-state" th:if="${#lists.isEmpty(categorias)}">
+            <i class="bi bi-tags"></i>
+            <p>No hay categorías aún</p>
+        </div>
+
+        <!-- Tabla -->
+        <table class="table mb-0" th:if="${!#lists.isEmpty(categorias)}">
+            <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Orden</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="cat : ${categorias}">
+                <td>
+                    <img th:if="${cat.imagenUrl != null}" th:src="${cat.imagenUrl}"
+                         class="cat-img" th:alt="${cat.nombre}">
+                    <div th:if="${cat.imagenUrl == null}" class="cat-img-ph">
+                        <i class="bi bi-image"></i>
+                    </div>
+                </td>
+                <td><strong th:text="${cat.nombre}"></strong></td>
+                <td>
+            <span th:if="${cat.descripcion != null}"
+                  th:text="${#strings.abbreviate(cat.descripcion, 60)}"></span>
+                    <span th:if="${cat.descripcion == null}" style="color:#ccc;">—</span>
+                </td>
+                <td th:text="${cat.orden}"></td>
+                <td>
+                    <span class="badge-activo" th:if="${cat.activo}">Activo</span>
+                    <span class="badge-inactivo" th:if="${!cat.activo}">Inactivo</span>
+                </td>
+                <td>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <a th:href="@{/admin/categorias/editar/{id}(id=${cat.id})}"
+                           class="btn-accion btn-editar">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <!-- Activar / Desactivar -->
+                        <form th:action="@{/admin/categorias/estado/{id}(id=${cat.id})}"
+                              method="post" style="display:inline;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <input type="hidden" name="activo" th:value="${!cat.activo}">
+                            <button type="submit" class="btn-accion"
+                                    th:classappend="${cat.activo} ? 'btn-eliminar' : 'btn-editar'">
+                                <i th:class="${cat.activo} ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                                <span th:text="${cat.activo} ? 'Desactivar' : 'Activar'"></span>
+                            </button>
+                        </form>
+                        <!-- Eliminar -->
+                        <form th:action="@{/admin/categorias/eliminar/{id}(id=${cat.id})}"
+                              method="post" style="display:inline;"
+                              onsubmit="confirmarEliminar(event,this,'Se eliminará la categoría «' + this.dataset.nombre + '». Esta acción no se puede deshacer.')"
+                              th:attr="data-nombre=${cat.nombre}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-accion btn-eliminar">
+                                <i class="bi bi-trash3"></i> Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- ═══ MODAL CONFIRMAR ELIMINAR (Bootstrap) ═══ -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body text-center px-4 pt-4 pb-2">
+                <div class="d-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mx-auto mb-3"
+                     style="width:64px;height:64px;">
+                    <i class="bi bi-trash3-fill text-danger fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2">¿Eliminar categoría?</h5>
+                <p id="confirmMsg" class="text-muted small mb-0"></p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger px-4" id="confirmYesBtn">
+                    <i class="bi bi-trash3-fill me-1"></i> Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+var _pendingForm = null;
+var _bsModal = null;
+function confirmarEliminar(event, form, msg) {
+    event.preventDefault();
+    _pendingForm = form;
+    document.getElementById('confirmMsg').textContent = msg;
+    if (!_bsModal) _bsModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    _bsModal.show();
+}
+document.getElementById('confirmYesBtn').addEventListener('click', function () {
+    _bsModal.hide();
+    if (_pendingForm) { _pendingForm.submit(); _pendingForm = null; }
+});
+</script>
+
+</body>
+</html>
