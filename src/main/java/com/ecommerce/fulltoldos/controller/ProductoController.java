@@ -4,6 +4,7 @@ package com.ecommerce.fulltoldos.controller;
 import com.ecommerce.fulltoldos.model.Producto;
 import com.ecommerce.fulltoldos.service.CategoriaService;
 import com.ecommerce.fulltoldos.service.ProductoService;
+import com.ecommerce.fulltoldos.service.SubcategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,9 @@ public class ProductoController {
     @Autowired
     private CategoriaService categoriaService;
 
-    // ── Listar todos con paginación ──
+    @Autowired
+    private SubcategoriaService subcategoriaService;
+
     @GetMapping
     public String listar(@RequestParam(defaultValue = "0") int pagina,
                          @RequestParam(defaultValue = "10") int tamanio,
@@ -38,23 +41,23 @@ public class ProductoController {
         return "admin/productos/lista";
     }
 
-    // ── Formulario nuevo producto ──
     @GetMapping("/nuevo")
     public String formNuevo(Model model) {
         model.addAttribute("producto", new Producto());
         model.addAttribute("categorias", categoriaService.listarActivas());
+        model.addAttribute("subcategorias", subcategoriaService.listarTodas());
         model.addAttribute("titulo", "Nuevo Producto");
         model.addAttribute("accion", "nuevo");
         return "admin/productos/form";
     }
 
-    // ── Formulario editar producto ──
     @GetMapping("/editar/{id}")
     public String formEditar(@PathVariable Long id, Model model,
                              RedirectAttributes flash) {
         return productoService.buscarPorId(id).map(prod -> {
             model.addAttribute("producto", prod);
             model.addAttribute("categorias", categoriaService.listarActivas());
+            model.addAttribute("subcategorias", subcategoriaService.listarTodas());
             model.addAttribute("medias", productoService.listarMedia(id));
             model.addAttribute("titulo", "Editar Producto");
             model.addAttribute("accion", "editar");
@@ -65,7 +68,6 @@ public class ProductoController {
         });
     }
 
-    // ── Ver detalle del producto ──
     @GetMapping("/detalle/{id}")
     public String detalle(@PathVariable Long id, Model model,
                           RedirectAttributes flash) {
@@ -80,10 +82,10 @@ public class ProductoController {
         });
     }
 
-    // ── Guardar producto (crear y editar) ──
     @PostMapping("/guardar")
     public String guardar(@ModelAttribute Producto producto,
                           @RequestParam("categoriaId") Long categoriaId,
+                          @RequestParam(value = "subcategoriaId", required = false) Long subcategoriaId,
                           @RequestParam(value = "imagenes", required = false)
                           List<MultipartFile> imagenes,
                           @RequestParam(value = "urlVideo", required = false)
@@ -92,18 +94,19 @@ public class ProductoController {
                           MultipartFile videoFile,
                           RedirectAttributes flash) {
         try {
-            // Asignar categoría
             categoriaService.buscarPorId(categoriaId).ifPresent(producto::setCategoria);
+            if (subcategoriaId != null) {
+                subcategoriaService.buscarPorId(subcategoriaId).ifPresent(producto::setSubcategoria);
+            } else {
+                producto.setSubcategoria(null);
+            }
 
-            // Validar precio
             if (producto.getPrecio() == null) {
                 producto.setPrecio(BigDecimal.ZERO);
             }
 
-            // Guardar producto
             Producto guardado = productoService.guardar(producto);
 
-            // Guardar imágenes si las subió
             if (imagenes != null) {
                 boolean esPrimera = productoService.listarMedia(guardado.getId()).isEmpty();
                 for (MultipartFile img : imagenes) {
@@ -114,12 +117,10 @@ public class ProductoController {
                 }
             }
 
-            // Guardar video YouTube si lo agregó
             if (urlVideo != null && !urlVideo.trim().isEmpty()) {
                 productoService.agregarVideo(guardado.getId(), urlVideo.trim());
             }
 
-            // Guardar video local si lo subió
             if (videoFile != null && !videoFile.isEmpty()) {
                 productoService.agregarVideoLocal(guardado.getId(), videoFile);
             }
@@ -130,7 +131,6 @@ public class ProductoController {
 
         } catch (Exception e) {
             flash.addFlashAttribute("error", "Error: " + e.getMessage());
-            // Si el producto ya fue guardado, volver a su formulario para que el error sea visible
             if (producto.getId() != null) {
                 return "redirect:/admin/productos/editar/" + producto.getId();
             }
@@ -138,7 +138,6 @@ public class ProductoController {
         }
     }
 
-    // ── Agregar imagen a producto existente ──
     @PostMapping("/{id}/imagen")
     public String agregarImagen(@PathVariable Long id,
                                 @RequestParam("imagen") MultipartFile imagen,
@@ -154,7 +153,6 @@ public class ProductoController {
         return "redirect:/admin/productos/editar/" + id;
     }
 
-    // ── Agregar video YouTube a producto existente ──
     @PostMapping("/{id}/video")
     public String agregarVideo(@PathVariable Long id,
                                @RequestParam("urlVideo") String urlVideo,
@@ -168,7 +166,6 @@ public class ProductoController {
         return "redirect:/admin/productos/editar/" + id;
     }
 
-    // ── Agregar video local a producto existente ──
     @PostMapping("/{id}/video-local")
     public String agregarVideoLocal(@PathVariable Long id,
                                     @RequestParam("videoFile") MultipartFile videoFile,
@@ -182,7 +179,6 @@ public class ProductoController {
         return "redirect:/admin/productos/editar/" + id;
     }
 
-    // ── Marcar imagen como principal ──
     @PostMapping("/media/{mediaId}/principal")
     public String marcarPrincipal(@PathVariable Long mediaId,
                                   @RequestParam Long productoId,
@@ -192,7 +188,6 @@ public class ProductoController {
         return "redirect:/admin/productos/editar/" + productoId;
     }
 
-    // ── Eliminar media ──
     @PostMapping("/media/{mediaId}/eliminar")
     public String eliminarMedia(@PathVariable Long mediaId,
                                 @RequestParam Long productoId,
@@ -202,7 +197,6 @@ public class ProductoController {
         return "redirect:/admin/productos/editar/" + productoId;
     }
 
-    // ── Cambiar estado ──
     @PostMapping("/estado/{id}")
     public String cambiarEstado(@PathVariable Long id,
                                 @RequestParam boolean activo,
@@ -213,7 +207,6 @@ public class ProductoController {
         return "redirect:/admin/productos";
     }
 
-    // ── Eliminar producto ──
     @PostMapping("/eliminar/{id}")
     public String eliminar(@PathVariable Long id, RedirectAttributes flash) {
         try {

@@ -2,6 +2,7 @@ package com.ecommerce.fulltoldos.controller;
 import com.ecommerce.fulltoldos.model.Producto;
 import com.ecommerce.fulltoldos.model.ProductoMedia;
 import com.ecommerce.fulltoldos.service.CategoriaService;
+import com.ecommerce.fulltoldos.service.ConfiguracionService;
 import com.ecommerce.fulltoldos.service.ProductoService;
 import com.ecommerce.fulltoldos.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,29 @@ public class AuthController {
     @Autowired
     private ProductoService productoService;
 
+    @Autowired
+    private ConfiguracionService configService;
+
     // ── Página principal (tienda) ──
     @GetMapping("/")
     public String inicio(Model model) {
+        // Datos de contacto desde la DB (editables desde /admin/ajustes)
+        String wspNum = configService.get("cotizacion.whatsapp", "51999999999");
+        model.addAttribute("wspLink", "https://wa.me/" + wspNum);
+
+        Map<String, String> topbar = new HashMap<>();
+        topbar.put("telefono", configService.get("topbar.telefono", "+51 999 999 999"));
+        topbar.put("horario",  configService.get("topbar.horario",  "Lun–Sáb 8am–7pm"));
+        topbar.put("envios",   configService.get("topbar.envios",   "Envíos a todo el Perú"));
+        model.addAttribute("topbar", topbar);
+
+        Map<String, String> redes = new HashMap<>();
+        redes.put("whatsapp",  configService.get("redes.whatsapp",  "https://wa.me/" + wspNum));
+        redes.put("facebook",  configService.get("redes.facebook",  "#"));
+        redes.put("instagram", configService.get("redes.instagram", "#"));
+        redes.put("tiktok",    configService.get("redes.tiktok",    "#"));
+        redes.put("youtube",   configService.get("redes.youtube",   "#"));
+        model.addAttribute("redes", redes);
         List<Producto> prods = productoService.listarActivos();
 
         // Contar productos por categoría
@@ -60,7 +81,16 @@ public class AuthController {
                 String desc = p.getDescripcion() != null ? p.getDescripcion() : "";
                 m.put("desc", desc);
                 m.put("longDesc", desc);
+                m.put("descLarga", p.getDescripcionLarga() != null && !p.getDescripcionLarga().isBlank()
+                    ? p.getDescripcionLarga() : desc);
                 m.put("icon", "bi-box-seam");
+                m.put("esNuevo",      p.isEsNuevo());
+                m.put("esDestacado",  p.isEsDestacado());
+                m.put("descuento",    p.getDescuento() != null ? p.getDescuento() : 0);
+                m.put("stock",        p.getStock());
+                m.put("precioOferta", p.getPrecioConDescuento());
+                m.put("fechaFinOferta", p.getFechaFinOferta() != null
+                    ? p.getFechaFinOferta().toString() : null);
                 m.put("badge", null);
                 List<String> features = Collections.emptyList();
                 if (p.getCaracteristicas() != null && !p.getCaracteristicas().trim().isEmpty()) {
@@ -101,6 +131,9 @@ public class AuthController {
                 m.put("precio", p.getPrecio());
                 m.put("rating", null);
                 m.put("reviews", 0);
+                m.put("subcat", p.getSubcategoria() != null ? String.valueOf(p.getSubcategoria().getId()) : null);
+                m.put("subcatName", p.getSubcategoria() != null ? p.getSubcategoria().getNombre() : null);
+                m.put("unidad", p.getUnidadMedida() != null ? p.getUnidadMedida() : "UNIDAD");
                 return m;
             }).collect(Collectors.toList());
 
@@ -109,19 +142,15 @@ public class AuthController {
         return "index";
     }
 
-    // ── Mostrar formulario login ──
     @GetMapping("/login")
     public String login() {
-        return "login"; // templates/login.html
+        return "login";
     }
 
-    // ── Mostrar formulario registro ──
     @GetMapping("/registro")
     public String registroForm() {
-        return "registro"; // templates/registro.html
+        return "registro";
     }
-
-    // ── Procesar formulario registro ──
     @PostMapping("/registro")
     public String registroProcesar(
             @RequestParam String nombre,
@@ -130,13 +159,11 @@ public class AuthController {
             @RequestParam String confirmar,
             Model model) {
 
-        // Validar que las contraseñas coincidan
         if (!password.equals(confirmar)) {
             model.addAttribute("error", "Las contraseñas no coinciden");
             return "registro";
         }
 
-        // Validar longitud mínima
         if (password.length() < 6) {
             model.addAttribute("error", "La contraseña debe tener al menos 6 caracteres");
             return "registro";
@@ -144,17 +171,14 @@ public class AuthController {
 
         try {
             usuarioService.registrarCliente(nombre, email, password);
-            // Redirige al login con mensaje de éxito
             return "redirect:/login?registro";
         } catch (RuntimeException e) {
             model.addAttribute("error", e.getMessage());
             return "registro";
         }
     }
-
-    // ── Acceso denegado ──
     @GetMapping("/acceso-denegado")
     public String accesoDenegado() {
-        return "acceso-denegado"; // templates/acceso-denegado.html
+        return "acceso-denegado";
     }
 }

@@ -12,26 +12,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/cliente")
 public class ClienteController {
 
-    // ── Inicio cliente ──
     @GetMapping("/inicio")
     public String inicio(@AuthenticationPrincipal UserDetails user, Model model) {
         model.addAttribute("emailCliente", user.getUsername());
         return "cliente/inicio"; // templates/cliente/inicio.html
     }
 
-    // ── Carrito ──
     @GetMapping("/carrito")
     public String carrito(Model model) {
-        return "cliente/carrito"; // templates/cliente/carrito.html
+        return "cliente/carrito";
     }
 
     // ── Mis pedidos ──
     @GetMapping("/pedidos")
     public String pedidos(Model model) {
-        return "cliente/pedidos"; // templates/cliente/pedidos.html
+        return "cliente/pedidos";
     }
 
-    // ── Mis cotizaciones ──
+
+
     @GetMapping("/cotizaciones")
     public String cotizaciones(Model model) {
         return "cliente/cotizaciones"; // templates/cliente/cotizaciones.html

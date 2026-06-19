@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo} + ' — Full Toldos Admin'">Subcategoría</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { background:#f0f4ff; font-family:'Poppins',sans-serif; margin:0; }
+        .sidebar { position:fixed; top:0; left:0; width:240px; height:100vh; background:#111; display:flex; flex-direction:column; z-index:100; }
+        .sidebar-logo { padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,0.08); }
+        .sidebar-logo img { height:40px; filter:brightness(0) invert(1); }
+        .sidebar-role { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-top:6px; }
+        .sidebar-nav { flex:1; padding:16px 10px; overflow-y:auto; }
+        .nav-section-lbl { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:10px 10px 6px; display:block; }
+        .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.82rem; font-weight:500; transition:all 0.18s; margin-bottom:2px; }
+        .nav-item:hover { background:rgba(255,255,255,0.07); color:white; }
+        .nav-item.active { background:#1949c9; color:white; }
+        .sidebar-foot { padding:16px 10px; border-top:1px solid rgba(255,255,255,0.08); }
+        .user-info { display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:8px; }
+        .user-avatar { width:34px; height:34px; border-radius:50%; background:#1949c9; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:white; }
+        .user-email { font-size:0.72rem; color:rgba(255,255,255,0.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; border-radius:8px; background:rgba(244,67,54,0.12); color:#ef9a9a; border:1px solid rgba(244,67,54,0.2); font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; font-family:'Poppins',sans-serif; }
+        .btn-logout:hover { background:rgba(244,67,54,0.22); color:#ff8a80; }
+        .main-content { margin-left:240px; padding:32px; min-height:100vh; }
+        .page-header { display:flex; align-items:center; gap:16px; margin-bottom:24px; }
+        .page-title { font-size:1.6rem; font-weight:800; color:#111; margin:0; }
+        .btn-volver { background:#f5f5f5; color:#555; padding:9px 16px; border-radius:8px; font-size:0.78rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; border:1px solid #e0e0e0; }
+        .btn-volver:hover { background:#e0e0e0; color:#333; }
+        .form-card { background:white; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); border:1px solid #f0f0f0; padding:32px; max-width:700px; }
+        .form-label { font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-bottom:6px; display:block; }
+        .form-control, .form-select { border:1.5px solid #e0e0e0; border-radius:10px; padding:10px 14px; font-family:'Poppins',sans-serif; font-size:0.9rem; transition:border-color 0.2s; outline:none; width:100%; }
+        .form-control:focus, .form-select:focus { border-color:#1949c9; box-shadow:0 0 0 3px rgba(25,73,201,0.1); }
+        textarea.form-control { resize:vertical; min-height:100px; }
+        .btn-guardar { background:linear-gradient(135deg,#1949c9,#1237a8); color:white; padding:13px 32px; border-radius:10px; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.92rem; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s; }
+        .btn-guardar:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(25,73,201,0.35); }
+        .alert-exito { background:#e8f5e9; border:1px solid #a5d6a7; border-radius:10px; color:#2e7d32; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        .alert-error { background:#fce4ec; border:1px solid #ef9a9a; border-radius:10px; color:#c62828; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        .form-hint { font-size:0.72rem; color:#90a4ae; margin-top:4px; }
+        @media(max-width:991px){
+          .sidebar{left:-260px!important;transition:left .3s;z-index:9000;}
+          .sidebar.mob-open{left:0!important;}
+          .main-content{margin-left:0!important;padding:16px!important;padding-top:68px!important;}
+          .mob-admin-bar{display:flex!important;}
+          .mob-admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8999;display:none;}
+          .mob-admin-overlay.open{display:block;}
+        }
+        .mob-admin-bar{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:#111;z-index:8998;align-items:center;padding:0 16px;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+        .mob-admin-bar img{height:32px;filter:brightness(0)invert(1);flex:1;}
+        .mob-admin-ham{width:38px;height:38px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}    </style>
+</head>
+<body>
+
+<div class="mob-admin-bar">
+    <button class="mob-admin-ham" onclick="document.querySelector('.sidebar').classList.toggle('mob-open');document.getElementById('mobAdminOverlay').classList.toggle('open')"><i class="bi bi-list"></i></button>
+    <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+</div>
+<div class="mob-admin-overlay" id="mobAdminOverlay" onclick="document.querySelector('.sidebar').classList.remove('mob-open');this.classList.remove('open')"></div>
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+        <div class="sidebar-role"><i class="bi bi-shield-fill-check"></i> Panel Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+        <span class="nav-section-lbl">Principal</span>
+        <a th:href="@{/admin/dashboard}" class="nav-item"><i class="bi bi-grid-fill"></i> Dashboard</a>
+        <span class="nav-section-lbl">Gestión</span>
+        <a th:href="@{/admin/productos}" class="nav-item"><i class="bi bi-box-seam"></i> Productos</a>
+        <a th:href="@{/admin/categorias}" class="nav-item"><i class="bi bi-tags"></i> Categorías</a>
+        <a th:href="@{/admin/subcategorias}" class="nav-item active"><i class="bi bi-diagram-3"></i> Subcategorías</a>
+        <a th:href="@{/admin/pedidos}" class="nav-item"><i class="bi bi-bag-check"></i> Pedidos</a>
+        <a th:href="@{/admin/cotizaciones}" class="nav-item"><i class="bi bi-file-earmark-text"></i> Cotizaciones</a>
+        <a th:href="@{/admin/usuarios}" class="nav-item"><i class="bi bi-people"></i> Usuarios</a>
+        <span class="nav-section-lbl">Tienda</span>
+        <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
+    </nav>
+    <div class="sidebar-foot">
+        <div class="user-info">
+            <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="user-email" sec:authentication="name">admin</div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div class="page-header">
+        <a th:href="@{/admin/subcategorias}" class="btn-volver"><i class="bi bi-arrow-left"></i> Volver</a>
+        <h1 class="page-title" th:text="${titulo}">Subcategoría</h1>
+    </div>
+
+    <div class="alert-exito" th:if="${exito}">
+        <i class="bi bi-check-circle-fill"></i><span th:text="${exito}"></span>
+    </div>
+    <div class="alert-error" th:if="${error}">
+        <i class="bi bi-exclamation-circle-fill"></i><span th:text="${error}"></span>
+    </div>
+
+    <div class="form-card">
+        <form th:action="@{/admin/subcategorias/guardar}" method="post" th:object="${subcategoria}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <input type="hidden" th:field="*{id}">
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Categoría padre *</label>
+                    <select name="categoriaId" class="form-select" required>
+                        <option value="">Seleccionar categoría...</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.id}"
+                                th:text="${cat.nombre}"
+                                th:selected="${subcategoria.categoria != null and subcategoria.categoria.id == cat.id}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label">Nombre *</label>
+                    <input type="text" th:field="*{nombre}" class="form-control"
+                           placeholder="Ej: Toldos Plegables" required maxlength="150">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Orden</label>
+                    <input type="number" th:field="*{orden}" class="form-control" min="0" placeholder="0">
+                    <div class="form-hint">Menor número aparece primero</div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Descripción</label>
+                    <textarea th:field="*{descripcion}" class="form-control"
+                              placeholder="Descripción opcional..."></textarea>
+                </div>
+                <div class="col-12">
+                    <div class="form-check">
+                        <input type="checkbox" th:field="*{activo}" class="form-check-input" id="activoCheck">
+                        <label class="form-check-label" for="activoCheck"
+                               style="font-size:0.88rem;">Subcategoría activa</label>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top:24px;">
+                <button type="submit" class="btn-guardar">
+                    <i class="bi bi-floppy-fill"></i> Guardar subcategoría
+                </button>
+            </div>
+        </form>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

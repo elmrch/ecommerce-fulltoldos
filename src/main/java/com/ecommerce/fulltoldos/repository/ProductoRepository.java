@@ -18,20 +18,16 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.medias WHERE p.activo = true ORDER BY p.fechaCreacion DESC")
     List<Producto> findActivosConMedias();
 
-    // Todos los productos activos (sin medias, para compatibilidad)
+
     List<Producto> findByActivoTrueOrderByFechaCreacionDesc();
 
-    // Productos por categoría (con medias en una sola query)
     @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.medias WHERE p.activo = true AND p.categoria.id = :categoriaId")
     List<Producto> findByCategoriaConMedias(@Param("categoriaId") Long categoriaId);
 
-    // Productos por categoría
     List<Producto> findByCategoriaIdAndActivoTrue(Long categoriaId);
 
-    // Búsqueda por nombre (barra de búsqueda)
     List<Producto> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre);
 
-    // Búsqueda combinada: nombre + categoría (con medias para evitar N+1)
     @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.medias WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%',:nombre,'%'))) AND " +
             "(:categoriaId IS NULL OR p.categoria.id = :categoriaId) AND " +
@@ -39,7 +35,6 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
     List<Producto> buscar(@Param("nombre") String nombre,
                           @Param("categoriaId") Long categoriaId);
 
-    // Con paginación para el admin
     Page<Producto> findAllByOrderByFechaCreacionDesc(Pageable pageable);
 
     // Contar productos por categoría

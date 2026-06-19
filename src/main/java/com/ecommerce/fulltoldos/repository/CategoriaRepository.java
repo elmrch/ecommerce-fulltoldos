@@ -10,12 +10,9 @@ import java.util.List;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
-    // Solo categorías activas ordenadas
     List<Categoria> findByActivoTrueOrderByOrdenAsc();
 
-    // Buscar por nombre (para validar duplicados)
     boolean existsByNombre(String nombre);
 
-    // Buscar por nombre ignorando mayúsculas
     List<Categoria> findByNombreContainingIgnoreCase(String nombre);
 }

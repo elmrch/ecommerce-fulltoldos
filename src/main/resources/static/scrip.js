@@ -1,192 +1,8 @@
 
 // ═══════════════════════════ DATA ═══════════════════════════
-const CATS = [
-  { id:'toldos', name:'Toldos Publicitarios', icon:'bi-house-door', color:'linear-gradient(135deg,#0e3460,#1565c0)', count:4,
-    img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=75' },
-  { id:'carpas', name:'Carpas Armables', icon:'bi-triangle', color:'linear-gradient(135deg,#1a237e,#283593)', count:2,
-    img:'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&q=75' },
-  { id:'banderas', name:'Banderas Publicitarias', icon:'bi-flag', color:'linear-gradient(135deg,#006064,#00838f)', count:2,
-    img:'https://images.unsplash.com/photo-1526958097901-5e6d742d3371?w=400&q=75' },
-  { id:'inflables', name:'Inflables Publicitarios', icon:'bi-balloon', color:'linear-gradient(135deg,#1b5e20,#2e7d32)', count:1,
-    img:'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&q=75' },
-  { id:'juegos', name:'Juegos Publicitarios', icon:'bi-controller', color:'linear-gradient(135deg,#4a148c,#6a1b9a)', count:1,
-    img:'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&q=75' },
-  { id:'modulos', name:'Módulos Publicitarios', icon:'bi-grid', color:'linear-gradient(135deg,#bf360c,#d84315)', count:1,
-    img:'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&q=75' },
-  { id:'terminados', name:'Productos Terminados', icon:'bi-box-seam', color:'linear-gradient(135deg,#1565c0,#1976d2)', count:8,
-    img:'https://images.unsplash.com/photo-1553484771-371a605b060b?w=400&q=75' },
-  { id:'lonas', name:'Lonas & Textiles', icon:'bi-layers', color:'linear-gradient(135deg,#004d40,#00695c)', count:7,
-    img:'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&q=75' },
-];
-
-const PRODUCTS = [
-  { id:1, rating:4.8, reviews:124, name:'Toldo Plegable', cat:'toldos', catName:'Toldos Publicitarios', icon:'bi-house-door',
-    desc:'Toldo plegable de aluminio anodizado con cobertura de lona PVC 300gr. Resistente al viento y lluvia. Estructura liviana y fácil de montar.',
-    longDesc:'Nuestros toldos plegables están fabricados con perfiles de aluminio anodizado de alta resistencia. La lona es PVC de 300gr con tratamiento UV anti-desgarro. Ideal para locales comerciales, ferias y eventos. Disponible en todos los colores y con impresión de logo.',
-    features:['Estructura aluminio anodizado','Lona PVC 300gr tratamiento UV','Montaje sin herramientas','Impresión full color disponible','Garantía 2 años estructura'],
-    medidas:['2x2m','3x2m','4x2m','4x3m','5x3m','6x3m'],
-    colores:['#1565c0','#c62828','#2e7d32','#f57f17','#ffffff','#212121'],
-    imgs:[
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
-      'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80',
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80',
-    ], badge:'new' },
-  { id:2, rating:4.6, reviews:89, name:'Toldo Armable', cat:'toldos', catName:'Toldos Publicitarios', icon:'bi-house-up',
-    desc:'Estructura armable de acero galvanizado con cobertura personalizada. Ideal para fachadas comerciales y puestos de mercado.',
-    longDesc:'Los toldos armables son perfectos para instalación permanente. Estructura de acero galvanizado calibre 16, resistente a la corrosión. Cobertura de lona PVC de 500gr con costura reforzada en todos los bordes.',
-    features:['Acero galvanizado calibre 16','Lona PVC 500gr reforzada','Instalación permanente','Costura ultrasónica','Diseño personalizable'],
-    medidas:['2x2m','3x2m','3x3m','4x3m','5x4m'],
-    colores:['#1565c0','#c62828','#2e7d32','#ffffff','#f57f17'],
-    imgs:[
-      'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
-    ], badge:null },
-  { id:3, rating:4.5, reviews:67, name:'Toldo de Pared', cat:'toldos', catName:'Toldos Publicitarios', icon:'bi-building',
-    desc:'Toldo adosado a pared con brazo articulado de aluminio. Perfecta solución para fachadas y terrazas comerciales.',
-    longDesc:'El toldo de pared con brazo articulado es la solución ideal para locales con fachadas estrechas. Sistema de anclaje reforzado. Lona de PVC impermeable con tratamiento antimanchas.',
-    features:['Brazo articulado de aluminio','Sistema de anclaje reforzado','Accionamiento manual o motorizado','Lona antimanchas','Variedad de colores'],
-    medidas:['1.5x1m','2x1.5m','3x2m','4x2m'],
-    colores:['#1565c0','#c62828','#2e7d32','#f57f17','#ffffff'],
-    imgs:[
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
-    ], badge:null },
-  { id:4, rating:4.9, reviews:201, name:'Toldo Domo', cat:'toldos', catName:'Toldos Publicitarios', icon:'bi-circle',
-    desc:'Diseño curvo exclusivo para máxima resistencia al viento y lluvia. Acabado premium, ideal para restaurantes y cafés.',
-    longDesc:'El toldo domo es nuestra línea premium. Su diseño curvo permite el desagüe natural del agua y ofrece mayor resistencia al viento. Estructura de aluminio extruido con lona de PVC 600gr de alta densidad.',
-    features:['Aluminio extruido premium','Lona PVC 600gr alta densidad','Desagüe natural integrado','Alta resistencia al viento','Acabado profesional'],
-    medidas:['2x2m','3x2m','3x3m','4x3m'],
-    colores:['#1565c0','#c62828','#2e7d32','#ffffff'],
-    imgs:[
-      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80',
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80',
-    ], badge:'hot' },
-  { id:5, rating:4.7, reviews:156, name:'Carpa a Dos Aguas', cat:'carpas', catName:'Carpas Armables', icon:'bi-triangle',
-    desc:'Carpa con techo a dos aguas, estructura robusta de acero galvanizado. Disponible desde 2x2 hasta 5x5 metros.',
-    longDesc:'Nuestras carpas a dos aguas son la opción más popular para ferias y eventos al aire libre. La estructura piramidal de acero galvanizado garantiza máxima estabilidad. Cobertura de lona PVC de doble cara reforzada con costuras ultrasónicas.',
-    features:['Estructura acero galvanizado','Lona PVC doble cara','Costuras ultrasónicas','Fácil montaje 2 personas','Anclajes incluidos'],
-    medidas:['2x2m','2x3m','3x3m','3x4m','3x6m','4x4m','4x6m','5x5m'],
-    colores:['#ffffff','#1565c0','#c62828','#2e7d32','#f57f17','#212121'],
-    imgs:[
-      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80',
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80',
-    ], badge:'new' },
-  { id:6, rating:4.5, reviews:73, name:'Carpa Techo Plano', cat:'carpas', catName:'Carpas Armables', icon:'bi-stop-fill',
-    desc:'Carpa de techo plano con estructura de acero galvanizado. Ideal para ferias, eventos corporativos y mercados.',
-    longDesc:'La carpa de techo plano es ideal para espacios urbanos donde la altura es limitada. Su diseño modular permite combinar varias unidades para crear grandes espacios cubiertos.',
-    features:['Sistema modular combinable','Estructura acero galvanizado','Lona PVC 450gr','Paredes laterales opcionales','Ventanas de PVC transparente'],
-    medidas:['2x2m','3x3m','3x6m','4x4m','4x8m','6x6m'],
-    colores:['#ffffff','#1565c0','#c62828','#2e7d32'],
-    imgs:[
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80',
-    ], badge:null },
-  { id:7, rating:4.4, reviews:45, name:'Pluma Publicitaria', cat:'banderas', catName:'Banderas Publicitarias', icon:'bi-flag-fill',
-    desc:'Bandera tipo pluma de alto impacto visual. Sublimación full color en poliéster de alta resistencia. Incluye mástil y base.',
-    longDesc:'Las plumas publicitarias son la herramienta más efectiva para captar la atención. Impresión por sublimación en poliéster 110gr, colores vivos que no se desvanecen. Mástil de fibra de vidrio flexible y resistente al viento.',
-    features:['Sublimación full color','Poliéster 110gr anti-UV','Mástil fibra de vidrio','Base cruceta o tornillo','Funda de transporte incluida'],
-    medidas:['2.5m','3.5m','4.5m','5.5m'],
-    colores:['#ffffff','#1565c0','#c62828','#2e7d32','#f57f17'],
-    imgs:[
-      'https://images.unsplash.com/photo-1526958097901-5e6d742d3371?w=600&q=80',
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-    ], badge:null },
-  { id:8, rating:4.6, reviews:38, name:'Gota Publicitaria', cat:'banderas', catName:'Banderas Publicitarias', icon:'bi-droplet-fill',
-    desc:'Bandera con forma de gota, efecto visual llamativo. Sublimación full color. Incluye mástil de aluminio y base.',
-    longDesc:'La bandera gota es una forma distintiva que se diferencia en cualquier evento. Diseño aerodinámico que mantiene la bandera siempre visib incluso con poco viento. Impresión ambas caras disponible.',
-    features:['Diseño aerodinámico','Impresión 1 o 2 caras','Aluminio anodizado','Sin arrugas garantizado','Varios tamaños'],
-    medidas:['1.5m','2m','3m','4m'],
-    colores:['#ffffff','#1565c0','#c62828','#2e7d32','#f57f17','#212121'],
-    imgs:[
-      'https://images.unsplash.com/photo-1526958097901-5e6d742d3371?w=600&q=80',
-    ], badge:'sale' },
-  { id:9, rating:4.8, reviews:112, name:'Inflable Publicitario', cat:'inflables', catName:'Inflables Publicitarios', icon:'bi-balloon-fill',
-    desc:'Inflables personalizados en cualquier forma y tamaño. Tela Oxford de alta resistencia. Ventilador incluido.',
-    longDesc:'Nuestros inflables publicitarios son fabricados en tela Oxford 420D de altísima resistencia. Impresión digital full color directamente sobre la tela. Incluye ventilador de alta eficiencia, sistema de sujeción y funda de transporte.',
-    features:['Tela Oxford 420D','Impresión digital full color','Ventilador incluido','Cualquier forma y tamaño','Certificado de seguridad'],
-    medidas:['1m','2m','3m','5m','Personalizado'],
-    colores:['Personalizado'],
-    imgs:[
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80',
-    ], badge:'hot' },
-  { id:10, rating:4.7, reviews:85, name:'Juego Inflable', cat:'juegos', catName:'Juegos Publicitarios', icon:'bi-controller',
-    desc:'Juegos inflables para eventos y campañas publicitarias. Branding full color. Seguros y certificados.',
-    longDesc:'Los juegos inflables combinan entretenimiento con publicidad. Perfectos para activaciones de marca, eventos corporativos y espacios para niños. Fabricados bajo normas de seguridad internacionales.',
-    features:['Normas de seguridad internacionales','Branding personalizado','Fácil instalación 15min','Incluye ventilador','Reparaciones sin costo 1 año'],
-    medidas:['3x3m','4x4m','5x5m','Personalizado'],
-    colores:['Personalizado'],
-    imgs:[
-      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80',
-    ], badge:null },
-  { id:11, rating:4.5, reviews:54, name:'Módulo Publicitario', cat:'modulos', catName:'Módulos Publicitarios', icon:'bi-grid-3x3',
-    desc:'Módulos armables para ferias, stands y exposiciones. Sistema modular, fácil transporte y montaje rápido.',
-    longDesc:'Los módulos publicitarios son la solución profesional para ferias y exposiciones. Sistema de conexión rápida sin tornillos. Paneles intercambiables con impresión en alta resolución.',
-    features:['Sistema snap sin tornillos','Paneles impresión HD','Transporte en maletín','Iluminación LED opcional','Configuración flexible'],
-    medidas:['2x1m','3x1m','4x2m','6x2m','Personalizado'],
-    colores:['Personalizado'],
-    imgs:[
-      'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80',
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
-    ], badge:null },
-  { id:12, rating:4.6, reviews:178, name:'Cobertura de Toldo', cat:'terminados', catName:'Productos Terminados', icon:'bi-shield-check',
-    desc:'Coberturas de repuesto para toldos de todas las medidas. Lona PVC de primera calidad. Fabricación exacta a medida.',
-    longDesc:'¿Tu toldo necesita una cobertura nueva? Fabricamos coberturas de repuesto con medidas exactas de tu estructura existente. Lona PVC en todos los gramajes y colores.',
-    features:['Fabricación a medida exacta','PVC 300gr, 450gr o 600gr','Todos los colores disponibles','Dobladillo reforzado','Entrega en 5-7 días hábiles'],
-    medidas:['A medida'],
-    colores:['#ffffff','#1565c0','#c62828','#2e7d32','#f57f17','#212121'],
-    imgs:[
-      'https://images.unsplash.com/photo-1553484771-371a605b060b?w=600&q=80',
-    ], badge:null },
-  { id:13, rating:4.7, reviews:92, name:'Estructura para Carpa', cat:'terminados', catName:'Productos Terminados', icon:'bi-tools',
-    desc:'Estructuras completas para carpas de acero galvanizado. Piramidal y a dos aguas. Desde 2x2 hasta 5x5 metros.',
-    longDesc:'Vendemos estructuras sin cobertura para quienes necesitan solo el armazón. Acero galvanizado electrolítico de máxima resistencia a la corrosión. Incluye todos los accesorios de montaje.',
-    features:['Acero galvanizado electrolítico','Todos los accesorios incluidos','Pintura hornoreada','Manual de montaje','Garantía 5 años estructura'],
-    medidas:['2x2m','3x3m','4x4m','5x5m'],
-    colores:['Galvanizado natural','Blanco','Negro'],
-    imgs:[
-      'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80',
-    ], badge:null },
-  { id:14, rating:4.3, reviews:211, name:'Malla PVC', cat:'lonas', catName:'Lonas & Textiles', icon:'bi-grid-1x2',
-    desc:'Malla de PVC para ventilación y protección solar. 50%, 70% y 90% de sombra. Venta por metro cuadrado.',
-    longDesc:'Las mallas PVC son ideales para cerramientos que requieren ventilación. Disponible en diferentes porcentajes de sombra para controlar la temperatura y la luz solar.',
-    features:['50%, 70% o 90% de sombra','Resistente a UV','Lavable y duradera','Refuerzo en orillas','Venta por metro o rollo'],
-    medidas:['Por metro','Rollo 50m','Rollo 100m'],
-    colores:['#2e7d32','#1565c0','#212121','#9e9e9e'],
-    imgs:[
-      'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
-    ], badge:'new' },
-  { id:15, rating:4.8, reviews:143, name:'Lona PVC Taiwan', cat:'lonas', catName:'Lonas & Textiles', icon:'bi-layers',
-    desc:'Lona PVC ambas caras de resistencia premium. Ideal para coberturas de alto tráfico y uso intensivo.',
-    longDesc:'La lona Taiwan es nuestra lona de mayor calidad. Fabricada con PVC de doble cara con trama interna de poliéster de alta densidad. Resistencia al rasgado superior a 800N.',
-    features:['PVC doble cara','Trama poliéster alta densidad','Resistencia >800N al rasgado','Anti-hongos y bacterias','Certificación ISO'],
-    medidas:['Por metro','Rollo 50m'],
-    colores:['#ffffff','#1565c0','#c62828','#2e7d32','#f57f17','#212121'],
-    imgs:[
-      'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&q=80',
-      'https://images.unsplash.com/photo-1553484771-371a605b060b?w=600&q=80',
-    ], badge:null },
-];
-
-// ── Precios por producto (desde la medida base) ──
-const PRICES = {
-  1: {precio:289, precioAntes:399},
-  2: {precio:350, precioAntes:480},
-  3: {precio:195, precioAntes:260},
-  4: {precio:420, precioAntes:580},
-  5: {precio:650, precioAntes:890},
-  6: {precio:580, precioAntes:780},
-  7: {precio:175, precioAntes:240},
-  8: {precio:210, precioAntes:290},
-  9: {precio:890, precioAntes:1200},
-  10:{precio:1200,precioAntes:1600},
-  11:{precio:750, precioAntes:990},
-  12:{precio:148, precioAntes:200},
-  13:{precio:480, precioAntes:650},
-  14:{precio:18,  precioAntes:25},
-  15:{precio:35,  precioAntes:48},
-};
+const CATS = [];
+const PRODUCTS = [];
+const PRICES = {};
 
 function getYouTubeId(url) {
   if (!url) return null;
@@ -224,10 +40,28 @@ function getPriceHTML(p, large) {
   const pr = PRICES[p.id];
   const precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
   if(precio == null) return `<span class="prod-price" style="color:var(--azul-claro);">Consultar</span>`;
-  const sz = large ? 'font-size:2.2rem' : 'font-size:1.5rem';
+  const sz = large ? 'font-size:2.2rem' : 'font-size:1.4rem';
+  const oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
+  if (oferta && oferta < precio) {
+    return `<div class="prod-price-block">
+      <span class="prod-price-original">S/ ${precio.toLocaleString('es-PE')}</span>
+      <span class="prod-price-now" style="${sz}">S/ ${oferta.toLocaleString('es-PE')}</span>
+    </div>`;
+  }
   return `<div class="prod-price-block">
     <span class="prod-price-now" style="${sz}">S/ ${precio.toLocaleString('es-PE')}</span>
   </div>`;
+}
+function getCarPrice(p) {
+  const pr = PRICES[p.id];
+  const precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
+  if (!precio) return `<span class="car-price-consultar">Consultar</span>`;
+  const oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
+  if (oferta && oferta < precio) {
+    return `<span class="car-price-original">S/ ${precio.toLocaleString('es-PE')}</span>
+            <span class="car-price-now">S/ ${oferta.toLocaleString('es-PE')}</span>`;
+  }
+  return `<span class="car-price-now">S/ ${precio.toLocaleString('es-PE')}</span>`;
 }
 function getWspCardBtn(p) {
   const msg = encodeURIComponent(`Hola Full Toldos! Me interesa: *${p.name}*. Quisiera una cotización.`);
@@ -301,23 +135,144 @@ document.querySelectorAll('.hero-prev,.hero-next,.hero-dot').forEach(el => {
   el.addEventListener('click', () => { clearInterval(slideInterval); startAutoSlide(); });
 });
 
+// ═══════════════════════════ COLOR PALETTE ═══════════════════════════
+const PALETTE = [
+  {bg:'#1949c9', light:'#dce8ff'},
+  {bg:'#0d7f5f', light:'#d0f4e8'},
+  {bg:'#c0392b', light:'#fde8e7'},
+  {bg:'#7c3aed', light:'#ede9fe'},
+  {bg:'#d97706', light:'#fef3c7'},
+  {bg:'#0891b2', light:'#e0f7fa'},
+  {bg:'#059669', light:'#d1fae5'},
+  {bg:'#be185d', light:'#fce7f3'},
+];
+const _CAT_IDX = {toldos:0, carpas:1, banderas:2, inflables:3, juegos:4, modulos:5, terminados:6, lonas:7};
+function getCatColor(catId) {
+  if (_CAT_IDX[catId] !== undefined) return PALETTE[_CAT_IDX[catId]];
+  return PALETTE[Math.abs(parseInt(catId) || 0) % PALETTE.length];
+}
+
+// ═══════════════════════════ CAT SLIDER ═══════════════════════════
+var _catSliderX = 0;
+var _catOrigWidth = 0;
+var _catBusy = false;
+
+function catSliderNav(dir) {
+  if (window.innerWidth <= 768) return;
+  if (_catBusy) return;
+  var track = document.getElementById('catGrid');
+  if (!track || !_catOrigWidth) return;
+  var step = (200 + 16) * 4;
+  var newX = _catSliderX - dir * step;
+
+  // Ir hacia atrás desde el inicio → salto instantáneo al final, sin animación
+  if (dir < 0 && newX > 0) {
+    _catSliderX = newX - _catOrigWidth;
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(' + _catSliderX + 'px)';
+    return;
+  }
+
+  _catSliderX = newX;
+  _catBusy = true;
+  track.style.transition = 'transform 0.38s cubic-bezier(0.4,0,0.2,1)';
+  track.style.transform = 'translateX(' + _catSliderX + 'px)';
+
+  // Al llegar a la zona de clones → salto silencioso de vuelta al inicio
+  setTimeout(function() {
+    _catBusy = false;
+    if (_catSliderX <= -_catOrigWidth) {
+      _catSliderX += _catOrigWidth;
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(' + _catSliderX + 'px)';
+    }
+  }, 420);
+}
+
+function initCatInfinite() {
+  if (window.innerWidth <= 768) return;
+  requestAnimationFrame(function() {
+    var track = document.getElementById('catGrid');
+    if (!track || !track.children.length) return;
+    _catOrigWidth = track.scrollWidth + 28;
+    Array.from(track.children).forEach(function(item) {
+      track.appendChild(item.cloneNode(true));
+    });
+  });
+}
+
+function initCatSliderDrag() {
+  var track    = document.getElementById('catGrid');
+  var viewport = track && track.parentElement;
+  if (!track || !viewport) return;
+  // En móvil usa scroll nativo, no drag JS
+  if (window.innerWidth <= 768) return;
+  var dragStartX = 0, dragStartSliderX = 0, isDragging = false, didDrag = false;
+
+  viewport.addEventListener('mousedown', function(e) {
+    isDragging = true; didDrag = false;
+    dragStartX = e.clientX;
+    dragStartSliderX = _catSliderX;
+    viewport.style.cursor = 'grabbing';
+    track.style.transition = 'none';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var delta = e.clientX - dragStartX;
+    if (Math.abs(delta) > 4) didDrag = true;
+    var maxScroll = _catOrigWidth * 2 - viewport.clientWidth;
+    _catSliderX = Math.min(0, Math.max(-maxScroll, dragStartSliderX + delta));
+    track.style.transform = 'translateX(' + _catSliderX + 'px)';
+  });
+
+  window.addEventListener('mouseup', function() {
+    if (!isDragging) return;
+    isDragging = false;
+    viewport.style.cursor = '';
+  });
+
+  track.addEventListener('click', function(e) {
+    if (didDrag) { e.stopPropagation(); didDrag = false; }
+  }, true);
+}
+
 // ═══════════════════════════ CATEGORIES ═══════════════════════════
 function buildCats() {
-  document.getElementById('catGrid').innerHTML = CATS.map(c => `
-    <div class="cat-card" onclick="openCatPage('${c.id}')">
-      <div class="cat-arrow"><i class="bi bi-arrow-right"></i></div>
-      <div class="cat-img-area" style="background:${c.color}">
-        <img src="${c.img}" alt="${c.name}" class="cat-img-real" loading="lazy"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="cat-img-icon" style="display:none;position:absolute;font-size:3.5rem;color:rgba(255,255,255,0.5)"><i class="bi ${c.icon}"></i></div>
-        <div class="cat-overlay"></div>
+  // Calcular precio mínimo > 0 por categoría
+  var minPriceByCat = {};
+  (PRODUCTS || []).forEach(function(p) {
+    if (p.precio && p.precio > 0) {
+      if (!minPriceByCat[p.cat] || p.precio < minPriceByCat[p.cat]) {
+        minPriceByCat[p.cat] = p.precio;
+      }
+    }
+  });
+
+  document.getElementById('catGrid').innerHTML = CATS.map(c => {
+    var min = minPriceByCat[c.id];
+    var priceHtml = min
+      ? 'Desde <strong>S/ ' + Number(min).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</strong>'
+      : 'Consultar precio';
+    var imgHtml = c.img
+      ? `<img src="${c.img}" alt="${c.name}" class="sbc-img" loading="lazy"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    return `
+    <div class="sbc-card" onclick="openCatPage('${c.id}')">
+      <div class="sbc-img-area">
+        ${imgHtml}
+        <div class="sbc-img-icon" style="display:${c.img ? 'none' : 'flex'}">
+          <i class="bi ${c.icon}"></i>
+        </div>
       </div>
-      <div class="cat-body">
-        <div class="cat-name">${c.name}</div>
-        <div class="cat-count">${c.count} producto${c.count>1?'s':''}</div>
+      <div class="sbc-card-body">
+        <div class="sbc-cat-name">${c.name} <i class="bi bi-chevron-right"></i></div>
+        <div class="sbc-cat-price">${priceHtml}</div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 // ═══════════════════════════ FILTER TABS ═══════════════════════════
@@ -328,40 +283,78 @@ function filterProducts(catId) {
 
 // ═══════════════════════════ PRODUCTS ═══════════════════════════
 function getGradient(cat) {
-  const map = {
-    toldos:'linear-gradient(135deg,#e3f2fd,#bbdefb)',
-    carpas:'linear-gradient(135deg,#e8eaf6,#c5cae9)',
-    banderas:'linear-gradient(135deg,#e0f2f1,#b2dfdb)',
-    inflables:'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
-    juegos:'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-    modulos:'linear-gradient(135deg,#fbe9e7,#ffccbc)',
-    terminados:'linear-gradient(135deg,#e3f2fd,#b3e5fc)',
-    lonas:'linear-gradient(135deg,#e0f2f1,#b2dfdb)',
-  };
-  return map[cat] || 'linear-gradient(135deg,#e3f2fd,#bbdefb)';
+  return getCatColor(cat).light;
+}
+
+function getBadgesHTML(p) {
+  let b = '';
+  if (p.stock === 0)                        b += '<span class="prod-badge badge-agotado">AGOTADO</span>';
+  if (p.esNuevo)                            b += '<span class="prod-badge badge-new">NUEVO</span>';
+  if (p.descuento && p.descuento > 0)       b += `<span class="prod-badge badge-sale">-${p.descuento}%</span>`;
+  if (p.esDestacado)                        b += '<span class="prod-badge badge-hot">POPULAR</span>';
+  return b;
+}
+
+function getCountdownHTML(p, idSuffix) {
+  if (!p.fechaFinOferta || !p.descuento || p.descuento <= 0) return '';
+  const end = new Date(p.fechaFinOferta);
+  if (isNaN(end) || end <= new Date()) return '';
+  return `<div class="oferta-countdown" id="cd-${idSuffix}">
+    <i class="bi bi-clock-fill"></i> Oferta termina en:
+    <span class="cd-time" data-end="${end.getTime()}">--:--:--</span>
+  </div>`;
+}
+
+function tickCountdowns() {
+  document.querySelectorAll('.cd-time').forEach(el => {
+    const end = Number(el.dataset.end);
+    const diff = end - Date.now();
+    if (diff <= 0) { el.closest('.oferta-countdown').style.display = 'none'; return; }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  });
+}
+setInterval(tickCountdowns, 1000);
+
+// ═══ IMG CYCLE ON HOVER ═══
+var _imgCycleTimers = {};
+function initProdImgCycle(container) {
+  (container || document).querySelectorAll('.prod-img-area[data-imgs]').forEach(function(area) {
+    var imgs = JSON.parse(area.getAttribute('data-imgs') || '[]');
+    if (imgs.length <= 1) return;
+    var pid = area.getAttribute('data-pid');
+    var imgEl = area.querySelector('.prod-img-real');
+    if (!imgEl) return;
+    area.addEventListener('mouseenter', function() {
+      imgEl.src = imgs[1];
+    });
+    area.addEventListener('mouseleave', function() {
+      imgEl.src = imgs[0];
+    });
+  });
 }
 function renderProducts() {
   const grid = document.getElementById('productsGrid');
   if(!grid) return;
   grid.innerHTML = PRODUCTS.map(p => `
     <div class="prod-card" onclick="openModal(${p.id})">
-      <div class="prod-img-area" style="background:${getGradient(p.cat)}">
+      <div class="prod-img-area" style="background:${getGradient(p.cat)}" data-pid="${p.id}" data-imgs='${JSON.stringify(p.imgs||[])}'>
         ${p.imgs && p.imgs[0] ? `<img src="${p.imgs[0]}" alt="${p.name}" class="prod-img-real" loading="lazy"
           onerror="this.style.display='none';this.parentElement.querySelector('.prod-img-placeholder').style.display='flex'">
           <div class="prod-img-placeholder" style="display:none;position:absolute;inset:0"><i class="bi ${p.icon}" style="font-size:3rem;color:rgba(0,0,0,0.2)"></i></div>` :
           `<div class="prod-img-placeholder"><i class="bi ${p.icon}" style="font-size:3rem;color:rgba(0,0,0,0.2)"></i></div>`}
-        <div class="prod-badge-wrap">
-          ${p.badge==='new'?'<span class="prod-badge badge-new">Nuevo</span>':''}
-          ${p.badge==='hot'?'<span class="prod-badge badge-hot">Popular</span>':''}
-          ${p.badge==='sale'?'<span class="prod-badge badge-sale">Oferta</span>':''}
-        </div>
+        <div class="prod-badge-wrap">${getBadgesHTML(p)}</div>
         <button class="prod-eye-btn" onclick="event.stopPropagation();openProductPage(${p.id})" title="Ver producto completo"><i class="bi bi-eye"></i></button>
+        <button class="prod-quick-add" onclick="addCart(event,${p.id})"><i class="bi bi-bag-plus-fill"></i> + Adición rápida</button>
       </div>
       <div class="prod-body">
-        <div class="prod-cat-tag">${p.catName}</div>
+        <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
         <div class="prod-name">${p.name}</div>
         ${getStarsHTML(p)}
         <div class="prod-desc">${p.desc.substring(0,95)}...</div>
+        ${getCountdownHTML(p, p.id)}
         <div class="prod-footer">
           <div>${getPriceHTML(p)}<div class="prod-price-note">desde med. base</div></div>
           ${getWspCardBtn(p)}
@@ -369,6 +362,7 @@ function renderProducts() {
       </div>
     </div>
   `).join('');
+  initProdImgCycle(grid);
 }
 function loadMoreProds() { renderProducts(); }
 
@@ -386,6 +380,16 @@ function closeModalOutside(e) { if(e.target===document.getElementById('modalOver
 // ═══════════════════════════ PRODUCT PAGE ═══════════════════════════
 let prevPageView = 'main';
 
+function toSlug(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+function findProductBySlug(slug) {
+  return PRODUCTS.find(p => toSlug(p.name) === slug);
+}
+
 function openProductPage(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if(!p) return;
@@ -400,7 +404,11 @@ function openProductPage(id) {
   renderProdPage(p);
   setTimeout(initProductZoom, 80);
   renderTambienInteresa('prodTambienSection', p.cat, [p.id]);
+  addVistoRecientemente(p.id);
+  renderVistoRecientemente(p.id);
   window.scrollTo({top:0, behavior:'smooth'});
+  initProdTopbarSticky();
+  history.pushState({type:'producto', id:id}, '', '/?producto=' + toSlug(p.name));
 }
 
 function closeProdPage() {
@@ -408,26 +416,38 @@ function closeProdPage() {
   document.getElementById('prodPageView').style.display = 'none';
   if(prevPageView === 'category') {
     document.getElementById('catPageView').style.display = 'block';
+    history.pushState({type:'categoria'}, '', '/?categoria=' + cpCat);
   } else {
     document.getElementById('mainView').style.display = 'block';
+    history.pushState({type:'inicio'}, '', '/');
   }
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function switchProdTab(tab, btn) {
+  document.querySelectorAll('.prod-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.prod-tab-panel').forEach(p => p.style.display = 'none');
+  btn.classList.add('active');
+  const map = { desc:'prodTabDesc', details:'prodTabDetails', videos:'prodTabVideos' };
+  const el = document.getElementById(map[tab]);
+  if (el) el.style.display = 'block';
 }
 
 function renderProdPage(p) {
   // Breadcrumb
   document.getElementById('prodBreadcrumb').innerHTML =
     `<a href="#" onclick="closeProdPage();return false;">Inicio</a> / ` +
-    `<a href="#" onclick="openCatPage('${p.cat}');return false;">${p.catName}</a> / ` +
-    `<strong>${p.name.toUpperCase()}</strong>`;
+    `<a href="#" onclick="openCatPage('${p.cat}');return false;">${p.catName}</a>` +
+    (p.subcatName ? ` / ${p.subcatName}` : '') +
+    ` / <strong>${p.name.toUpperCase()}</strong>`;
 
   // Nav arrows
   const sameCat = PRODUCTS.filter(x => x.cat === p.cat);
   const idx = sameCat.findIndex(x => x.id === p.id);
   const prevBtn = document.getElementById('prodNavPrevBtn');
   const nextBtn = document.getElementById('prodNavNextBtn');
-  if(prevBtn) prevBtn.disabled = idx <= 0;
-  if(nextBtn) nextBtn.disabled = idx >= sameCat.length - 1;
+  if(prevBtn) prevBtn.disabled = false;
+  if(nextBtn) nextBtn.disabled = false;
 
   // Thumbnails + main image
   const thumbStrip = document.getElementById('prodThumbStrip');
@@ -481,7 +501,7 @@ function renderProdPage(p) {
     </div>`;
 
   document.getElementById('prodInfoCard').innerHTML = `
-    <div class="prod-page-cat-tag">${p.catName}</div>
+    <div class="prod-page-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
     <div class="prod-page-name-row">
       <div class="prod-page-name">${p.name}</div>
       <button class="btn-share-prod" onclick="shareProduct()" title="Compartir"><i class="bi bi-share-fill"></i></button>
@@ -504,6 +524,7 @@ function renderProdPage(p) {
       Medida seleccionada: <strong id="ppMedidaSelected" style="color:var(--azul-marino)">${selectedMedida}</strong>
       <span style="color:#aaa;font-size:0.72rem;">· precio desde med. base, sin IGV</span>
     </div>
+    ${getCountdownHTML(p, 'page-' + p.id)}
     <button class="btn-wsp-page" onclick="cotizarWspPage()">
       <i class="bi bi-whatsapp"></i> Pedido por WhatsApp
     </button>
@@ -512,6 +533,55 @@ function renderProdPage(p) {
     </button>
     <div class="prod-price-excl">*Precios no incluyen IGV</div>
   `;
+
+  // ── Tabs: Descripción / Detalles / Videos ──
+  const hasVideos = p.videos && p.videos.length > 0;
+  const tabsEl = document.getElementById('prodTabsSection');
+  if (tabsEl) {
+    tabsEl.innerHTML = `
+      <div class="prod-tabs">
+        <div class="prod-tabs-nav">
+          <button class="prod-tab-btn active" onclick="switchProdTab('desc',this)">
+            <i class="bi bi-file-text"></i> Descripción
+          </button>
+          <button class="prod-tab-btn" onclick="switchProdTab('details',this)">
+            <i class="bi bi-list-check"></i> Detalles del producto
+          </button>
+          ${hasVideos ? `<button class="prod-tab-btn" onclick="switchProdTab('videos',this)">
+            <i class="bi bi-play-circle"></i> Videos
+          </button>` : ''}
+        </div>
+
+        <div class="prod-tab-panel" id="prodTabDesc">
+          <div class="prod-tab-text">${p.descLarga || p.desc || 'Sin descripción disponible.'}</div>
+        </div>
+
+        <div class="prod-tab-panel" id="prodTabDetails" style="display:none;">
+          ${p.features && p.features.length ? `
+            <div class="prod-tab-sub">Características principales</div>
+            <ul class="prod-page-features">
+              ${p.features.map(f=>`<li><i class="bi bi-check-circle-fill"></i>${f}</li>`).join('')}
+            </ul>` : ''}
+          ${p.medidas && p.medidas.length ? `
+            <div class="prod-tab-sub" style="margin-top:20px;">Medidas disponibles</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+              ${p.medidas.map(m=>`<span class="medida-tag-detail">${m}</span>`).join('')}
+            </div>` : ''}
+          ${p.unidad ? `
+            <div style="margin-top:20px;font-size:0.9rem;color:#555;">
+              <strong>Unidad de medida:</strong> ${p.unidad}
+            </div>` : ''}
+        </div>
+
+        ${hasVideos ? `
+        <div class="prod-tab-panel" id="prodTabVideos" style="display:none;">
+          <div class="prod-tab-videos-grid">
+            ${p.videos.map(v=>`<div class="prod-tab-video-wrap">${buildVideoPlayer(v,{})}</div>`).join('')}
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }
 
   // Related products scroll
   const related = PRODUCTS.filter(x => x.cat === p.cat && x.id !== p.id);
@@ -524,7 +594,7 @@ function renderProdPage(p) {
             <div class="prod-related-title">Productos Relacionados</div>
             <span class="prod-related-count">${related.length} producto${related.length!==1?'s':''} en ${p.catName}</span>
           </div>
-          <div class="prod-related-scroll">
+          <div class="prod-related-scroll" id="prodRelatedScroll">
             ${related.map(rp => `
               <div class="prod-card" onclick="openProductPage(${rp.id})">
                 <div class="prod-img-area" style="background:${getGradient(rp.cat)}">
@@ -533,17 +603,13 @@ function renderProdPage(p) {
                         onerror="this.style.display='none';this.parentElement.querySelector('.prod-img-placeholder').style.display='flex'">
                        <div class="prod-img-placeholder" style="display:none;position:absolute;inset:0"><i class="bi ${rp.icon}" style="font-size:3rem;color:rgba(21,101,192,0.35)"></i></div>`
                     : `<div class="prod-img-placeholder"><i class="bi ${rp.icon}" style="font-size:3rem;color:rgba(21,101,192,0.35)"></i></div>`}
-                  <div class="prod-badge-wrap">
-                    ${rp.badge==='new'?'<span class="prod-badge badge-new">Nuevo</span>':''}
-                    ${rp.badge==='hot'?'<span class="prod-badge badge-hot">Popular</span>':''}
-                    ${rp.badge==='sale'?'<span class="prod-badge badge-sale">Oferta</span>':''}
-                  </div>
+                  <div class="prod-badge-wrap">${getBadgesHTML(rp)}</div>
                   <div class="prod-actions-hover">
                     <div class="act-btn" onclick="addCart(event,${rp.id})" title="Agregar al carrito"><i class="bi bi-bag-plus"></i></div>
                   </div>
                 </div>
                 <div class="prod-body">
-                  <div class="prod-cat-tag">${rp.catName}</div>
+                  <div class="prod-cat-tag">${rp.catName}${rp.subcatName ? ' › ' + rp.subcatName : ''}</div>
                   <div class="prod-name">${rp.name}</div>
                   ${getStarsHTML(rp)}
                   <div class="prod-desc">${rp.desc.substring(0,82)}...</div>
@@ -562,6 +628,7 @@ function renderProdPage(p) {
           </div>
         </div>
       `;
+      requestAnimationFrame(() => initDragScroll('prodRelatedScroll'));
     } else {
       relSection.innerHTML = '';
     }
@@ -612,14 +679,16 @@ function prodNavPrev() {
   if(!currentModalProduct) return;
   const sameCat = PRODUCTS.filter(x => x.cat === currentModalProduct.cat);
   const idx = sameCat.findIndex(x => x.id === currentModalProduct.id);
-  if(idx > 0) openProductPage(sameCat[idx-1].id);
+  const prevIdx = idx <= 0 ? sameCat.length - 1 : idx - 1;
+  if(sameCat[prevIdx]) openProductPage(sameCat[prevIdx].id);
 }
 
 function prodNavNext() {
   if(!currentModalProduct) return;
   const sameCat = PRODUCTS.filter(x => x.cat === currentModalProduct.cat);
   const idx = sameCat.findIndex(x => x.id === currentModalProduct.id);
-  if(idx < sameCat.length - 1) openProductPage(sameCat[idx+1].id);
+  const nextIdx = idx >= sameCat.length - 1 ? 0 : idx + 1;
+  if(sameCat[nextIdx]) openProductPage(sameCat[nextIdx].id);
 }
 
 function renderModal(p) {
@@ -760,7 +829,83 @@ function updateCartCount() {
   document.getElementById('cartCount').textContent = total;
   const el = document.getElementById('cartHeadCount');
   if(el) el.textContent = `${total} producto${total!==1?'s':''}`;
+  const lbl = document.getElementById('cartTotalLabel');
+  if(lbl) {
+    const sum = cart.reduce((s,i)=>{
+      const pr = PRICES[i.id];
+      const p = pr ? pr.precio : (i.precio != null && Number(i.precio) > 0 ? Number(i.precio) : 0);
+      const o = i.precioOferta != null ? Number(i.precioOferta) : null;
+      return s + (o && o < p ? o : p) * i.qty;
+    },0);
+    lbl.textContent = 'S/ ' + sum.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
 }
+
+/* ═══ MODAL COTIZACIÓN ═══ */
+function openCotizModal() {
+  document.getElementById('cotizOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCotizModal(e) {
+  if (e && e.target !== document.getElementById('cotizOverlay')) return;
+  document.getElementById('cotizOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeCotizModal();
+    const overlay = document.getElementById('wpopupOverlay');
+    if (overlay && overlay.classList.contains('open')) {
+      overlay.classList.remove('open');
+      localStorage.setItem('ft_wpopup_dismissed', Date.now());
+    }
+  }
+});
+
+async function submitCotiz(e) {
+  e.preventDefault();
+  const btn = document.getElementById('cotizSubmitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
+
+  const form = document.getElementById('cotizForm');
+  const data = new URLSearchParams(new FormData(form));
+
+  const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+  try {
+    const res = await fetch('/cotizar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+      body: data
+    });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      showToast('¡Solicitud enviada! Abriendo WhatsApp...');
+      closeCotizModal();
+      form.reset();
+      setTimeout(() => window.open(json.wspUrl, '_blank'), 600);
+    } else {
+      showToast('Error al enviar. Intente por WhatsApp.');
+    }
+  } catch {
+    showToast('Error de conexión. Intente por WhatsApp.');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="bi bi-send-fill"></i> Enviar solicitud';
+}
+
+function toggleMiCuentaMenu(e) {
+  e.stopPropagation();
+  const wrap = e.currentTarget.closest('.micuenta-wrap');
+  const isOpen = wrap.classList.contains('open');
+  document.querySelectorAll('.micuenta-wrap.open').forEach(w=>w.classList.remove('open'));
+  if(!isOpen) wrap.classList.add('open');
+}
+document.addEventListener('click', function(){
+  document.querySelectorAll('.micuenta-wrap.open').forEach(w=>w.classList.remove('open'));
+});
 function openCart() {
   document.getElementById('cartOverlay').classList.add('open');
   document.getElementById('cartDrawer').classList.add('open');
@@ -903,11 +1048,15 @@ function openCatPage(catId) {
   buildSidebarCats();
   renderCatPage();
   window.scrollTo({top:0, behavior:'smooth'});
+  const cat = CATS.find(c => c.id === catId);
+  const slug = cat ? toSlug(cat.name) : toSlug(catId);
+  history.pushState({type:'categoria', id:catId}, '', '/?categoria=' + slug);
 }
 
 function closeCatPage() {
   document.getElementById('catPageView').style.display = 'none';
   document.getElementById('mainView').style.display = 'block';
+  history.pushState({type:'inicio'}, '', '/');
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -959,21 +1108,18 @@ function renderCatPage() {
   } else {
     grid.innerHTML = shown.map(p => `
       <div class="prod-card" onclick="openModal(${p.id})">
-        <div class="prod-img-area" style="background:${getGradient(p.cat)}">
+        <div class="prod-img-area" style="background:${getGradient(p.cat)}" data-pid="${p.id}" data-imgs='${JSON.stringify(p.imgs||[])}'>
           ${p.imgs && p.imgs[0]
             ? `<img src="${p.imgs[0]}" alt="${p.name}" class="prod-img-real" loading="lazy"
                 onerror="this.style.display='none';this.parentElement.querySelector('.prod-img-placeholder').style.display='flex'">
                <div class="prod-img-placeholder" style="display:none;position:absolute;inset:0"><i class="bi ${p.icon}" style="font-size:3rem;color:rgba(21,101,192,0.35)"></i></div>`
             : `<div class="prod-img-placeholder"><i class="bi ${p.icon}" style="font-size:3rem;color:rgba(21,101,192,0.35)"></i></div>`}
-          <div class="prod-badge-wrap">
-            ${p.badge==='new'?'<span class="prod-badge badge-new">Nuevo</span>':''}
-            ${p.badge==='hot'?'<span class="prod-badge badge-hot">Popular</span>':''}
-            ${p.badge==='sale'?'<span class="prod-badge badge-sale">Oferta</span>':''}
-          </div>
+          <div class="prod-badge-wrap">${getBadgesHTML(p)}</div>
           <button class="prod-eye-btn" onclick="event.stopPropagation();openProductPage(${p.id})" title="Ver producto completo"><i class="bi bi-eye"></i></button>
+          <button class="prod-quick-add" onclick="addCart(event,${p.id})"><i class="bi bi-bag-plus-fill"></i> + Adición rápida</button>
         </div>
         <div class="prod-body">
-          <div class="prod-cat-tag">${p.catName}</div>
+          <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
           <div class="prod-name">${p.name}</div>
           ${getStarsHTML(p)}
           <div class="prod-desc">${p.desc.substring(0,95)}...</div>
@@ -987,6 +1133,7 @@ function renderCatPage() {
         </div>
       </div>
     `).join('');
+    initProdImgCycle(grid);
   }
   document.getElementById('catLoadMoreArea').style.display = (cpPerPage < prods.length) ? 'block' : 'none';
   document.querySelectorAll('.tsb').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === cpPerPage));
@@ -1169,43 +1316,35 @@ function buildNavDropdowns() {
     const featured = PRODUCTS.filter(p => p.badge === 'new' || p.badge === 'hot').slice(0, 3);
 
     const catLinks = CATS.map(c => `
-      <a href="#" class="nav-drop-item" onclick="event.preventDefault();closeAllDropdowns();openCatPage('${c.id}')">
-        <i class="bi ${c.icon} nav-drop-icon"></i>
-        <span>${c.name}</span>
-        <span class="nav-drop-count">${c.count}</span>
+      <a href="#" class="nav-mega-cat-link" onclick="event.preventDefault();closeAllDropdowns();openCatPage('${c.id}')">
+        ${c.name}
       </a>
     `).join('');
 
-    const featCards = featured.map(p => `
-      <div class="nav-feat-card" onclick="closeAllDropdowns();openProductPage(${p.id})">
-        <div class="nav-feat-img-wrap" style="background:${getGradient(p.cat)}">
-          ${p.imgs && p.imgs[0]
-            ? `<img src="${p.imgs[0]}" alt="${p.name}" class="nav-feat-img" loading="lazy"
-                onerror="this.parentElement.innerHTML='<div class=nav-feat-img-ph><i class=bi\\ ${p.icon.replace(/\\/g,'')} style=color:rgba(21,101,192,0.4)></i></div>'">`
-            : `<div class="nav-feat-img-ph"><i class="bi ${p.icon}" style="color:rgba(21,101,192,0.4)"></i></div>`}
-        </div>
-        <div class="nav-feat-body">
-          ${p.badge==='new' ? '<span class="nav-feat-nbadge badge-new">Nuevo</span>' : ''}
-          ${p.badge==='hot' ? '<span class="nav-feat-nbadge badge-hot">Popular</span>' : ''}
-          <div class="nav-feat-name">${p.name}</div>
-          <div class="nav-feat-cat">${p.catName}</div>
-        </div>
-      </div>
-    `).join('');
+    const featProds = PRODUCTS.filter(p => p.imgs && p.imgs[0]).slice(0, 2);
+    const fallbacks = ['/img/img13.png', '/img/img14.png'];
+    const twoImgs = [0, 1].map(i => {
+      const p = featProds[i];
+      const src = p ? p.imgs[0] : fallbacks[i];
+      const alt = p ? p.name : 'Full Toldos';
+      const onclick = p ? `closeAllDropdowns();openProductPage(${p.id})` : '';
+      return `<div class="nav-mega-photo" ${onclick ? `onclick="${onclick}"` : ''}>
+        <img src="${src}" alt="${alt}" loading="lazy">
+      </div>`;
+    }).join('');
 
     catMenu.innerHTML = `
       <div class="nav-mega-inner">
-        <div class="nav-mega-left">
-          <span class="nav-mega-section-title">Categorías</span>
-          ${catLinks}
-          <div class="nav-drop-divider"></div>
-          <a href="#" class="nav-drop-all" onclick="event.preventDefault();closeAllDropdowns();openCatPage('all')">
+        <div class="nav-mega-links-area">
+          <div class="nav-mega-cols">
+            ${catLinks}
+          </div>
+          <a href="#" class="nav-mega-ver-todos" onclick="event.preventDefault();closeAllDropdowns();openCatPage('all')">
             Ver todos los productos <i class="bi bi-arrow-right"></i>
           </a>
         </div>
-        <div class="nav-mega-right">
-          <span class="nav-mega-section-title">Productos Destacados</span>
-          <div class="nav-feat-grid">${featCards}</div>
+        <div class="nav-mega-photos-area">
+          ${twoImgs}
         </div>
       </div>
     `;
@@ -1213,58 +1352,86 @@ function buildNavDropdowns() {
 
   const prodMenu = document.getElementById('navProdMenu');
   if(prodMenu) {
-    prodMenu.classList.add('nav-prods-mega');
+    prodMenu.classList.add('nav-mega-menu');
 
-    // 5 productos destacados: primero los que tienen badge, luego rellena
-    let featProds = PRODUCTS.filter(p => p.badge);
-    const rest = PRODUCTS.filter(p => !p.badge);
-    let i = 0;
-    while(featProds.length < 5 && i < rest.length) { featProds.push(rest[i++]); }
-    featProds = featProds.slice(0, 5);
-
-    const cards = featProds.map(p => `
-      <div class="nav-feat-card" onclick="closeAllDropdowns();openProductPage(${p.id})">
-        <div class="nav-feat-img-wrap" style="background:${getGradient(p.cat)}">
-          ${p.imgs && p.imgs[0]
-            ? `<img src="${p.imgs[0]}" alt="${p.name}" class="nav-feat-img" loading="lazy"
-                onerror="this.style.display='none'">`
-            : `<div class="nav-feat-img-ph"><i class="bi ${p.icon}" style="color:rgba(0,0,0,0.25)"></i></div>`}
-          ${p.badge === 'new'  ? '<span style="position:absolute;top:6px;left:6px;font-size:0.48rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:#e8eaf6;color:#1949c9;padding:2px 7px;border-radius:10px;font-family:var(--font-mono)">NUEVO</span>' : ''}
-          ${p.badge === 'hot'  ? '<span style="position:absolute;top:6px;left:6px;font-size:0.48rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:#fce4ec;color:#c62828;padding:2px 7px;border-radius:10px;font-family:var(--font-mono)">POPULAR</span>' : ''}
-          ${p.badge === 'sale' ? '<span style="position:absolute;top:6px;left:6px;font-size:0.48rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;background:#e8eaf6;color:#1949c9;padding:2px 7px;border-radius:10px;font-family:var(--font-mono)">OFERTA</span>' : ''}
-        </div>
-        <div class="nav-feat-body">
-          <div class="nav-feat-name">${p.name}</div>
-          <div class="nav-feat-cat">${p.catName}</div>
-        </div>
-      </div>
+    const prodLinks = PRODUCTS.slice(0, 8).map(p => `
+      <a href="#" class="nav-drop-item" onclick="event.preventDefault();closeAllDropdowns();openProductPage(${p.id})">
+        <span>${p.name}</span>
+      </a>
     `).join('');
 
-    prodMenu.innerHTML = `
-      <div class="nav-prods-header">
-        <span class="nav-mega-section-title" style="padding:0;margin:0">Productos Destacados</span>
-        <a href="#" class="nav-drop-all" style="border:none;padding:0;font-size:0.62rem;"
-          onclick="event.preventDefault();closeAllDropdowns();openCatPage('all')">
-          Ver todos <i class="bi bi-arrow-right"></i>
-        </a>
+    const carouselCards = PRODUCTS.map(p => {
+      const wspMsg = encodeURIComponent(`Hola Full Toldos! Me interesa: *${p.name}*. Quisiera una cotización.`);
+      return `
+      <div class="nav-car-card" onclick="closeAllDropdowns();openProductPage(${p.id})">
+        <div class="nav-car-img-wrap" style="background:${getGradient(p.cat)}">
+          ${p.imgs && p.imgs[0]
+            ? `<img src="${p.imgs[0]}" alt="${p.name}" class="nav-car-img" loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=nav-car-img-ph><i class=bi\\ bi-box></i></div>'">`
+            : `<div class="nav-car-img-ph"><i class="bi bi-box"></i></div>`}
+          ${p.badge === 'new'  ? '<span class="nav-car-badge badge-new">Nuevo</span>' : ''}
+          ${p.badge === 'hot'  ? '<span class="nav-car-badge badge-hot">Popular</span>' : ''}
+          ${p.badge === 'sale' ? '<span class="nav-car-badge badge-sale">Oferta</span>' : ''}
+        </div>
+        <div class="nav-car-body">
+          <div class="nav-car-name">${p.name}</div>
+          <div class="nav-car-cat">${p.catName}</div>
+          <div class="nav-car-price">${getCarPrice(p)}</div>
+          <a class="nav-car-wsp-btn" href="https://wa.me/51999999999?text=${wspMsg}" target="_blank" onclick="event.stopPropagation()" title="Pedir por WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+        </div>
       </div>
-      <div class="nav-feat-grid-5">${cards}</div>
+    `}).join('');
+
+    prodMenu.innerHTML = `
+      <div class="nav-car-full">
+        <div class="nav-car-wrap">
+          <button class="nav-car-btn nav-car-prev" onclick="navCarMove(-1)"><i class="bi bi-chevron-left"></i></button>
+          <div class="nav-car-viewport">
+            <div class="nav-car-track" id="navCarTrack">${carouselCards}</div>
+          </div>
+          <button class="nav-car-btn nav-car-next" onclick="navCarMove(1)"><i class="bi bi-chevron-right"></i></button>
+        </div>
+        <div class="nav-car-footer">
+          <a href="#" class="nav-drop-all" onclick="event.preventDefault();closeAllDropdowns();openCatPage('all')">
+            Ver todos los productos <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+      </div>
     `;
+    navCarIdx = 0;
+    positionProdMenu();
   }
 
-  // Click toggle
-  document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      const parent = this.closest('.nav-dropdown');
-      const isOpen = parent.classList.contains('open');
+  // Hover toggle — el timer se cancela si el mouse entra al menú desplegable
+  let closeTimer = null;
+
+  document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+    const menu = dropdown.querySelector('.nav-dropdown-menu');
+
+    const openIt = () => {
+      clearTimeout(closeTimer);
       closeAllDropdowns();
-      if(!isOpen) parent.classList.add('open');
-    });
+      dropdown.classList.add('open');
+      if (dropdown.querySelector('#navCatMenu'))  positionCatMenu();
+      if (dropdown.querySelector('#navProdMenu')) positionProdMenu();
+    };
+    const scheduleClose = () => {
+      closeTimer = setTimeout(() => dropdown.classList.remove('open'), 250);
+    };
+
+    dropdown.addEventListener('mouseenter', openIt);
+    dropdown.addEventListener('mouseleave', scheduleClose);
+
+    if (menu) {
+      menu.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+      menu.addEventListener('mouseleave', scheduleClose);
+    }
   });
 
-  document.addEventListener('click', function(e) {
-    if(!e.target.closest('.nav-dropdown')) closeAllDropdowns();
+  document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+    toggle.addEventListener('click', e => e.preventDefault());
   });
 }
 
@@ -1272,10 +1439,243 @@ function closeAllDropdowns() {
   document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
 }
 
-// ═══════════════════════════ SCROLL TOP ═══════════════════════════
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 400);
-});
+// ═══════════════════════════ VISTO RECIENTEMENTE ═══════════════════════════
+const VISTO_KEY = 'ft_visto';
+const VISTO_MAX = 8;
+
+function addVistoRecientemente(id) {
+  let list = JSON.parse(localStorage.getItem(VISTO_KEY) || '[]');
+  list = list.filter(x => x !== id);
+  list.unshift(id);
+  if (list.length > VISTO_MAX) list = list.slice(0, VISTO_MAX);
+  localStorage.setItem(VISTO_KEY, JSON.stringify(list));
+}
+
+function renderVistoRecientemente(currentId) {
+  const sec = document.getElementById('prodVistoSection');
+  if (!sec) return;
+  const list = JSON.parse(localStorage.getItem(VISTO_KEY) || '[]')
+    .filter(id => id !== currentId)
+    .slice(0, 6);
+  if (!list.length) { sec.innerHTML = ''; return; }
+
+  const cards = list.map(id => {
+    const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return '';
+    return `
+      <div class="visto-card" onclick="openProductPage(${p.id})">
+        <div class="visto-img-wrap" style="background:${getGradient(p.cat)}">
+          ${p.imgs && p.imgs[0]
+            ? `<img src="${p.imgs[0]}" alt="${p.name}" class="visto-img" loading="lazy" onerror="this.style.display='none'">`
+            : `<div class="visto-img-ph"><i class="bi ${p.icon}"></i></div>`}
+        </div>
+        <div class="visto-body">
+          <div class="visto-cat">${p.catName}</div>
+          <div class="visto-name">${p.name}</div>
+          <div class="visto-price">${getCarPrice(p)}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  sec.innerHTML = `
+    <div class="visto-section">
+      <div class="visto-header">
+        <i class="bi bi-clock-history"></i> Visto recientemente
+      </div>
+      <div class="visto-grid">${cards}</div>
+    </div>`;
+}
+
+function initProdTopbarSticky() {
+  // CSS position:sticky handles this — overflow-x:clip on body keeps it working
+}
+
+function positionCatMenu() {
+  const catMenu = document.getElementById('navCatMenu');
+  const navRow = document.querySelector('.navbar-nav-row .container');
+  if (!catMenu || !navRow) return;
+  const catDropdown = catMenu.closest('.nav-dropdown');
+  if (!catDropdown) return;
+  const rowRect = navRow.getBoundingClientRect();
+  const dropRect = catDropdown.getBoundingClientRect();
+  catMenu.style.setProperty('left', (rowRect.left - dropRect.left) + 'px', 'important');
+  catMenu.style.setProperty('width', rowRect.width + 'px', 'important');
+  catMenu.style.setProperty('min-width', 'unset', 'important');
+}
+
+function positionProdMenu() {
+  const prodMenu = document.getElementById('navProdMenu');
+  const navRow = document.querySelector('.navbar-nav-row .container');
+  if (!prodMenu || !navRow) return;
+  const prodDropdown = prodMenu.closest('.nav-dropdown');
+  if (!prodDropdown) return;
+  const rowRect = navRow.getBoundingClientRect();
+  const dropRect = prodDropdown.getBoundingClientRect();
+  const leftVal = (rowRect.left - dropRect.left) + 'px';
+  const widthVal = rowRect.width + 'px';
+  prodMenu.style.setProperty('left', leftVal, 'important');
+  prodMenu.style.setProperty('width', widthVal, 'important');
+  prodMenu.style.setProperty('min-width', 'unset', 'important');
+}
+
+let navCarIdx = 0;
+const NAV_CAR_VISIBLE = 4;
+function navCarMove(dir) {
+  const track = document.getElementById('navCarTrack');
+  if (!track) return;
+  const cards = track.querySelectorAll('.nav-car-card');
+  const max = Math.max(0, cards.length - NAV_CAR_VISIBLE);
+  navCarIdx = Math.min(Math.max(navCarIdx + dir, 0), max);
+  const cardW = cards[0] ? cards[0].offsetWidth + 14 : 0;
+  track.style.transform = `translateX(-${navCarIdx * cardW}px)`;
+}
+
+// ═══════════════════════════ TABS PRODUCTOS ═══════════════════════════
+let tprodActiveTab = 'all';
+let tprodFeatIdx   = 0;
+let tprodGridPage  = 0;
+const TPROD_PER_PAGE = 6;
+
+function getTprodProds() {
+  if (tprodActiveTab === 'all') return [...PRODUCTS];
+  return PRODUCTS.filter(p => p.badge === tprodActiveTab);
+}
+
+function tprodSwitchTab(tab) {
+  tprodActiveTab = tab;
+  tprodFeatIdx   = 0;
+  tprodGridPage  = 0;
+  document.querySelectorAll('.tprod-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  renderTprod();
+}
+
+function tprodFeatPrev() {
+  const prods = getTprodProds();
+  if (!prods.length) return;
+  tprodFeatIdx = (tprodFeatIdx - 1 + prods.length) % prods.length;
+  renderTprodFeat();
+}
+
+function tprodFeatNext() {
+  const prods = getTprodProds();
+  if (!prods.length) return;
+  tprodFeatIdx = (tprodFeatIdx + 1) % prods.length;
+  renderTprodFeat();
+}
+
+function tprodGridPrev() {
+  if (tprodGridPage > 0) { tprodGridPage--; renderTprodGrid(); }
+}
+
+function tprodGridNext() {
+  const prods = getTprodProds();
+  if ((tprodGridPage + 1) * TPROD_PER_PAGE < prods.length) { tprodGridPage++; renderTprodGrid(); }
+}
+
+function renderTprodFeat() {
+  const el = document.getElementById('tprodFeatured');
+  if (!el) return;
+  const prods = getTprodProds();
+  if (!prods.length) { el.innerHTML = '<div style="padding:40px;text-align:center;color:#aaa;font-size:0.8rem;">Sin productos</div>'; return; }
+  const p = prods[tprodFeatIdx % prods.length];
+  const wspMsg = encodeURIComponent(`Hola Full Toldos! Me interesa: *${p.name}*. Quisiera una cotización.`);
+  el.innerHTML = `
+    <div class="tprod-feat-card" onclick="openProductPage(${p.id})">
+      <div class="tprod-feat-img" style="background:${getGradient(p.cat)}">
+        ${p.imgs && p.imgs[0]
+          ? `<img src="${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`
+          : `<i class="bi ${p.icon}" style="font-size:5rem;color:rgba(0,0,0,0.12)"></i>`}
+        ${p.badge === 'new'  ? '<span class="tprod-badge badge-new">Nuevo</span>'   : ''}
+        ${p.badge === 'hot'  ? '<span class="tprod-badge badge-hot">Popular</span>' : ''}
+        ${p.badge === 'sale' ? '<span class="tprod-badge badge-sale">Oferta</span>' : ''}
+      </div>
+      <div class="tprod-feat-body">
+        <div class="tprod-feat-name">${p.name}</div>
+        <div class="tprod-feat-cat">${p.catName}</div>
+        ${getPriceHTML(p)}
+      </div>
+    </div>`;
+}
+
+function renderTprodGrid() {
+  const el = document.getElementById('tprodGrid');
+  if (!el) return;
+  const prods = getTprodProds();
+  const start = tprodGridPage * TPROD_PER_PAGE;
+  const page  = prods.slice(start, start + TPROD_PER_PAGE);
+  if (!page.length) {
+    el.innerHTML = '<div style="grid-column:1/-1;padding:40px;text-align:center;color:#aaa;font-size:0.8rem;">Sin productos en esta categoría</div>';
+    return;
+  }
+  el.innerHTML = page.map(p => {
+    const wspMsg = encodeURIComponent(`Hola Full Toldos! Me interesa: *${p.name}*. Quisiera una cotización.`);
+    return `
+    <div class="tprod-card" onclick="openProductPage(${p.id})">
+      <div class="tprod-card-img" style="background:${getGradient(p.cat)}">
+        ${p.imgs && p.imgs[0]
+          ? `<img src="${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">`
+          : `<i class="bi ${p.icon}" style="font-size:2.5rem;color:rgba(0,0,0,0.15)"></i>`}
+        ${p.badge === 'new'  ? '<span class="tprod-badge badge-new">Nuevo</span>'   : ''}
+        ${p.badge === 'hot'  ? '<span class="tprod-badge badge-hot">Popular</span>' : ''}
+        ${p.badge === 'sale' ? '<span class="tprod-badge badge-sale">Oferta</span>' : ''}
+      </div>
+      <div class="tprod-card-body">
+        <div class="tprod-card-name">${p.name}</div>
+        <div class="tprod-card-cat">${p.catName}</div>
+        ${getPriceHTML(p)}
+        <button class="btn-wsp-tprod" onclick="event.stopPropagation();window.open('https://wa.me/51999999999?text=${wspMsg}','_blank')">
+          <i class="bi bi-whatsapp"></i> Pedido por WhatsApp
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTprod() {
+  renderTprodFeat();
+  renderTprodGrid();
+}
+
+// ═══════════════════════════ SCROLL TOP + HIDE NAV ═══════════════════════════
+(function initScrollBehavior() {
+  const tb = document.querySelector('.topbar-ft');
+  const nb = document.querySelector('.navbar-ft');
+  let lastY = window.scrollY;
+  let tbH = 0, nbH = 0;
+
+  function updateHeights() {
+    tbH = tb ? tb.getBoundingClientRect().height : 0;
+    nbH = nb ? nb.getBoundingClientRect().height : 0;
+  }
+  updateHeights();
+  window.addEventListener('resize', updateHeights);
+
+  function setStickyBars(navVisible) {
+    const prodTopbar = document.querySelector('.prod-page-topbar');
+    const catTopbar  = document.querySelector('#catPageView .cat-page-header');
+    const offset = navVisible ? (tbH + nbH) + 'px' : '0px';
+    if (prodTopbar) prodTopbar.style.top = offset;
+    if (catTopbar)  catTopbar.style.top  = offset;
+  }
+
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+
+    document.getElementById('scrollTopBtn').classList.toggle('visible', y > 400);
+
+    if (y > 80 && y > lastY) {
+      if (tb) tb.style.transform = 'translateY(-100%)';
+      if (nb) nb.style.transform = `translateY(${-(tbH + nbH)}px)`;
+      setStickyBars(false);
+    } else {
+      if (tb) tb.style.transform = '';
+      if (nb) nb.style.transform = '';
+      setStickyBars(true);
+    }
+
+    lastY = y;
+  }, { passive: true });
+})();
 
 // ═══════════════════════════ GALERÍA ═══════════════════════════
 let galleryItems = [];
@@ -1357,16 +1757,55 @@ function galSetCat(catId) {
 }
 
 // ─── Lightbox ───
+let _lbMode      = 'gallery'; // 'gallery' | 'product'
+let _prodLbItems = [];
+let _prodLbIdx   = 0;
+
 function openLightbox(idx) {
+  _lbMode = 'gallery';
   lightboxIdx = idx;
   updateLightbox();
   document.getElementById('lightboxOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
+function openProdImgLightbox(startIdx) {
+  const p = currentModalProduct;
+  if (!p || !p.imgs || !p.imgs.length) return;
+  cleanupProductZoom();
+  _lbMode      = 'product';
+  _prodLbItems = p.imgs;
+  _prodLbIdx   = startIdx || 0;
+  _updateProdLb();
+  document.getElementById('lightboxOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function _updateProdLb() {
+  const p    = currentModalProduct;
+  const img  = document.getElementById('lightboxImg');
+  const name = document.getElementById('lightboxName');
+  const cat  = document.getElementById('lightboxCat');
+  const vBtn = document.getElementById('lightboxViewBtn');
+  const prev = document.querySelector('.lightbox-prev');
+  const next = document.querySelector('.lightbox-next');
+  img.style.opacity = '0';
+  setTimeout(() => { img.src = _prodLbItems[_prodLbIdx]; img.style.opacity = '1'; }, 140);
+  if (name) name.textContent = p ? p.name : '';
+  if (cat)  cat.textContent  = (_prodLbIdx + 1) + ' / ' + _prodLbItems.length;
+  if (vBtn) vBtn.style.display = 'none';
+  if (prev) prev.disabled = _prodLbIdx <= 0;
+  if (next) next.disabled = _prodLbIdx >= _prodLbItems.length - 1;
+}
+
 function closeLightbox() {
   document.getElementById('lightboxOverlay').classList.remove('open');
   document.body.style.overflow = '';
+  if (_lbMode === 'product') {
+    _lbMode = 'gallery';
+    const vBtn = document.getElementById('lightboxViewBtn');
+    if (vBtn) vBtn.style.display = '';
+  }
 }
 
 function updateLightbox() {
@@ -1383,6 +1822,13 @@ function updateLightbox() {
 }
 
 function lightboxNav(dir) {
+  if (_lbMode === 'product') {
+    const n = _prodLbIdx + dir;
+    if (n < 0 || n >= _prodLbItems.length) return;
+    _prodLbIdx = n;
+    _updateProdLb();
+    return;
+  }
   const n = lightboxIdx + dir;
   if(n < 0 || n >= galleryItems.length) return;
   lightboxIdx = n;
@@ -1447,7 +1893,7 @@ function renderTambienInteresa(containerId, excludeCatId, excludeIds) {
                 <button class="prod-eye-btn" onclick="event.stopPropagation();openProductPage(${p.id})" title="Ver producto completo"><i class="bi bi-eye"></i></button>
               </div>
               <div class="prod-body">
-                <div class="prod-cat-tag">${p.catName}</div>
+                <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
                 <div class="prod-name">${p.name}</div>
                 ${getStarsHTML(p)}
                 <div class="prod-desc">${p.desc.substring(0,75)}...</div>
@@ -1469,12 +1915,57 @@ function renderTambienInteresa(containerId, excludeCatId, excludeIds) {
 
 function tambienNav(id, dir) {
   const el = document.getElementById(id);
-  if(el) el.scrollBy({ left: dir * 260, behavior: 'smooth' });
+  if(!el) return;
+  const max = el.scrollWidth - el.clientWidth;
+  if(dir > 0 && el.scrollLeft >= max - 5) {
+    el.scrollTo({ left: 0, behavior: 'smooth' });
+  } else if(dir < 0 && el.scrollLeft <= 5) {
+    el.scrollTo({ left: max, behavior: 'smooth' });
+  } else {
+    el.scrollBy({ left: dir * 260, behavior: 'smooth' });
+  }
+}
+
+// Drag con mouse para cualquier scroll horizontal
+function initDragScroll(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  let startX = 0, startLeft = 0, dragging = false, moved = false;
+
+  el.addEventListener('mousedown', function(e) {
+    dragging = true; moved = false;
+    startX = e.clientX;
+    startLeft = el.scrollLeft;
+    el.style.cursor = 'grabbing';
+    el.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if(!dragging) return;
+    const delta = e.clientX - startX;
+    if(Math.abs(delta) > 4) moved = true;
+    el.scrollLeft = startLeft - delta;
+  });
+
+  window.addEventListener('mouseup', function() {
+    if(!dragging) return;
+    dragging = false;
+    el.style.cursor = 'grab';
+    el.style.userSelect = '';
+  });
+
+  el.addEventListener('click', function(e) {
+    if(moved) { e.stopPropagation(); moved = false; }
+  }, true);
+
+  el.style.cursor = 'grab';
 }
 
 function initTambienAutoScroll(id) {
   const el = document.getElementById(id);
   if(!el) return;
+  initDragScroll(id);
   let timer = setInterval(() => scrollTambien(el), 3000);
   el.addEventListener('mouseenter', () => clearInterval(timer));
   el.addEventListener('mouseleave', () => {
@@ -1876,10 +2367,37 @@ function doNavSearch() {
 // ═══════════════════════════ INIT ═══════════════════════════
 buildTicker();
 buildCats();
+initCatInfinite();
+initCatSliderDrag();
 buildFilterTabs();
 renderProducts();
-buildMaterials();
-buildWhy();
+
+// Navegación por URL: abre producto o categoría según parámetros
+(function urlRouting() {
+  const params = new URLSearchParams(window.location.search);
+  const prodId = params.get('producto');
+  const catId  = params.get('categoria');
+  if (prodId) {
+    setTimeout(function() {
+      const p = findProductBySlug(prodId);
+      if (p) openProductPage(p.id);
+    }, 100);
+  } else if (catId) {
+    setTimeout(function() {
+      const cat = CATS.find(c => toSlug(c.name) === catId) || CATS.find(c => c.id === catId);
+      if (cat) openCatPage(cat.id);
+    }, 100);
+  }
+  window.addEventListener('popstate', function(e) {
+    const st = e.state;
+    if (!st) { closeProdPage(); return; }
+    if (st.type === 'producto') openProductPage(st.id);
+    else if (st.type === 'categoria') openCatPage(st.id);
+    else closeProdPage();
+  });
+})();
+
+renderTprod();
 buildFooter();
 buildNavDropdowns();
 buildNavSearch();
@@ -2049,6 +2567,73 @@ function shareProduct() {
   if (navigator.share) {
     navigator.share({ title, url }).catch(() => {});
   } else {
-    navigator.clipboard.writeText(url).then(() => showToast('Enlace copiado al portapapeles'));
+    navigator.clipboard.writeText(url).then(() => showToast('Enlace copiado al portapaperes'));
   }
+}
+
+/* ═══ GALERÍA CLIENTES — carrusel ═══ */
+(function() {
+  var cgIdx = 0;
+  var cgTotal = 0;
+  var cgVisible = 2;
+
+  function cgUpdate() {
+    var track = document.getElementById('clientesGalTrack');
+    if (!track) return;
+    var slides = track.querySelectorAll('.clientes-gal-slide');
+    cgTotal = slides.length;
+    cgVisible = window.innerWidth <= 768 ? 1 : 2;
+    var maxIdx = Math.max(0, cgTotal - cgVisible);
+    if (cgIdx > maxIdx) cgIdx = maxIdx;
+    var slideW = slides[0] ? slides[0].offsetWidth + 20 : 0;
+    track.style.transform = 'translateX(-' + (cgIdx * slideW) + 'px)';
+  }
+
+  window.clientesGalNav = function(dir) {
+    var track = document.getElementById('clientesGalTrack');
+    if (!track) return;
+    var slides = track.querySelectorAll('.clientes-gal-slide');
+    cgTotal = slides.length;
+    cgVisible = window.innerWidth <= 768 ? 1 : 2;
+    var maxIdx = Math.max(0, cgTotal - cgVisible);
+    cgIdx = Math.max(0, Math.min(cgIdx + dir, maxIdx));
+    cgUpdate();
+  };
+
+  window.addEventListener('resize', cgUpdate);
+  document.addEventListener('DOMContentLoaded', cgUpdate);
+})();
+
+// ═══════════════════════════ POPUP BIENVENIDA ═══════════════════════════
+(function initWelcomePopup() {
+  const STORAGE_KEY = 'ft_wpopup_dismissed';
+  const DAYS = 7;
+
+  function shouldShow() {
+    const ts = localStorage.getItem(STORAGE_KEY);
+    if (!ts) return true;
+    return Date.now() - Number(ts) > DAYS * 86400000;
+  }
+
+  if (shouldShow()) {
+    setTimeout(function() {
+      const overlay = document.getElementById('wpopupOverlay');
+      if (overlay) overlay.classList.add('open');
+    }, 2500);
+  }
+})();
+
+function closeWelcomePopup(e) {
+  if (e && e.target !== document.getElementById('wpopupOverlay')) return;
+  document.getElementById('wpopupOverlay').classList.remove('open');
+  localStorage.setItem('ft_wpopup_dismissed', Date.now());
+}
+
+function submitWelcomeEmail(e) {
+  e.preventDefault();
+  const email = document.getElementById('wpopupEmail').value.trim();
+  if (!email) return;
+  document.getElementById('wpopupOverlay').classList.remove('open');
+  localStorage.setItem('ft_wpopup_dismissed', Date.now());
+  showToast('¡Gracias! Te mantendremos informado.');
 }
