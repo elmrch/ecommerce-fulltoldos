@@ -41,7 +41,8 @@ function getPriceHTML(p, large) {
   const precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
   if(precio == null) return `<span class="prod-price" style="color:var(--azul-claro);">Consultar</span>`;
   const sz = large ? 'font-size:2.2rem' : 'font-size:1.4rem';
-  const oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
+  let oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
+  if (!oferta && p.descuento && p.descuento > 0) oferta = Math.round(precio * (1 - p.descuento / 100));
   if (oferta && oferta < precio) {
     return `<div class="prod-price-block">
       <span class="prod-price-original">S/ ${precio.toLocaleString('es-PE')}</span>
@@ -56,7 +57,8 @@ function getCarPrice(p) {
   const pr = PRICES[p.id];
   const precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
   if (!precio) return `<span class="car-price-consultar">Consultar</span>`;
-  const oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
+  let oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
+  if (!oferta && p.descuento && p.descuento > 0) oferta = Math.round(precio * (1 - p.descuento / 100));
   if (oferta && oferta < precio) {
     return `<span class="car-price-original">S/ ${precio.toLocaleString('es-PE')}</span>
             <span class="car-price-now">S/ ${oferta.toLocaleString('es-PE')}</span>`;
@@ -101,7 +103,13 @@ const WHY = [
 ];
 
 // ═══════════════════════════ STATE ═══════════════════════════
+const CART_KEY = 'ft_cart';
+function saveCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+function loadCart() {
+  try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { cart = []; }
+}
 let cart = [];
+loadCart();
 let activeFilter = 'all';
 let visibleCount = 9;
 let currentSlide = 0;
@@ -347,7 +355,9 @@ function renderProducts() {
           `<div class="prod-img-placeholder"><i class="bi ${p.icon}" style="font-size:3rem;color:rgba(0,0,0,0.2)"></i></div>`}
         <div class="prod-badge-wrap">${getBadgesHTML(p)}</div>
         <button class="prod-eye-btn" onclick="event.stopPropagation();openProductPage(${p.id})" title="Ver producto completo"><i class="bi bi-eye"></i></button>
-        <button class="prod-quick-add" onclick="addCart(event,${p.id})"><i class="bi bi-bag-plus-fill"></i> + Adición rápida</button>
+        ${p.stock === 0
+          ? `<button class="prod-quick-add prod-quick-agotado" disabled><i class="bi bi-slash-circle"></i> Agotado</button>`
+          : `<button class="prod-quick-add" onclick="addCart(event,${p.id})"><i class="bi bi-bag-plus-fill"></i> +agregar carrito</button>`}
       </div>
       <div class="prod-body">
         <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
@@ -398,8 +408,7 @@ function openProductPage(id) {
   selectedMedida = p.medidas[0] || '';
   selectedColor = p.colores[0] || '';
   currentImgIdx = 0;
-  document.getElementById('mainView').style.display = 'none';
-  document.getElementById('catPageView').style.display = 'none';
+  hideAllViews();
   document.getElementById('prodPageView').style.display = 'block';
   renderProdPage(p);
   setTimeout(initProductZoom, 80);
@@ -413,7 +422,7 @@ function openProductPage(id) {
 
 function closeProdPage() {
   cleanupProductZoom();
-  document.getElementById('prodPageView').style.display = 'none';
+  hideAllViews();
   if(prevPageView === 'category') {
     document.getElementById('catPageView').style.display = 'block';
     history.pushState({type:'categoria'}, '', '/?categoria=' + cpCat);
@@ -452,6 +461,8 @@ function renderProdPage(p) {
   // Thumbnails + main image
   const thumbStrip = document.getElementById('prodThumbStrip');
   const mainImg = document.getElementById('prodMainImg');
+  _pthumbOffset = 0;
+  if(thumbStrip) thumbStrip.style.transform = '';
   if(p.imgs && p.imgs.length) {
     thumbStrip.innerHTML = p.imgs.map((img,i) => `
       <img src="${img}" alt="${p.name} ${i+1}" class="pthumb ${i===0?'active':''}"
@@ -459,9 +470,11 @@ function renderProdPage(p) {
         onerror="this.style.display='none'">`).join('');
     mainImg.src = p.imgs[0];
     mainImg.alt = p.name;
+    updateThumbArrows(p.imgs.length);
   } else {
     thumbStrip.innerHTML = '';
     mainImg.src = `https://via.placeholder.com/600x460/e3f2fd/1565c0?text=${encodeURIComponent(p.name)}`;
+    updateThumbArrows(0);
   }
 
   // Flechas de imagen
@@ -525,13 +538,50 @@ function renderProdPage(p) {
       <span style="color:#aaa;font-size:0.72rem;">· precio desde med. base, sin IGV</span>
     </div>
     ${getCountdownHTML(p, 'page-' + p.id)}
-    <button class="btn-wsp-page" onclick="cotizarWspPage()">
-      <i class="bi bi-whatsapp"></i> Pedido por WhatsApp
-    </button>
-    <button class="btn-cart-page" onclick="addCartById(${p.id});showToast('${p.name} agregado al carrito')">
-      <i class="bi bi-bag-plus-fill"></i> Agregar al carrito de consulta
-    </button>
-    <div class="prod-price-excl">*Precios no incluyen IGV</div>
+    <div class="prod-page-actions">
+      <div class="prod-page-row1">
+        <div class="pp-qty-wrap">
+          <button class="pp-qty-btn" onclick="ppQtyChange(-1)">-</button>
+          <span class="pp-qty-num" id="ppQtyNum">1</span>
+          <button class="pp-qty-btn" onclick="ppQtyChange(1)">+</button>
+        </div>
+        ${p.stock === 0
+          ? `<button class="btn-cart-page btn-cart-agotado" disabled>AGOTADO</button>`
+          : `<button class="btn-cart-page" onclick="addCartById(${p.id});showToast('${p.name} agregado al carrito')">AÑADIR AL CARRITO</button>`}
+      </div>
+      <button class="btn-wsp-page" onclick="cotizarWspPage()">
+        <i class="bi bi-whatsapp"></i> COMPRAR EN WHATSAPP
+      </button>
+    </div>
+    <div class="prod-price-excl">*</div>
+    <div class="csb-prod">
+      <div class="csb-header">
+        <span class="csb-title">Pago y seguridad</span>
+        <i class="bi bi-lock-fill csb-lock"></i>
+      </div>
+      <div class="csb-logos">
+        <span class="csb-logo csb-visa">VISA</span>
+        <span class="csb-logo csb-mc"><i class="bi bi-circle-fill" style="color:#eb001b;font-size:0.85rem;"></i><i class="bi bi-circle-fill" style="color:#f79e1b;font-size:0.85rem;margin-left:-6px;"></i></span>
+        <span class="csb-logo csb-bbva">BBVA</span>
+        <span class="csb-logo csb-bcp">BCP</span>
+        <span class="csb-logo csb-yape">Yape</span>
+      </div>
+      <p class="csb-note">Su información de pago se procesa de forma segura. No almacenamos los datos de su tarjeta de crédito ni tenemos acceso a ella.</p>
+      <div class="csb-policies">
+        <div class="csb-policy">
+          <i class="bi bi-shield-lock"></i>
+          <span>POLÍTICA DE<br>SEGURIDAD</span>
+        </div>
+        <div class="csb-policy">
+          <i class="bi bi-truck"></i>
+          <span>POLÍTICA DE<br>ENTREGA</span>
+        </div>
+        <div class="csb-policy">
+          <i class="bi bi-arrow-return-left"></i>
+          <span>POLÍTICA DE<br>DEVOLUCIÓN</span>
+        </div>
+      </div>
+    </div>
   `;
 
   // ── Tabs: Descripción / Detalles / Videos ──
@@ -605,7 +655,9 @@ function renderProdPage(p) {
                     : `<div class="prod-img-placeholder"><i class="bi ${rp.icon}" style="font-size:3rem;color:rgba(21,101,192,0.35)"></i></div>`}
                   <div class="prod-badge-wrap">${getBadgesHTML(rp)}</div>
                   <div class="prod-actions-hover">
-                    <div class="act-btn" onclick="addCart(event,${rp.id})" title="Agregar al carrito"><i class="bi bi-bag-plus"></i></div>
+                    ${rp.stock === 0
+                      ? `<div class="act-btn act-btn-agotado" title="Agotado"><i class="bi bi-slash-circle"></i></div>`
+                      : `<div class="act-btn" onclick="addCart(event,${rp.id})" title="Agregar al carrito"><i class="bi bi-bag-plus"></i></div>`}
                   </div>
                 </div>
                 <div class="prod-body">
@@ -666,6 +718,14 @@ function ppSelectMedida(m) {
 function ppSelectColor(c) {
   selectedColor = c;
   document.querySelectorAll('#ppColorSel .color-opt').forEach(o => o.classList.toggle('active', o.style.background===c));
+}
+
+function ppQtyChange(d) {
+  const el = document.getElementById('ppQtyNum');
+  if (!el) return;
+  let v = parseInt(el.textContent) + d;
+  if (v < 1) v = 1;
+  el.textContent = v;
 }
 
 function cotizarWspPage() {
@@ -753,9 +813,9 @@ function renderModal(p) {
       <button class="btn-wsp" onclick="cotizarWsp(${p.id})">
         <i class="bi bi-whatsapp"></i> Cotizar por WhatsApp
       </button>
-      <button class="btn-add-cart-modal" onclick="addCartModal(${p.id})">
-        <i class="bi bi-bag-plus-fill"></i> Agregar al carrito de consulta
-      </button>
+      ${p.stock === 0
+        ? `<button class="btn-add-cart-modal btn-cart-agotado" disabled><i class="bi bi-slash-circle"></i> Agotado</button>`
+        : `<button class="btn-add-cart-modal" onclick="addCartModal(${p.id})"><i class="bi bi-bag-plus-fill"></i> Agregar al carrito de consulta</button>`}
     </div>
   `;
 
@@ -818,9 +878,11 @@ function addCart(e, id) { e.stopPropagation(); addCartById(id); }
 function addCartById(id) {
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
+  if(p.stock === 0) { showToast('Este producto está agotado'); return; }
   const ex = cart.find(i=>i.id===id);
   if(ex) ex.qty++;
   else cart.push({...p, qty:1});
+  saveCart();
   updateCartCount();
   showToast(`${p.name} agregado al carrito`);
 }
@@ -923,35 +985,48 @@ function renderCart() {
     foot.innerHTML = '';
     return;
   }
-  body.innerHTML = cart.map(item => `
+  const fmt = n => Number(n).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+  body.innerHTML = cart.map(item => {
+    const pr = PRICES[item.id];
+    const precio = pr ? pr.precio : (item.precio != null && Number(item.precio) > 0 ? Number(item.precio) : null);
+    const subtotalItem = precio ? `${item.qty} × S/${fmt(precio)}` : `${item.qty} unid.`;
+    const img = item.imgs && item.imgs[0]
+      ? `<img src="${item.imgs[0]}" alt="${item.name}" onerror="this.style.display='none'">`
+      : `<i class="bi ${item.icon}" style="font-size:1.5rem;color:var(--azul-claro)"></i>`;
+    return `
     <div class="cart-item">
-      <div class="cart-item-icon">
-        ${item.imgs&&item.imgs[0]
-          ? `<img src="${item.imgs[0]}" alt="${item.name}" onerror="this.parentElement.innerHTML='<i class=\"bi ${item.icon}\" style=\"font-size:1.4rem;color:var(--azul-claro)\"></i>'">`
-          : `<i class="bi ${item.icon}" style="font-size:1.4rem;color:var(--azul-claro)"></i>`}
+      <div class="cart-item-thumb">${img}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-nm">${item.name.toUpperCase()}</div>
+        <div class="cart-item-price">${subtotalItem}</div>
       </div>
-      <div style="flex:1;min-width:0">
-        <div class="cart-item-cat">${item.catName}</div>
-        <div class="cart-item-nm">${item.name}</div>
-        <div class="cart-qty-row">
-          <button class="qty-btn" onclick="changeQty(${item.id},-1)"><i class="bi bi-dash"></i></button>
-          <span class="qty-num">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty(${item.id},1)"><i class="bi bi-plus"></i></button>
-          <button class="cart-del" onclick="removeItem(${item.id})"><i class="bi bi-trash3"></i></button>
+      <div class="cart-item-actions">
+        <div class="cart-qty-ctrl">
+          <button class="cart-qty-btn" onclick="changeQty(${item.id},-1)"><i class="bi bi-dash"></i></button>
+          <span class="cart-qty-num">${item.qty}</span>
+          <button class="cart-qty-btn" onclick="changeQty(${item.id},1)"><i class="bi bi-plus"></i></button>
         </div>
+        <button class="cart-del" onclick="removeItem(${item.id})"><i class="bi bi-x-lg"></i></button>
       </div>
-    </div>
-  `).join('');
-  const total = cart.reduce((s,i)=>s+i.qty,0);
+    </div>`;
+  }).join('');
+
+  const subtotal = cart.reduce((sum, item) => {
+    const pr = PRICES[item.id];
+    const precio = pr ? pr.precio : (item.precio != null && Number(item.precio) > 0 ? Number(item.precio) : 0);
+    return sum + (Number(precio) * item.qty);
+  }, 0);
+  const subtotalStr = subtotal > 0 ? `S/${fmt(subtotal)}` : '—';
+
   foot.innerHTML = `
-    <div class="cart-total-row">
-      <span class="cart-total-lbl">Total ítems</span>
-      <span class="cart-total-val">${total}</span>
+    <div class="cart-subtotal-row">
+      <span class="cart-subtotal-lbl">Subtotal:</span>
+      <span class="cart-subtotal-val">${subtotalStr}</span>
     </div>
-    <button class="btn-checkout-wsp" onclick="sendCartWsp()">
-      <i class="bi bi-whatsapp"></i> Cotizar todo por WhatsApp
+    <button class="btn-ver-carrito" onclick="window.location.href='/cliente/carrito'">VER CARRITO</button>
+    <button class="btn-finalizar-compra" onclick="sendCartWsp()">
+      FINALIZAR COMPRA
     </button>
-    <button class="btn-clear-cart" onclick="clearCart()">Vaciar carrito</button>
   `;
 }
 function changeQty(id, d) {
@@ -959,10 +1034,10 @@ function changeQty(id, d) {
   if(!item) return;
   item.qty += d;
   if(item.qty <= 0) cart = cart.filter(i=>i.id!==id);
-  updateCartCount(); renderCart();
+  saveCart(); updateCartCount(); renderCart();
 }
-function removeItem(id) { cart = cart.filter(i=>i.id!==id); updateCartCount(); renderCart(); }
-function clearCart() { cart = []; updateCartCount(); renderCart(); }
+function removeItem(id) { cart = cart.filter(i=>i.id!==id); saveCart(); updateCartCount(); renderCart(); }
+function clearCart() { cart = []; saveCart(); updateCartCount(); renderCart(); }
 function sendCartWsp() {
   const lines = cart.map(i=>`• *${i.name}* (x${i.qty})`).join('%0A');
   window.open(`https://wa.me/51999999999?text=Hola Full Toldos! Deseo cotizar:%0A${lines}`,'_blank');
@@ -1037,11 +1112,16 @@ const COLOR_NAMES = {
   '#f57f17':'Naranja','#ffffff':'Blanco','#212121':'Negro','#9e9e9e':'Gris'
 };
 
+function hideAllViews() {
+  ['mainView','catPageView','prodPageView','galPageView','sobrePageView','contactoPageView']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+}
+
 function openCatPage(catId) {
   cpCat = catId || 'all';
   cpSearch = ''; cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
   cpBadges = []; cpColors = []; cpMedida = '';
-  document.getElementById('mainView').style.display = 'none';
+  hideAllViews();
   document.getElementById('catPageView').style.display = 'block';
   const si = document.getElementById('catSearchInput');
   if(si) si.value = '';
@@ -1116,7 +1196,9 @@ function renderCatPage() {
             : `<div class="prod-img-placeholder"><i class="bi ${p.icon}" style="font-size:3rem;color:rgba(21,101,192,0.35)"></i></div>`}
           <div class="prod-badge-wrap">${getBadgesHTML(p)}</div>
           <button class="prod-eye-btn" onclick="event.stopPropagation();openProductPage(${p.id})" title="Ver producto completo"><i class="bi bi-eye"></i></button>
-          <button class="prod-quick-add" onclick="addCart(event,${p.id})"><i class="bi bi-bag-plus-fill"></i> + Adición rápida</button>
+          ${p.stock === 0
+            ? `<button class="prod-quick-add prod-quick-agotado" disabled><i class="bi bi-slash-circle"></i> Agotado</button>`
+            : `<button class="prod-quick-add" onclick="addCart(event,${p.id})"><i class="bi bi-bag-plus-fill"></i> + Agregar Carrito</button>`}
         </div>
         <div class="prod-body">
           <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
@@ -1253,40 +1335,76 @@ function buildMedidaDropdown() {
   if(!menu) return;
   menu.classList.add('nav-medida-menu');
 
-  // Recoger todas las medidas únicas con formato NxNm y contar productos
   const medidaCount = {};
   PRODUCTS.forEach(p => {
     (p.medidas || []).forEach(m => {
-      // Solo medidas rectangulares tipo "2x2m", "3x3m" etc.
-      if(/^\d+x\d+m$/.test(m)) {
-        medidaCount[m] = (medidaCount[m] || 0) + 1;
-      }
+      const key = m.trim();
+      if(key) medidaCount[key] = (medidaCount[key] || 0) + 1;
     });
   });
 
-  // Ordenar por número de productos, luego por tamaño
   const sorted = Object.entries(medidaCount)
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .slice(0, 12); // máximo 12 medidas
+    .slice(0, 12);
+
+  // Pre-compute 2 product images per medida
+  const medidaImgs = {};
+  sorted.forEach(([m]) => {
+    medidaImgs[m] = PRODUCTS.filter(p => (p.medidas || []).includes(m) && p.imgs && p.imgs[0]).slice(0, 2);
+  });
+
+  function buildMedImgs(prods) {
+    if (!prods.length) return `<p style="color:#aaa;font-size:0.83rem;grid-column:1/-1;">Sin productos para esta medida</p>`;
+    return prods.map(p => `
+      <div class="nav-cat2-item" onclick="closeAllDropdowns();openProductPage(${p.id})">
+        <div class="nav-cat2-circle">
+          <img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">
+        </div>
+        <div class="nav-cat2-name">${p.name}</div>
+      </div>`).join('');
+  }
 
   const btns = sorted.map(([m, cnt]) => `
-    <div class="medida-nav-btn" onclick="openCatByMedida('${m}');closeAllDropdowns()">
+    <div class="medida-nav-btn" data-medida="${m}" onclick="openCatByMedida('${m}');closeAllDropdowns()">
       <span class="mnb-size">${m}</span>
-      <span class="mnb-count">${cnt} producto${cnt !== 1 ? 's' : ''}</span>
+      <span class="mnb-count">${cnt} prod${cnt !== 1 ? 's' : ''}</span>
     </div>
   `).join('');
 
+  const defaultProds = sorted.length > 0 ? (medidaImgs[sorted[0][0]] || []) : [];
+
   menu.innerHTML = `
-    <span class="nav-mega-section-title" style="padding:0 0 2px 0;display:block">
-      <i class="bi bi-rulers" style="margin-right:6px;color:var(--azul-claro)"></i>Buscar por Medida
-    </span>
-    <div class="medida-nav-grid">${btns}</div>
-    <div class="nav-drop-divider"></div>
-    <div class="medida-cta" onclick="closeAllDropdowns();openCatPage('all')">
-      <i class="bi bi-pencil-square" style="color:var(--azul-claro)"></i>
-      ¿Otra medida? <strong>Ver catálogo completo →</strong>
+    <div class="nav-medida-inner">
+      <div class="nav-medida-left">
+        <span class="nav-mega-section-title" style="padding:0 0 2px 0;display:block">
+          <i class="bi bi-rulers" style="margin-right:6px;color:var(--azul-claro)"></i>Buscar por Medida
+        </span>
+        <div class="medida-nav-grid">${btns}</div>
+        <div class="nav-drop-divider"></div>
+        <div class="medida-cta" onclick="closeAllDropdowns();openCatPage('all')">
+          <i class="bi bi-pencil-square" style="color:var(--azul-claro)"></i>
+          ¿Otra medida? <strong>Ver catálogo completo →</strong>
+        </div>
+      </div>
+      <div class="nav-medida-photos nav-cat2-circles" id="navMedidaPhotosArea">
+        ${buildMedImgs(defaultProds)}
+      </div>
     </div>
   `;
+
+  // Hover: swap photos per medida
+  menu.querySelectorAll('.medida-nav-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      const area = document.getElementById('navMedidaPhotosArea');
+      if (!area) return;
+      const prods = medidaImgs[btn.dataset.medida] || [];
+      area.style.opacity = '0';
+      setTimeout(() => {
+        area.innerHTML = buildMedImgs(prods);
+        area.style.opacity = '1';
+      }, 120);
+    });
+  });
 }
 
 function openCatByMedida(medida) {
@@ -1295,10 +1413,8 @@ function openCatByMedida(medida) {
   cpBadges  = []; cpColors = [];
   cpSearch  = '';
   cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  document.getElementById('mainView').style.display    = 'none';
+  hideAllViews();
   document.getElementById('catPageView').style.display = 'block';
-  document.getElementById('prodPageView').style.display= 'none';
-  document.getElementById('galPageView').style.display = 'none';
   const si = document.getElementById('catSearchInput');
   if(si) si.value = '';
   buildSidebarCats();
@@ -1310,44 +1426,53 @@ function openCatByMedida(medida) {
 function buildNavDropdowns() {
   const catMenu = document.getElementById('navCatMenu');
   if(catMenu) {
-    catMenu.classList.add('nav-mega-menu');
+    catMenu.classList.add('nav-cat2-menu');
 
-    // Featured products: badge new or hot, up to 3
-    const featured = PRODUCTS.filter(p => p.badge === 'new' || p.badge === 'hot').slice(0, 3);
+    function buildCat2Right(catId, catName) {
+      const prods = catId === 'all'
+        ? PRODUCTS.filter(p => p.imgs && p.imgs[0]).slice(0, 10)
+        : PRODUCTS.filter(p => String(p.cat) === String(catId) && p.imgs && p.imgs[0]).slice(0, 10);
+      const circles = prods.map(p => `
+        <div class="nav-cat2-item" onclick="closeAllDropdowns();openProductPage(${p.id})">
+          <div class="nav-cat2-circle">
+            <img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">
+            ${p.esDestacado ? '<span class="nav-cat2-hot">HOT</span>' : (p.esNuevo ? '<span class="nav-cat2-hot nav-cat2-new">NEW</span>' : '')}
+          </div>
+          <div class="nav-cat2-name">${p.name}</div>
+        </div>`).join('');
+      const link = catId === 'all' ? `openCatPage('all')` : `openCatPage('${catId}')`;
+      return `
+        <div class="nav-cat2-right-head" onclick="closeAllDropdowns();${link}">
+          Todos ${catName} <i class="bi bi-chevron-right"></i>
+        </div>
+        <div class="nav-cat2-circles">
+          ${circles || '<p style="color:#aaa;padding:24px 0;font-size:0.85rem;">Sin productos aún</p>'}
+        </div>`;
+    }
 
-    const catLinks = CATS.map(c => `
-      <a href="#" class="nav-mega-cat-link" onclick="event.preventDefault();closeAllDropdowns();openCatPage('${c.id}')">
-        ${c.name}
-      </a>
-    `).join('');
-
-    const featProds = PRODUCTS.filter(p => p.imgs && p.imgs[0]).slice(0, 2);
-    const fallbacks = ['/img/img13.png', '/img/img14.png'];
-    const twoImgs = [0, 1].map(i => {
-      const p = featProds[i];
-      const src = p ? p.imgs[0] : fallbacks[i];
-      const alt = p ? p.name : 'Full Toldos';
-      const onclick = p ? `closeAllDropdowns();openProductPage(${p.id})` : '';
-      return `<div class="nav-mega-photo" ${onclick ? `onclick="${onclick}"` : ''}>
-        <img src="${src}" alt="${alt}" loading="lazy">
-      </div>`;
-    }).join('');
+    const firstCat = CATS[0];
+    const catListHtml = CATS.map((c, i) => `
+      <div class="nav-cat2-left-item ${i===0?'active':''}" data-cat="${c.id}" data-catname="${c.name}"
+           onmouseenter="navCat2Hover(this)" onclick="closeAllDropdowns();openCatPage('${c.id}')">
+        <span>${c.name}</span><i class="bi bi-chevron-right"></i>
+      </div>`).join('');
 
     catMenu.innerHTML = `
-      <div class="nav-mega-inner">
-        <div class="nav-mega-links-area">
-          <div class="nav-mega-cols">
-            ${catLinks}
+      <div class="nav-cat2-inner">
+        <div class="nav-cat2-left">
+          <div class="nav-cat2-left-item nav-cat2-todos" data-cat="all" data-catname="productos"
+               onmouseenter="navCat2Hover(this)" onclick="closeAllDropdowns();openCatPage('all')">
+            <span><i class="bi bi-grid-fill" style="margin-right:6px;color:var(--azul-claro)"></i>Todos</span>
+            <i class="bi bi-chevron-right"></i>
           </div>
-          <a href="#" class="nav-mega-ver-todos" onclick="event.preventDefault();closeAllDropdowns();openCatPage('all')">
-            Ver todos los productos <i class="bi bi-arrow-right"></i>
-          </a>
+          ${catListHtml}
         </div>
-        <div class="nav-mega-photos-area">
-          ${twoImgs}
+        <div class="nav-cat2-right" id="navCat2Right">
+          ${firstCat ? buildCat2Right(firstCat.id, firstCat.name) : ''}
         </div>
-      </div>
-    `;
+      </div>`;
+
+    window._buildCat2Right = buildCat2Right;
   }
 
   const prodMenu = document.getElementById('navProdMenu');
@@ -1414,8 +1539,9 @@ function buildNavDropdowns() {
       clearTimeout(closeTimer);
       closeAllDropdowns();
       dropdown.classList.add('open');
-      if (dropdown.querySelector('#navCatMenu'))  positionCatMenu();
-      if (dropdown.querySelector('#navProdMenu')) positionProdMenu();
+      if (dropdown.querySelector('#navCatMenu'))    positionCatMenu();
+      if (dropdown.querySelector('#navProdMenu'))   positionProdMenu();
+      if (dropdown.querySelector('#navMedidaMenu')) positionMedidaMenu();
     };
     const scheduleClose = () => {
       closeTimer = setTimeout(() => dropdown.classList.remove('open'), 250);
@@ -1431,7 +1557,29 @@ function buildNavDropdowns() {
   });
 
   document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
-    toggle.addEventListener('click', e => e.preventDefault());
+    toggle.addEventListener('click', e => {
+      e.preventDefault();
+      const goto = toggle.dataset.goto;
+      if (goto === 'cat')    { closeAllDropdowns(); openCatPage('all'); return; }
+      if (goto === 'medida') { closeAllDropdowns(); openCatPage('all'); return; }
+      if (goto === 'sobre')  { closeAllDropdowns(); openSobrePage();    return; }
+      // Default: alternar dropdown
+      const dropdown = toggle.closest('.nav-dropdown');
+      if (!dropdown) return;
+      const isOpen = dropdown.classList.contains('open');
+      closeAllDropdowns();
+      if (!isOpen) {
+        dropdown.classList.add('open');
+        if (dropdown.querySelector('#navCatMenu'))    positionCatMenu();
+        if (dropdown.querySelector('#navProdMenu'))   positionProdMenu();
+        if (dropdown.querySelector('#navMedidaMenu')) positionMedidaMenu();
+      }
+    });
+  });
+
+  // Cerrar dropdowns al hacer click fuera
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.nav-dropdown')) closeAllDropdowns();
   });
 }
 
@@ -1490,6 +1638,18 @@ function initProdTopbarSticky() {
   // CSS position:sticky handles this — overflow-x:clip on body keeps it working
 }
 
+function navCat2Hover(el) {
+  document.querySelectorAll('.nav-cat2-left-item.active').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  const right = document.getElementById('navCat2Right');
+  if (!right || !window._buildCat2Right) return;
+  right.style.opacity = '0';
+  setTimeout(() => {
+    right.innerHTML = window._buildCat2Right(el.dataset.cat, el.dataset.catname);
+    right.style.opacity = '1';
+  }, 90);
+}
+
 function positionCatMenu() {
   const catMenu = document.getElementById('navCatMenu');
   const navRow = document.querySelector('.navbar-nav-row .container');
@@ -1501,6 +1661,19 @@ function positionCatMenu() {
   catMenu.style.setProperty('left', (rowRect.left - dropRect.left) + 'px', 'important');
   catMenu.style.setProperty('width', rowRect.width + 'px', 'important');
   catMenu.style.setProperty('min-width', 'unset', 'important');
+}
+
+function positionMedidaMenu() {
+  const medidaMenu = document.getElementById('navMedidaMenu');
+  const navRow = document.querySelector('.navbar-nav-row .container');
+  if (!medidaMenu || !navRow) return;
+  const medidaDropdown = medidaMenu.closest('.nav-dropdown');
+  if (!medidaDropdown) return;
+  const rowRect  = navRow.getBoundingClientRect();
+  const dropRect = medidaDropdown.getBoundingClientRect();
+  medidaMenu.style.setProperty('left',      (rowRect.left - dropRect.left) + 'px', 'important');
+  medidaMenu.style.setProperty('width',     rowRect.width + 'px', 'important');
+  medidaMenu.style.setProperty('min-width', 'unset', 'important');
 }
 
 function positionProdMenu() {
@@ -1699,19 +1872,128 @@ function openGallery(catId) {
   prevGalView = document.getElementById('catPageView').style.display !== 'none' ? 'category'
               : document.getElementById('prodPageView').style.display !== 'none' ? 'product' : 'main';
   buildGalleryItems();
-  document.getElementById('mainView').style.display    = 'none';
-  document.getElementById('catPageView').style.display = 'none';
-  document.getElementById('prodPageView').style.display= 'none';
+  hideAllViews();
   document.getElementById('galPageView').style.display = 'block';
   renderGallery();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+// ═══════════════════════════ THUMB STRIP NAV ═══════════════════════════
+let _pthumbOffset = 0;
+const THUMB_SIZE = 88; // 80px + 8px gap
+const THUMB_VISIBLE = 4;
+
+function pthumbScroll(dir) {
+  const strip = document.getElementById('prodThumbStrip');
+  if (!strip) return;
+  const total = strip.querySelectorAll('.pthumb').length;
+  const isMobile = window.innerWidth <= 991;
+  const max = Math.max(0, total - THUMB_VISIBLE);
+  _pthumbOffset = Math.max(0, Math.min(_pthumbOffset + dir, max));
+  strip.style.transform = isMobile
+    ? `translateX(-${_pthumbOffset * THUMB_SIZE}px)`
+    : `translateY(-${_pthumbOffset * THUMB_SIZE}px)`;
+  updateThumbArrows(total);
+}
+
+function updateThumbArrows(total) {
+  const up   = document.getElementById('pthumbUp');
+  const down = document.getElementById('pthumbDown');
+  if (!up || !down) return;
+  if (total > THUMB_VISIBLE) {
+    up.classList.toggle('visible',   _pthumbOffset > 0);
+    down.classList.toggle('visible', _pthumbOffset < total - THUMB_VISIBLE);
+  } else {
+    up.classList.remove('visible');
+    down.classList.remove('visible');
+  }
+}
+
+// ═══════════════════════════ CONTACTO ═══════════════════════════
+function openContactoPage() {
+  hideAllViews();
+  document.getElementById('contactoPageView').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  history.pushState({type: 'contacto'}, '', '/?page=contacto');
+}
+
+function closeContactoPage() {
+  document.getElementById('contactoPageView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+  history.pushState({type: 'inicio'}, '', '/');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function submitContacto(e) {
+  e.preventDefault();
+  const form    = e.target;
+  const nombre  = form.nombre.value.trim();
+  const email   = form.email.value.trim();
+  const mensaje = form.mensaje.value.trim();
+  const wspBase = document.querySelector('a[href*="wa.me"]')?.href || '';
+  const text    = encodeURIComponent(`Hola! Soy ${nombre} (${email}).\n${mensaje}`);
+  const url     = wspBase ? wspBase.split('?')[0] + `?text=${text}` : `https://wa.me/?text=${text}`;
+  window.open(url, '_blank');
+  showToast('¡Mensaje enviado! Te responderemos pronto.');
+  form.reset();
+}
+
+// ═══════════════════════════ SOBRE NOSOTROS ═══════════════════════════
+let _sobreObserver = null;
+
+function openSobrePage(section) {
+  hideAllViews();
+  document.getElementById('sobrePageView').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  history.pushState({type: 'sobre'}, '', '/?page=sobre-nosotros');
+  setTimeout(() => {
+    initSobreScroll();
+    if (section) {
+      const el = document.getElementById(section);
+      if (el) el.scrollIntoView({behavior: 'smooth'});
+    }
+  }, 100);
+}
+
+function closeSobrePage() {
+  document.getElementById('sobrePageView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+  history.pushState({type: 'inicio'}, '', '/');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  if (_sobreObserver) { _sobreObserver.disconnect(); _sobreObserver = null; }
+}
+
+function initSobreScroll() {
+  const blocks  = document.querySelectorAll('.sobre-text-block');
+  const mainImg = document.getElementById('sobreMainImg');
+  if (!blocks.length || !mainImg) return;
+  if (_sobreObserver) _sobreObserver.disconnect();
+  _sobreObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const src = e.target.dataset.img;
+        if (src && !mainImg.src.endsWith(src)) {
+          mainImg.style.opacity = '0';
+          setTimeout(() => { mainImg.src = src; mainImg.style.opacity = '1'; }, 220);
+        }
+      }
+    });
+  }, { threshold: 0.45, rootMargin: '-10% 0px -10% 0px' });
+  blocks.forEach(b => _sobreObserver.observe(b));
+}
+
+function toggleSobreFaq(btn) {
+  const item   = btn.closest('.sobre-faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.sobre-faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
 function closeGallery() {
-  document.getElementById('galPageView').style.display = 'none';
+  hideAllViews();
   if(prevGalView === 'category')     document.getElementById('catPageView').style.display = 'block';
-  else if(prevGalView === 'product') document.getElementById('prodPageView').style.display= 'block';
-  else                               document.getElementById('mainView').style.display    = 'block';
+  else if(prevGalView === 'product') document.getElementById('prodPageView').style.display = 'block';
+  else                               document.getElementById('mainView').style.display     = 'block';
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -2056,15 +2338,14 @@ function buildMobileMenu() {
   const nav = document.getElementById('mobNav');
   if(!nav) return;
 
-  const links = [
-    { label:'Inicio',     href:'#inicio',     icon:'bi-house-fill' },
-    { label:'Materiales', href:'#materiales', icon:'bi-layers-fill' },
-    { label:'Contacto',   href:'#contacto',   icon:'bi-envelope-fill' },
-  ];
-
   let html = '';
 
-  // Categorías accordion
+  // 1. Inicio
+  html += `<a href="#inicio" class="mob-nav-link" onclick="closeMobileMenu()">
+    <span><i class="bi bi-house-fill" style="margin-right:8px;color:var(--azul-claro)"></i>Inicio</span>
+  </a>`;
+
+  // 2. Categorías accordion
   html += `<div class="mob-nav-link" onclick="mobToggleSub('mobSubCats',this)">
     <span><i class="bi bi-grid-fill" style="margin-right:8px;color:var(--azul-claro)"></i>Categorías</span>
     <i class="bi bi-chevron-right mob-arrow"></i>
@@ -2081,7 +2362,7 @@ function buildMobileMenu() {
       </div>`).join('')}
   </div>`;
 
-  // Productos accordion
+  // 3. Productos accordion
   html += `<div class="mob-nav-link" onclick="mobToggleSub('mobSubProds',this)">
     <span><i class="bi bi-box-seam-fill" style="margin-right:8px;color:var(--azul-claro)"></i>Productos</span>
     <i class="bi bi-chevron-right mob-arrow"></i>
@@ -2093,7 +2374,7 @@ function buildMobileMenu() {
       </div>`).join('')}
   </div>`;
 
-  // Por Medida accordion
+  // 4. Por Medida accordion
   const medidaCount = {};
   PRODUCTS.forEach(p => {
     (p.medidas||[]).forEach(m => {
@@ -2113,17 +2394,29 @@ function buildMobileMenu() {
       </div>`).join('')}
   </div>`;
 
-  // Galería
+  // 5. Galería
   html += `<div class="mob-nav-link" onclick="closeMobileMenu();openGallery()">
     <span><i class="bi bi-images" style="margin-right:8px;color:var(--azul-claro)"></i>Galería</span>
   </div>`;
 
-  // Links simples
-  links.forEach(l => {
-    html += `<a href="${l.href}" class="mob-nav-link" onclick="closeMobileMenu()">
-      <span><i class="bi ${l.icon}" style="margin-right:8px;color:var(--azul-claro)"></i>${l.label}</span>
-    </a>`;
-  });
+  // 6. Sobre Nosotros accordion
+  html += `<div class="mob-nav-link" onclick="mobToggleSub('mobSubSobre',this)">
+    <span><i class="bi bi-building" style="margin-right:8px;color:var(--azul-claro)"></i>Sobre Nosotros</span>
+    <i class="bi bi-chevron-right mob-arrow"></i>
+  </div>
+  <div class="mob-sub" id="mobSubSobre">
+    <div class="mob-sub-link" onclick="closeMobileMenu();openSobrePage()">
+      <i class="bi bi-building"></i><span>About Us</span>
+    </div>
+    <div class="mob-sub-link" onclick="closeMobileMenu();openSobrePage('resenas')">
+      <i class="bi bi-star-fill"></i><span>Preguntas frecuentes</span>
+    </div>
+  </div>`;
+
+  // 7. Contacto
+  html += `<div class="mob-nav-link" onclick="event.preventDefault();closeMobileMenu();openContactoPage()">
+    <span><i class="bi bi-envelope-fill" style="margin-right:8px;color:var(--azul-claro)"></i>Contacto</span>
+  </div>`;
 
   nav.innerHTML = html;
 }
@@ -2156,9 +2449,8 @@ function doMobSearch() {
   closeMobileMenu();
   cpSearch = q; cpCat = 'all'; cpBadges = []; cpColors = [];
   cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  document.getElementById('mainView').style.display = 'none';
+  hideAllViews();
   document.getElementById('catPageView').style.display = 'block';
-  document.getElementById('prodPageView').style.display = 'none';
   buildSidebarCats(); renderCatPage();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -2333,9 +2625,8 @@ function doNavSearch() {
   cpSearch  = q;
   cpCat     = cat;
   cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  document.getElementById('mainView').style.display    = 'none';
+  hideAllViews();
   document.getElementById('catPageView').style.display = 'block';
-  document.getElementById('prodPageView').style.display = 'none';
   buildSidebarCats();
   renderCatPage();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -2393,6 +2684,8 @@ renderProducts();
     if (!st) { closeProdPage(); return; }
     if (st.type === 'producto') openProductPage(st.id);
     else if (st.type === 'categoria') openCatPage(st.id);
+    else if (st.type === 'sobre') openSobrePage();
+    else if (st.type === 'contacto') openContactoPage();
     else closeProdPage();
   });
 })();
@@ -2404,6 +2697,7 @@ buildNavSearch();
 buildMedidaDropdown();
 buildMobileMenu();
 startAutoSlide();
+buildClientesGal();
 // Mover footer fuera de mainView para que aparezca en todas las páginas
 const _ft = document.querySelector('.footer-main');
 if(_ft) document.body.appendChild(_ft);
@@ -2419,7 +2713,7 @@ if(_ft) document.body.appendChild(_ft);
     // Ajustar páginas al total del header
     const totalH = h + nb.getBoundingClientRect().height;
     document.querySelectorAll('.hero-section').forEach(el => el.style.marginTop = totalH + 'px');
-    document.querySelectorAll('#catPageView,#prodPageView,#galPageView').forEach(el => {
+    document.querySelectorAll('#catPageView,#prodPageView,#galPageView,#sobrePageView,#contactoPageView').forEach(el => {
       if(el.style.display !== 'none') el.style.paddingTop = totalH + 'px';
     });
   };
@@ -2571,7 +2865,34 @@ function shareProduct() {
   }
 }
 
-/* ═══ GALERÍA CLIENTES — carrusel ═══ */
+/* ═══ GALERÍA — carrusel con imágenes reales ═══ */
+function buildClientesGal() {
+  const track = document.getElementById('clientesGalTrack');
+  if (!track) return;
+
+  // Recopilar todas las imágenes de los productos
+  const imgs = [];
+  PRODUCTS.forEach(p => {
+    if (p.imgs && p.imgs.length) {
+      p.imgs.forEach(src => imgs.push({ src, name: p.name }));
+    } else if (p.imagenPrincipal) {
+      imgs.push({ src: p.imagenPrincipal, name: p.name });
+    }
+  });
+
+  if (!imgs.length) {
+    // Si no hay imágenes de productos, mantener placeholders vacíos
+    track.innerHTML = '<div class="clientes-gal-slide" style="background:#f0f4ff;display:flex;align-items:center;justify-content:center;border-radius:14px;"><i class="bi bi-images" style="font-size:3rem;color:#c5d4f5;"></i></div>'.repeat(2);
+    return;
+  }
+
+  track.innerHTML = imgs.map(img => `
+    <div class="clientes-gal-slide" onclick="openGallery()" style="cursor:pointer;">
+      <img src="${img.src}" alt="${img.name}" loading="lazy"
+           onerror="this.parentElement.style.display='none'">
+    </div>`).join('');
+}
+
 (function() {
   var cgIdx = 0;
   var cgTotal = 0;

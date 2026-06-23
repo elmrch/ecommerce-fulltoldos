@@ -33,6 +33,10 @@ public class UsuarioService implements UserDetailsService {
         return new User(
                 usuario.getEmail(),
                 usuario.getPassword(),
+                usuario.isActivo(),   // enabled — bloquea el login si está desactivado
+                true,                 // accountNonExpired
+                true,                 // credentialsNonExpired
+                true,                 // accountNonLocked
                 Collections.singletonList(
                         new SimpleGrantedAuthority(usuario.getRol().name())
                 )

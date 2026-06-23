@@ -23,8 +23,8 @@ public class AuthController {
     private UsuarioService usuarioService;
 
     @Autowired
-    private CategoriaService categoriaService;
 
+    private CategoriaService categoriaService;
     @Autowired
     private ProductoService productoService;
 

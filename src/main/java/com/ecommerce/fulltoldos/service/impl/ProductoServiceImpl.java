@@ -55,6 +55,27 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public Producto guardar(Producto producto) {
+        if (producto.getId() != null) {
+            Producto existing = productoRepository.findById(producto.getId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+            existing.setNombre(producto.getNombre());
+            existing.setDescripcion(producto.getDescripcion());
+            existing.setDescripcionLarga(producto.getDescripcionLarga());
+            existing.setPrecio(producto.getPrecio());
+            existing.setStock(producto.getStock());
+            existing.setMedidas(producto.getMedidas());
+            existing.setColores(producto.getColores());
+            existing.setCaracteristicas(producto.getCaracteristicas());
+            existing.setActivo(producto.isActivo());
+            existing.setEsNuevo(producto.isEsNuevo());
+            existing.setEsDestacado(producto.isEsDestacado());
+            existing.setDescuento(producto.getDescuento());
+            existing.setFechaFinOferta(producto.getFechaFinOferta());
+            existing.setCategoria(producto.getCategoria());
+            existing.setSubcategoria(producto.getSubcategoria());
+            existing.setUnidadMedida(producto.getUnidadMedida());
+            return productoRepository.save(existing);
+        }
         return productoRepository.save(producto);
     }
 

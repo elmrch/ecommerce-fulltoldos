@@ -20,7 +20,7 @@ public class SecurityConfig {
     private UsuarioService usuarioService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // viene de PasswordConfig
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -33,7 +33,8 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/estilo.css", "/scrip.js",
                                 "/*.png", "/*.jpg", "/*.ico", "/*.jfif",
-                                "/webjars/**", "/error"
+                                "/webjars/**", "/error",
+                                "/cliente/carrito"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")

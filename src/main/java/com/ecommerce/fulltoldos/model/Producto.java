@@ -2,13 +2,12 @@ package com.ecommerce.fulltoldos.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "productos", schema = "public")
-public class Producto {
+public class Producto extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,9 +63,6 @@ public class Producto {
 
     @Column(name = "fecha_fin_oferta")
     private LocalDateTime fechaFinOferta;
-
-    @Column(name = "fecha_creacion")
-    private LocalDate fechaCreacion = LocalDate.now();
 
     // Un producto tiene muchos archivos media
     @OneToMany(mappedBy = "producto",
@@ -158,9 +154,6 @@ public class Producto {
     }
 
     public boolean isAgotado()                     { return stock == 0; }
-
-    public LocalDate getFechaCreacion()            { return fechaCreacion; }
-    public void setFechaCreacion(LocalDate f)      { this.fechaCreacion = f; }
 
     public List<ProductoMedia> getMedias()         { return medias; }
     public void setMedias(List<ProductoMedia> m)   { this.medias = m; }

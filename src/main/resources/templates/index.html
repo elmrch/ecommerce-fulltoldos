@@ -163,7 +163,7 @@
             <div class="nav-links">
                 <a href="#inicio">Inicio</a>
                 <div class="nav-dropdown">
-                    <a href="#categorias" class="nav-dropdown-toggle">Categorías <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <a href="#" class="nav-dropdown-toggle" data-goto="cat">Categorías <i class="bi bi-chevron-down drop-arrow"></i></a>
                     <div class="nav-dropdown-menu" id="navCatMenu"></div>
                 </div>
                 <div class="nav-dropdown">
@@ -171,11 +171,26 @@
                     <div class="nav-dropdown-menu nav-dropdown-wide" id="navProdMenu"></div>
                 </div>
                 <div class="nav-dropdown">
-                    <a href="#" class="nav-dropdown-toggle">Por Medida <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <a href="#" class="nav-dropdown-toggle" data-goto="medida">Por Medida <i class="bi bi-chevron-down drop-arrow"></i></a>
                     <div class="nav-dropdown-menu" id="navMedidaMenu"></div>
                 </div>
                 <a href="#" onclick="event.preventDefault();openGallery()">Galería</a>
-                <a href="#contacto">Contacto</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-dropdown-toggle" data-goto="sobre">Sobre Nosotros <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu nav-sobre-menu" id="navSobreMenu">
+                        <div class="nav-sobre-links">
+                            <a href="#" class="nav-sobre-link" onclick="event.preventDefault();closeAllDropdowns();openSobrePage()">
+                                <i class="bi bi-building"></i>
+                                <span>About Us</span>
+                            </a>
+                            <a href="#" class="nav-sobre-link" onclick="event.preventDefault();closeAllDropdowns();openSobrePage('resenas')">
+                                <i class="bi bi-star-fill"></i>
+                                <span>Preguntas frecuentes</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" onclick="event.preventDefault();openContactoPage()">Contacto</a>
             </div>
         </div>
     </div>
@@ -611,32 +626,18 @@
         </div>
     </section>
 
-    <!-- ═══ GALERÍA CLIENTES ═══ -->
+    <!-- ═══ GALERÍA ═══ -->
     <section class="section-pad bg-white">
         <div class="container">
             <div class="text-center mb-4">
-                <div class="eyebrow">Proyectos reales</div>
-                <h2 class="section-title" style="font-size:1.7rem;">LO QUE NUESTROS <span class="hl">CLIENTES CONSTRUYEN</span></h2>
+                <div class="eyebrow">Nuestros proyectos</div>
+                <h2 class="section-title" style="font-size:1.7rem;">NUESTRA <span class="hl">GALERÍA</span></h2>
                 <div class="divider-blue" style="margin:0 auto 1rem;"></div>
                 <p style="color:#666;font-size:0.9rem;max-width:520px;margin:0 auto;">Instalaciones realizadas por nuestro equipo en hogares y negocios de todo el Perú.</p>
             </div>
             <div class="clientes-gal-slider-wrap">
                 <div class="clientes-gal-track" id="clientesGalTrack">
-                    <div class="clientes-gal-slide">
-                        <img src="/img/img13.png" alt="Proyecto toldo cliente" loading="lazy">
-                    </div>
-                    <div class="clientes-gal-slide">
-                        <img src="/img/img14.png" alt="Proyecto toldo vela" loading="lazy">
-                    </div>
-                    <div class="clientes-gal-slide">
-                        <img src="/img/img15.png" alt="Proyecto carpa plegable" loading="lazy">
-                    </div>
-                    <div class="clientes-gal-slide">
-                        <img src="/img/img16.png" alt="Proyecto gazebo" loading="lazy">
-                    </div>
-                    <div class="clientes-gal-slide">
-                        <img src="/img/img17.png" alt="Proyecto accesorio toldo" loading="lazy">
-                    </div>
+                    <!-- JS buildClientesGal() llena este div con imágenes reales -->
                 </div>
             </div>
             <div class="clientes-gal-controls">
@@ -753,14 +754,14 @@
 </div><!-- /#mainView -->
 
 <!-- ═══ CATEGORY PAGE VIEW ═══ -->
-<div id="catPageView" style="display:none; background:#f8faff; min-height:100vh; padding-top:148px;">
+<div id="catPageView" style="display:none; background:#f5f5f5; min-height:100vh; padding-top:148px;">
     <div class="cat-page-header">
-        <div class="container" style="display:flex;align-items:center;gap:16px;">
+        <div class="container" style="display:flex;align-items:center;position:relative;min-height:58px;">
             <button class="cat-back-btn" onclick="closeCatPage()"><i class="bi bi-arrow-left"></i> Volver</button>
-            <h1 id="catPageTitle" class="cat-page-title"></h1>
+            <h1 id="catPageTitle" class="cat-page-title" style="position:absolute;left:50%;transform:translateX(-50%);margin:0;"></h1>
         </div>
     </div>
-    <div class="container" style="padding:28px 12px 60px;">
+    <div class="container" style="padding:8px 12px 60px;">
         <div class="row g-4">
             <div class="col-lg-3">
                 <div class="sidebar-box">
@@ -829,7 +830,13 @@
         <div class="row g-4 align-items-start">
             <div class="col-lg-6 prod-img-col">
                 <div class="prod-img-section">
-                    <div class="prod-thumb-strip" id="prodThumbStrip"></div>
+                    <div class="prod-thumb-col">
+                        <button class="pthumb-arrow" id="pthumbUp" onclick="pthumbScroll(-1)"><i class="bi bi-chevron-up"></i></button>
+                        <div class="prod-thumb-viewport">
+                            <div class="prod-thumb-strip" id="prodThumbStrip"></div>
+                        </div>
+                        <button class="pthumb-arrow" id="pthumbDown" onclick="pthumbScroll(1)"><i class="bi bi-chevron-down"></i></button>
+                    </div>
                     <div class="prod-main-img-area" onclick="openProdImgLightbox(currentImgIdx)">
                         <img id="prodMainImg" src="" alt="">
                         <div class="prod-img-expand-hint"><i class="bi bi-fullscreen"></i></div>
@@ -893,11 +900,8 @@
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
 <div class="cart-drawer" id="cartDrawer">
     <div class="cart-head">
-        <div>
-            <div class="cart-head-title">CARRITO</div>
-            <div class="cart-head-count" id="cartHeadCount">0 productos</div>
-        </div>
-        <button class="cart-x" onclick="closeCart()"><i class="bi bi-x-lg"></i></button>
+        <span class="cart-head-title">Carrito</span>
+        <button class="cart-x" onclick="closeCart()"><i class="bi bi-x-lg"></i> Cerrar</button>
     </div>
     <div class="cart-items" id="cartItems"></div>
     <div class="cart-foot" id="cartFoot"></div>
@@ -930,6 +934,243 @@
     </div>
 </div>
 
+<!-- ═══ SOBRE NOSOTROS PAGE VIEW ═══ -->
+<div id="sobrePageView" style="display:none; background:#fff; min-height:100vh; padding-top:148px;">
+
+  <!-- Breadcrumb + título -->
+  <div class="page-breadcrumb-wrap">
+    <div class="container">
+      <nav class="page-breadcrumb">
+        <a href="#" onclick="event.preventDefault();closeSobrePage()">Home</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Sobre nosotros</span>
+      </nav>
+      <h1 class="page-breadcrumb-title">Sobre nosotros</h1>
+    </div>
+  </div>
+
+  <!-- ── Sticky scroll: imagen izquierda + texto derecho ── -->
+  <section class="sobre-scroll-section">
+    <div class="container">
+      <div class="sobre-scroll-layout">
+
+        <!-- Imagen sticky -->
+        <div class="sobre-sticky-col">
+          <div class="sobre-sticky-img-box">
+            <img src="carpas2.png" alt="Full Toldos" class="sobre-sticky-img" id="sobreMainImg">
+          </div>
+        </div>
+
+        <!-- Bloques de texto (scroll) -->
+        <div class="sobre-text-col">
+
+          <div class="sobre-text-block" data-img="carpas2.png">
+            <h2 class="sobre-block-hero-title">Fabricante y distribuidor de Toldos &amp; Carpas en Perú</h2>
+            <p class="sobre-block-sub">Fabricantes y distribuidores de toldos y carpas en Lima y todo el Perú.</p>
+            <p class="sobre-block-body">Bienvenido al sitio web oficial de Full Toldos, tu proveedor de confianza de coberturas y estructuras textiles de alta calidad en el Perú. Nos dedicamos a crear toldos, carpas y estructuras innovadoras que mejoran cada espacio con durabilidad, funcionalidad y facilidad de instalación.</p>
+          </div>
+
+          <div class="sobre-text-block" data-img="fulltolfdos12.png">
+            <h3 class="sobre-section-heading">Nuestra filosofía</h3>
+            <p class="sobre-block-body">En Full Toldos, creemos que los mejores espacios comienzan con coberturas de calidad. Nuestra marca se basa en la experiencia, la innovación y la artesanía peruana. Fabricamos toldos y carpas con lona PVC de alta resistencia y acero galvanizado que ofrecen durabilidad y protección en cualquier ambiente. Ya sea para un local comercial, un evento o una estructura industrial, Full Toldos tiene la solución que se adapta a tus necesidades exactas.</p>
+          </div>
+
+          <div class="sobre-text-block" data-img="carpas2.png">
+            <h3 class="sobre-section-heading">Compromiso con la calidad</h3>
+            <p class="sobre-block-body">La calidad es la base de todo lo que hacemos. Cada producto Full Toldos se somete a rigurosas pruebas y una meticulosa fabricación para garantizar los más altos estándares. Nuestro objetivo es ofrecer coberturas que maximicen la durabilidad, facilidad de uso y resistencia. Utilizamos materiales certificados — lonas PVC, acero galvanizado y textiles técnicos — para garantizar que nuestros productos cumplan con las exigencias del mercado peruano.</p>
+          </div>
+
+          <div class="sobre-text-block" data-img="fulltolfdos12.png">
+            <h3 class="sobre-section-heading">Diseñado para tu negocio y hogar</h3>
+            <p class="sobre-block-body">Una cobertura de calidad es más que protección: es una inversión. Los toldos y carpas de Full Toldos están diseñados para quienes valoran la funcionalidad y el diseño, ya sea para proteger un negocio, amenizar un evento o ampliar un espacio exterior. Ofrecemos el equilibrio perfecto entre resistencia y estética, ideal para negocios, familias y eventos en Lima y provincias.</p>
+          </div>
+
+          <div class="sobre-text-block" data-img="carpas2.png">
+            <h3 class="sobre-section-heading">Fabricación a medida</h3>
+            <p class="sobre-block-body">Full Toldos es más que una empresa: es un compromiso con la cobertura perfecta. Nuestros productos están diseñados con características bien pensadas — ventilación optimizada, estructuras resistentes y diseños personalizados — para garantizar la máxima protección en cualquier entorno. Fabricamos sin medidas estándar que no se adaptan a tu espacio; cada pedido es único y se confecciona según tus especificaciones exactas.</p>
+          </div>
+
+          <div class="sobre-text-block" data-img="fulltolfdos12.png">
+            <h3 class="sobre-section-heading">Cubrimos Lima y Provincias</h3>
+            <p class="sobre-block-body">Elegir Full Toldos significa elegir soluciones funcionales y bien diseñadas para cualquier espacio. Como fabricantes en Lima, atendemos pedidos en toda la región. Ya sea un toldo retráctil, una carpa armable o una estructura publicitaria, Full Toldos está aquí para apoyar tu proyecto. Nuestro equipo siempre está listo para ayudarte. Contáctanos en cualquier momento; estamos aquí para que tu experiencia sea lo más satisfactoria posible.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stats ── -->
+  <section class="sobre-stats-section">
+    <div class="container">
+      <div class="sobre-stats-grid">
+        <div class="sobre-stat-item">
+          <div class="sobre-stat-circle">
+            <i class="bi bi-award-fill"></i>
+            <span>25</span>
+          </div>
+          <div class="sobre-stat-label">25 AÑOS DE EXPERIENCIA</div>
+          <div class="sobre-stat-desc">— la columna vertebral de la misión de Full Toldos para ofrecer coberturas de calidad en todo el Perú.</div>
+        </div>
+        <div class="sobre-stat-item">
+          <div class="sobre-stat-circle">
+            <i class="bi bi-clock-fill"></i>
+            <span>48</span>
+          </div>
+          <div class="sobre-stat-label">48 HORAS</div>
+          <div class="sobre-stat-desc">— el tiempo promedio de fabricación para garantizar entrega puntual y calidad en cada pedido.</div>
+        </div>
+        <div class="sobre-stat-item">
+          <div class="sobre-stat-circle">
+            <i class="bi bi-people-fill"></i>
+            <span>5K+</span>
+          </div>
+          <div class="sobre-stat-label">más de 5.000 clientes</div>
+          <div class="sobre-stat-desc">— ya confían en Full Toldos para proteger sus negocios, hogares y eventos en todo el Perú.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Redes sociales -->
+    <div class="sobre-social-area">
+      <h3 class="sobre-social-title">Síguenos en redes sociales</h3>
+      <div class="sobre-social-icons">
+        <a href="#" class="sobre-soc" title="Facebook"><i class="bi bi-facebook"></i></a>
+        <a href="#" class="sobre-soc" title="Instagram"><i class="bi bi-instagram"></i></a>
+        <a href="#" class="sobre-soc" title="YouTube"><i class="bi bi-youtube"></i></a>
+        <a href="#" class="sobre-soc" title="TikTok"><i class="bi bi-tiktok"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="sobre-faq-section" id="resenas">
+    <div class="container">
+      <div class="sobre-faq-layout">
+        <!-- Izquierda -->
+        <div class="sobre-faq-left">
+          <div class="sobre-faq-tag">Preguntas frecuentes</div>
+          <h2 class="sobre-faq-heading">¿Tienes alguna pregunta? Estamos aquí para ayudarte.</h2>
+          <div class="sobre-team-row">
+            <div class="sobre-team-av"><i class="bi bi-person-fill"></i></div>
+            <div class="sobre-team-av"><i class="bi bi-person-fill"></i></div>
+            <div class="sobre-team-av"><i class="bi bi-person-fill"></i></div>
+          </div>
+          <div class="sobre-horario">
+            Horario de atención: lunes a sábado, de 8:00 a.m. a 7:00 p.m.<br>
+            <span>(Excepto feriados)</span>
+          </div>
+          <a href="#" class="sobre-contacto-btn" onclick="event.preventDefault();closeSobrePage();setTimeout(()=>document.querySelector('#contacto')?.scrollIntoView({behavior:'smooth'}),300)">CONTÁCTENOS</a>
+        </div>
+        <!-- Derecha: acordeón -->
+        <div class="sobre-faq-right">
+          <div class="sobre-faq-list">
+            <div class="sobre-faq-item">
+              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
+                ¿Cuántos años lleva Full Toldos en el mercado?
+                <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="sobre-faq-a">Full Toldos tiene más de 25 años fabricando toldos, carpas y estructuras textiles en el Perú. Nuestra experiencia nos avala como referentes del sector en Lima y provincias.</div>
+            </div>
+            <div class="sobre-faq-item">
+              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
+                ¿Cómo obtener una cotización personalizada?
+                <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="sobre-faq-a">Puedes solicitar tu cotización por WhatsApp o usando el formulario de contacto en nuestra web. Respondemos en menos de 24 horas con precios claros, sin intermediarios y sin compromiso.</div>
+            </div>
+            <div class="sobre-faq-item">
+              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
+                ¿Fabrican a medida?
+                <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="sobre-faq-a">Sí, todos nuestros productos se fabrican a medida. No trabajamos con medidas estándar que no se adapten a tu espacio. Desde estructuras pequeñas hasta grandes carpas industriales, todo se confecciona según tus especificaciones.</div>
+            </div>
+            <div class="sobre-faq-item">
+              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
+                ¿Hacen envíos a provincias?
+                <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="sobre-faq-a">Sí, atendemos pedidos en todo el Perú. Coordinamos el envío e instalación (si se requiere) tanto en Lima como en provincias. Contáctanos para más detalles sobre tiempos y costos de envío a tu región.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ═══ CONTACTO PAGE VIEW ═══ -->
+<div id="contactoPageView" style="display:none; background:#f8f9fb; min-height:100vh; padding-top:148px;">
+
+    <!-- Breadcrumb + título -->
+    <div class="page-breadcrumb-wrap">
+        <div class="container">
+            <nav class="page-breadcrumb">
+                <a href="#" onclick="event.preventDefault();closeContactoPage()">Home</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Contacto</span>
+            </nav>
+            <h1 class="page-breadcrumb-title">Contacto</h1>
+        </div>
+    </div>
+
+    <section class="contacto-section">
+        <div class="container">
+            <div class="contacto-layout">
+
+                <!-- Izquierda: info -->
+                <div class="contacto-left">
+                    <div class="contacto-tag">Contáctenos</div>
+                    <h2 class="contacto-title">¡Estamos aquí para ayudarte!</h2>
+                    <p class="contacto-desc">Si tienes preguntas sobre tu pedido, necesitas ayuda con nuestros productos o simplemente deseas comunicarte con nosotros, no dudes en escribirnos.</p>
+
+                    <div class="contacto-info-item">
+                        <i class="bi bi-telephone-fill"></i>
+                        <div>
+                            <div class="contacto-info-label">Teléfono / WhatsApp</div>
+                            <a th:href="${wspLink}" href="#" class="contacto-info-val">+51 999 999 999</a>
+                        </div>
+                    </div>
+                    <div class="contacto-info-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <div>
+                            <div class="contacto-info-label">Horario de atención</div>
+                            <div class="contacto-info-val">Lunes a sábado, de 8:00 a.m. a 7:00 p.m.</div>
+                            <div class="contacto-info-sub">(Excepto feriados)</div>
+                        </div>
+                    </div>
+                    <div class="contacto-info-item">
+                        <i class="bi bi-envelope-fill"></i>
+                        <div>
+                            <div class="contacto-info-label">Correo electrónico</div>
+                            <a href="mailto:ventas@fulltoldos.com" class="contacto-info-val">ventas@fulltoldos.com</a>
+                            <div class="contacto-info-sub">Normalmente respondemos dentro de 1 día hábil.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Derecha: formulario -->
+                <div class="contacto-form-panel">
+                    <form class="contacto-form" onsubmit="submitContacto(event)">
+                        <div class="contacto-form-row">
+                            <input type="text"  class="contacto-inp" name="nombre"  placeholder="Nombre"             required>
+                            <input type="email" class="contacto-inp" name="email"   placeholder="Correo electrónico" required>
+                        </div>
+                        <textarea class="contacto-inp contacto-textarea" name="mensaje" placeholder="Mensaje" rows="5" required></textarea>
+                        <button type="submit" class="contacto-submit-btn">
+                            <i class="bi bi-send-fill"></i> Enviar mensaje
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div>
+
 <!-- ═══ LIGHTBOX ═══ -->
 <div class="lightbox-overlay" id="lightboxOverlay">
     <button class="lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
@@ -952,21 +1193,30 @@
 <!-- ═══ MOBILE MENU ═══ -->
 <div class="mob-overlay" id="mobOverlay" onclick="closeMobileMenu()"></div>
 <div class="mob-drawer" id="mobDrawer">
+    <!-- Cabecera -->
     <div class="mob-head">
         <img th:src="@{/img/logofulltoldos.png}" src="logofulltoldos.png"
              alt="Full Toldos" class="mob-logo">
-        <button class="mob-close-btn" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
+        <div class="mob-head-right">
+            <button class="mob-close-btn" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
+        </div>
     </div>
+    <!-- Búsqueda -->
     <div class="mob-search-row">
         <div class="mob-search-box">
             <input type="text" id="mobSearchInput" placeholder="Buscar productos...">
             <button onclick="doMobSearch()"><i class="bi bi-search"></i></button>
         </div>
     </div>
+    <!-- Menú -->
     <div id="mobNav" class="mob-nav"></div>
+    <!-- Footer -->
     <div class="mob-footer">
-        <a href="#" onclick="event.preventDefault();closeMobileMenu();openCotizModal()" class="btn-cotizar" style="width:100%;justify-content:center;">
-            <i class="bi bi-chat-text-fill"></i> Solicitar Cotización
+        <a th:href="${wspLink}" href="#" target="_blank" class="mob-footer-wsp">
+            <i class="bi bi-whatsapp"></i> WhatsApp
+        </a>
+        <a href="#" onclick="event.preventDefault();closeMobileMenu();openCotizModal()" class="btn-cotizar" style="flex:1;justify-content:center;font-size:0.78rem;padding:10px 10px;">
+            <i class="bi bi-chat-text-fill"></i> Cotización
         </a>
     </div>
 </div>

@@ -4,7 +4,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "categorias", schema = "public")
-public class Categoria {
+public class Categoria extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
