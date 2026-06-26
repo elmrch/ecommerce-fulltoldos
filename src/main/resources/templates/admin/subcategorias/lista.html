@@ -7,57 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { background:#f0f4ff; font-family:'Poppins',sans-serif; margin:0; }
-        .sidebar { position:fixed; top:0; left:0; width:240px; height:100vh; background:#111; display:flex; flex-direction:column; z-index:100; }
-        .sidebar-logo { padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,0.08); }
-        .sidebar-logo img { height:40px; filter:brightness(0) invert(1); }
-        .sidebar-role { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-top:6px; }
-        .sidebar-nav { flex:1; padding:16px 10px; overflow-y:auto; }
-        .nav-section-lbl { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:10px 10px 6px; display:block; }
-        .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.82rem; font-weight:500; transition:all 0.18s; margin-bottom:2px; }
-        .nav-item:hover { background:rgba(255,255,255,0.07); color:white; }
-        .nav-item.active { background:#1949c9; color:white; }
-        .sidebar-foot { padding:16px 10px; border-top:1px solid rgba(255,255,255,0.08); }
-        .user-info { display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:8px; }
-        .user-avatar { width:34px; height:34px; border-radius:50%; background:#1949c9; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:white; }
-        .user-email { font-size:0.72rem; color:rgba(255,255,255,0.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; border-radius:8px; background:rgba(244,67,54,0.12); color:#ef9a9a; border:1px solid rgba(244,67,54,0.2); font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; font-family:'Poppins',sans-serif; }
-        .btn-logout:hover { background:rgba(244,67,54,0.22); color:#ff8a80; }
-        .main-content { margin-left:240px; padding:32px; min-height:100vh; }
-        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
-        .page-title { font-size:1.6rem; font-weight:800; color:#111; margin:0; }
-        .card-admin { background:white; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); border:1px solid #f0f0f0; overflow:hidden; }
-        .table th { font-family:'Poppins',sans-serif; font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:#90a4ae; font-weight:700; border-bottom:2px solid #f0f0f0; padding:14px 16px; }
-        .table td { font-size:0.88rem; padding:14px 16px; vertical-align:middle; border-bottom:1px solid #f5f5f5; color:#333; }
-        .badge-cat { background:#e3f2fd; color:#1565c0; font-size:0.62rem; padding:3px 9px; border-radius:20px; font-weight:700; letter-spacing:1px; }
-        .badge-activo { background:#e8f5e9; color:#2e7d32; font-size:0.65rem; padding:4px 10px; border-radius:20px; font-weight:700; letter-spacing:1px; }
-        .badge-inactivo { background:#fce4ec; color:#c62828; font-size:0.65rem; padding:4px 10px; border-radius:20px; font-weight:700; letter-spacing:1px; }
-        .btn-accion { padding:6px 12px; border-radius:7px; font-size:0.72rem; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:5px; text-decoration:none; transition:all 0.2s; font-family:'Poppins',sans-serif; }
-        .btn-editar { background:#e3f2fd; color:#1565c0; }
-        .btn-editar:hover { background:#1949c9; color:white; }
-        .btn-eliminar { background:#fce4ec; color:#c62828; }
-        .btn-eliminar:hover { background:#c62828; color:white; }
-        .btn-nuevo { background:linear-gradient(135deg,#1949c9,#1237a8); color:white; padding:10px 22px; border-radius:10px; font-size:0.82rem; font-weight:700; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; transition:all 0.2s; font-family:'Poppins',sans-serif; }
-        .btn-nuevo:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(25,73,201,0.35); color:white; }
-        .alert-exito { background:#e8f5e9; border:1px solid #a5d6a7; border-radius:10px; color:#2e7d32; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
-        .alert-error { background:#fce4ec; border:1px solid #ef9a9a; border-radius:10px; color:#c62828; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
-        .empty-state { text-align:center; padding:60px 20px; color:#b0bec5; }
-        .empty-state i { font-size:3rem; display:block; margin-bottom:12px; }
-        .empty-state p { font-size:0.78rem; letter-spacing:2px; text-transform:uppercase; }
-        @media(max-width:991px){
-          .sidebar{left:-260px!important;transition:left .3s;z-index:9000;}
-          .sidebar.mob-open{left:0!important;}
-          .main-content{margin-left:0!important;padding:16px!important;padding-top:68px!important;}
-          .mob-admin-bar{display:flex!important;}
-          .mob-admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:8999;display:none;}
-          .mob-admin-overlay.open{display:block;}
-        }
-        .mob-admin-bar{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:#111;z-index:8998;align-items:center;padding:0 16px;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,.3);}
-        .mob-admin-bar img{height:32px;filter:brightness(0)invert(1);flex:1;}
-        .mob-admin-ham{width:38px;height:38px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}    </style>
+    <link th:href="@{/estilo.css}" rel="stylesheet">
 </head>
-<body>
+<body class="admin-page">
 
 <div class="mob-admin-bar">
     <button class="mob-admin-ham" onclick="document.querySelector('.sidebar').classList.toggle('mob-open');document.getElementById('mobAdminOverlay').classList.toggle('open')"><i class="bi bi-list"></i></button>

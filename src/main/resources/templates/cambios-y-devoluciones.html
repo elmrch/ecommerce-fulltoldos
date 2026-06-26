@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Cambios y Devoluciones — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+</head>
+<body class="policy-page">
+
+
+<div class="policy-hero" style="margin-top:72px;">
+    <div class="container">
+        <a href="/" class="back-link"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
+        <h1>Cambios y Devoluciones</h1>
+        <div class="updated">Última actualización: 24 de junio de 2026</div>
+    </div>
+</div>
+
+<div class="container" style="max-width:860px;">
+    <div class="pp-card">
+
+        <div class="intro-box">
+            <i class="bi bi-shield-check" style="font-size:1.1rem;margin-right:6px;"></i>
+            <strong>Queremos que esté completamente satisfecho.</strong> En Full Toldos fabricamos cada producto a medida
+            con los más altos estándares de calidad. Si por algún motivo necesita gestionar un cambio o devolución,
+            estamos aquí para ayudarle de manera rápida y personalizada.
+        </div>
+
+        <div class="card-grid">
+            <div class="info-card">
+                <div class="ic-icon"><i class="bi bi-calendar-check"></i></div>
+                <div class="ic-title">Plazo de reclamo</div>
+                <div class="ic-value">30 días calendario</div>
+            </div>
+            <div class="info-card">
+                <div class="ic-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="ic-title">Tiempo de inspección</div>
+                <div class="ic-value">Hasta 7 días hábiles</div>
+            </div>
+            <div class="info-card">
+                <div class="ic-icon"><i class="bi bi-whatsapp"></i></div>
+                <div class="ic-title">Canal de atención</div>
+                <div class="ic-value">WhatsApp / Correo</div>
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <h2>Condiciones para Cambios y Devoluciones</h2>
+            <ul>
+                <li>
+                    <strong>Productos con defecto de fabricación:</strong> Si el producto presenta fallas atribuibles a
+                    nuestra fabricación (costuras defectuosas, materiales incorrectos, medidas diferentes a las acordadas),
+                    gestionamos el cambio o reembolso sin costo adicional para el cliente.
+                </li>
+                <li>
+                    <strong>Plazo de reclamo:</strong> Dentro de los 30 días calendario siguientes a la fecha de recepción
+                    o instalación del producto.
+                </li>
+                <li>
+                    <strong>Productos fabricados a medida:</strong> Al ser productos personalizados según las especificaciones
+                    indicadas por el cliente, no se aceptan devoluciones por cambio de decisión una vez iniciada la fabricación,
+                    salvo defecto comprobado.
+                </li>
+                <li>
+                    <strong>Gastos de devolución:</strong> Son responsabilidad del cliente, salvo que la devolución se deba
+                    a un error nuestro o a un defecto de fabricación comprobado, en cuyo caso cubrimos el costo.
+                </li>
+            </ul>
+            <div class="alert-custom">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>Importante:</strong> Conserve el embalaje original y toda la documentación (boleta, orden de pedido)
+                durante los 30 días posteriores a la recepción. Son necesarios para gestionar cualquier reclamo.
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <h2>Cómo Solicitar un Cambio o Devolución</h2>
+            <ol class="steps">
+                <li><span>Tome fotos o video del producto, mostrando claramente el defecto o problema.</span></li>
+                <li><span>Contáctenos por WhatsApp o correo electrónico dentro del plazo de 30 días, adjuntando las evidencias y su número de orden.</span></li>
+                <li><span>Nuestro equipo evaluará su caso en un plazo máximo de 2 días hábiles y le comunicará los pasos a seguir.</span></li>
+                <li><span>Coordinamos la devolución del producto y, una vez inspeccionado, procedemos con el cambio, compensación o reembolso según corresponda.</span></li>
+            </ol>
+        </div>
+
+        <div class="pp-section">
+            <h2>Inspección y Reembolsos</h2>
+            <ul>
+                <li>
+                    <strong>Proceso de inspección:</strong> Una vez recibido el producto devuelto, nuestro equipo técnico
+                    lo inspeccionará. Este proceso puede tardar hasta 7 días hábiles.
+                </li>
+                <li>
+                    <strong>Resultado de la inspección:</strong> Si se confirma el defecto de fabricación, procedemos de
+                    inmediato con la solución acordada (cambio, reparación o reembolso).
+                </li>
+                <li>
+                    <strong>Reembolsos:</strong> Se gestionan a través del mismo medio de pago utilizado originalmente.
+                    El tiempo de acreditación depende del banco o billetera digital del cliente.
+                </li>
+            </ul>
+        </div>
+
+        <div class="pp-section">
+            <h2>Manejo de Productos con Defecto</h2>
+            <p>Si recibe un toldo, carpa, inflable o cobertura con daño o defecto de fabricación:</p>
+            <ul>
+                <li>Tome fotografías o video del problema antes de manipular o instalar el producto.</li>
+                <li>Contáctenos de inmediato a través de WhatsApp o correo electrónico con las evidencias.</li>
+                <li>Le ofreceremos: <strong>cambio del producto</strong>, <strong>reparación sin costo</strong>, <strong>compensación</strong> o <strong>reembolso completo</strong>, según el caso.</li>
+                <li>Nuestro equipo gestiona cada caso de forma personalizada para garantizar su total satisfacción.</li>
+            </ul>
+        </div>
+
+        <div class="pp-section">
+            <h2>Instrucciones Adicionales</h2>
+            <ul>
+                <li><strong>Conserve el embalaje:</strong> Guarde la caja o bolsa original durante los 30 días posteriores a la recepción del producto.</li>
+                <li><strong>Producto instalado con defecto:</strong> Si el problema se detecta tras la instalación, contáctenos adjuntando fotos detalladas del defecto para evaluar la solución más adecuada.</li>
+                <li><strong>Especificaciones incorrectas del cliente:</strong> Si el defecto se originó por información errada proporcionada por el cliente (medidas, colores, materiales), analizaremos el caso y buscaremos la mejor alternativa de solución conjunta.</li>
+            </ul>
+        </div>
+
+        <div class="pp-section">
+            <h2>Contáctenos</h2>
+            <p>Nuestro equipo de atención al cliente está disponible para ayudarle con rapidez:</p>
+            <ul>
+                <li><i class="bi bi-whatsapp"></i> <strong>WhatsApp:</strong> +51 999 999 999</li>
+                <li><i class="bi bi-envelope-fill"></i> <strong>Correo:</strong> contacto@fulltoldos.com</li>
+                <li><i class="bi bi-clock-fill"></i> <strong>Horario:</strong> Lun – Sáb, 8:00 am – 7:00 pm</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+</html>

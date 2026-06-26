@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
@@ -8,47 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { background:#f0f4ff; font-family:'Poppins',sans-serif; margin:0; }
-        .sidebar { position:fixed; top:0; left:0; width:240px; height:100vh; background:#111; display:flex; flex-direction:column; z-index:100; }
-        .sidebar-logo { padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,0.08); }
-        .sidebar-logo img { height:40px; filter:brightness(0) invert(1); }
-        .sidebar-role { font-size:0.58rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-top:6px; }
-        .sidebar-nav { flex:1; padding:16px 10px; overflow-y:auto; }
-        .nav-section-lbl { font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.25); padding:10px 10px 6px; display:block; }
-        .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:rgba(255,255,255,0.55); text-decoration:none; font-size:0.82rem; font-weight:500; transition:all 0.18s; margin-bottom:2px; }
-        .nav-item:hover { background:rgba(255,255,255,0.07); color:white; }
-        .nav-item.active { background:#1949c9; color:white; }
-        .sidebar-foot { padding:16px 10px; border-top:1px solid rgba(255,255,255,0.08); }
-        .user-info { display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:8px; }
-        .user-avatar { width:34px; height:34px; border-radius:50%; background:#1949c9; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:white; }
-        .user-email { font-size:0.72rem; color:rgba(255,255,255,0.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; border-radius:8px; background:rgba(244,67,54,0.12); color:#ef9a9a; border:1px solid rgba(244,67,54,0.2); font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; font-family:'Poppins',sans-serif; }
-        .main-content { margin-left:240px; padding:32px; min-height:100vh; }
-        .page-header { display:flex; align-items:center; gap:16px; margin-bottom:24px; }
-        .page-title { font-size:1.6rem; font-weight:800; color:#111; margin:0; }
-        .btn-volver { background:#f5f5f5; color:#555; padding:9px 16px; border-radius:8px; font-size:0.78rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px; border:1px solid #e0e0e0; }
-        .detail-card { background:white; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); border:1px solid #f0f0f0; padding:28px 32px; margin-bottom:20px; }
-        .detail-card-title { font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-bottom:20px; padding-bottom:12px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:8px; }
-        .user-big-avatar { width:80px; height:80px; border-radius:50%; background:#1949c9; display:flex; align-items:center; justify-content:center; color:white; font-size:2rem; font-weight:700; margin:0 auto 16px; }
-        .info-row { display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid #f5f5f5; font-size:0.88rem; }
-        .info-row:last-child { border-bottom:none; }
-        .info-lbl { color:#90a4ae; font-size:0.72rem; letter-spacing:1px; text-transform:uppercase; }
-        .info-val { font-weight:600; color:#111; }
-        .badge-admin { background:#e3f2fd; color:#1565c0; font-size:0.62rem; padding:4px 10px; border-radius:20px; font-weight:700; }
-        .badge-cliente { background:#e8f5e9; color:#2e7d32; font-size:0.62rem; padding:4px 10px; border-radius:20px; font-weight:700; }
-        .badge-activo { background:#e8f5e9; color:#2e7d32; font-size:0.62rem; padding:4px 10px; border-radius:20px; font-weight:700; }
-        .badge-inactivo { background:#fce4ec; color:#c62828; font-size:0.62rem; padding:4px 10px; border-radius:20px; font-weight:700; }
-        .form-label { font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:#555; font-weight:700; margin-bottom:6px; display:block; }
-        .form-control, .form-select { border:1.5px solid #e0e0e0; border-radius:10px; padding:10px 14px; font-family:'Poppins',sans-serif; font-size:0.9rem; outline:none; width:100%; }
-        .form-control:focus, .form-select:focus { border-color:#1949c9; box-shadow:0 0 0 3px rgba(25,73,201,0.1); }
-        .btn-guardar { background:linear-gradient(135deg,#1949c9,#1237a8); color:white; padding:11px 24px; border-radius:10px; font-family:'Poppins',sans-serif; font-weight:700; font-size:0.88rem; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all 0.2s; }
-        .btn-guardar:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(25,73,201,0.35); }
-        .alert-exito { background:#e8f5e9; border:1px solid #a5d6a7; border-radius:10px; color:#2e7d32; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
-        .alert-error { background:#fce4ec; border:1px solid #ef9a9a; border-radius:10px; color:#c62828; padding:12px 18px; font-size:0.85rem; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
-    </style>
+    <link th:href="@{/estilo.css}" rel="stylesheet">
 </head>
-<body>
+<body class="admin-page">
 
 <!-- Sidebar -->
 <aside class="sidebar">

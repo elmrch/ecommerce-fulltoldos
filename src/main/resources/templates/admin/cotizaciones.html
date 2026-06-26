@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -7,67 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { background:#f0f4ff; font-family:'Poppins',sans-serif; margin:0; }
-        .sidebar { position:fixed; top:0; left:0; width:240px; height:100vh; background:#111; display:flex; flex-direction:column; z-index:100; box-shadow:2px 0 20px rgba(0,0,0,.15); }
-        .sidebar-logo { padding:22px 20px 18px; border-bottom:1px solid rgba(255,255,255,.08); }
-        .sidebar-logo img { height:40px; filter:brightness(0) invert(1); }
-        .sidebar-role { font-size:.58rem; letter-spacing:2px; text-transform:uppercase; color:#1949c9; font-weight:700; margin-top:6px; display:flex; align-items:center; gap:5px; }
-        .sidebar-nav { flex:1; padding:16px 10px; overflow-y:auto; }
-        .nav-section-lbl { font-size:.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.25); padding:10px 10px 6px; display:block; }
-        .nav-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; color:rgba(255,255,255,.55); text-decoration:none; font-size:.82rem; font-weight:500; transition:all .18s; margin-bottom:2px; }
-        .nav-item:hover { background:rgba(255,255,255,.07); color:white; }
-        .nav-item.active { background:#1949c9; color:white; }
-        .nav-item i { font-size:1rem; flex-shrink:0; }
-        .sidebar-foot { padding:16px 10px; border-top:1px solid rgba(255,255,255,.08); }
-        .user-avatar { width:34px; height:34px; border-radius:50%; background:#1949c9; display:flex; align-items:center; justify-content:center; font-size:.9rem; color:white; flex-shrink:0; }
-        .user-email { font-size:.72rem; color:rgba(255,255,255,.5); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-        .btn-logout { display:flex; align-items:center; gap:8px; width:100%; padding:9px 12px; border-radius:8px; background:rgba(244,67,54,.12); color:#ef9a9a; border:1px solid rgba(244,67,54,.2); font-size:.78rem; font-weight:600; cursor:pointer; transition:all .2s; text-decoration:none; }
-        .btn-logout:hover { background:rgba(244,67,54,.22); color:#ff8a80; }
-        .main-content { margin-left:240px; padding:32px; min-height:100vh; }
-        .page-title { font-size:1.6rem; font-weight:800; color:#111; margin:0; }
-        .page-sub { font-size:.8rem; color:#90a4ae; margin-top:3px; margin-bottom:28px; }
-
-        .cotiz-table { background:white; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid #f0f0f0; overflow:hidden; }
-        .cotiz-table table { width:100%; border-collapse:collapse; }
-        .cotiz-table th { background:#f8f9fb; padding:12px 16px; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#555; text-align:left; border-bottom:1px solid #eee; }
-        .cotiz-table td { padding:14px 16px; font-size:.8rem; color:#333; border-bottom:1px solid #f5f5f5; vertical-align:top; }
-        .cotiz-table tr:last-child td { border-bottom:none; }
-        .cotiz-table tr:hover td { background:#fafafa; }
-
-        .badge-estado { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:20px; font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; }
-        .badge-PENDIENTE  { background:#fff3e0; color:#e65100; }
-        .badge-ATENDIDA   { background:#e8f5e9; color:#2e7d32; }
-        .badge-CERRADA    { background:#f5f5f5; color:#757575; }
-
-        .estado-form select { border:1.5px solid #e0e0e0; border-radius:8px; padding:5px 10px; font-size:.75rem; font-family:'Poppins',sans-serif; background:#fafafa; cursor:pointer; }
-        .estado-form button { background:#1949c9; color:white; border:none; border-radius:8px; padding:5px 12px; font-size:.72rem; font-weight:600; cursor:pointer; margin-left:6px; }
-
-        .nombre-col { font-weight:600; color:#111; }
-        .fecha-col { color:#90a4ae; font-size:.73rem; }
-        .msg-col { max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#666; }
-
-        .empty-state { text-align:center; padding:60px 20px; color:#90a4ae; }
-        .empty-state i { font-size:3rem; display:block; margin-bottom:12px; }
-        .empty-state p { font-size:.85rem; }
-
-        .alert-ok { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; border-radius:10px; padding:12px 20px; font-size:.82rem; font-weight:600; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
-
-        .mob-admin-bar { display:none; position:fixed; top:0; left:0; right:0; height:56px; background:#111; z-index:8998; align-items:center; padding:0 16px; gap:14px; box-shadow:0 2px 12px rgba(0,0,0,.3); }
-        .mob-admin-bar img { height:32px; filter:brightness(0) invert(1); flex:1; }
-        .mob-admin-ham { width:38px; height:38px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); border-radius:8px; color:white; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-        .mob-admin-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:8999; }
-        .mob-admin-overlay.open { display:block; }
-        @media(max-width:991px) {
-            .sidebar { position:fixed; left:-260px; transition:left .3s; z-index:9000; }
-            .sidebar.mob-open { left:0; }
-            .main-content { margin-left:0; padding:16px; padding-top:68px; }
-            .mob-admin-bar { display:flex !important; }
-            .cotiz-table { overflow-x:auto; }
-        }
-    </style>
+    <link th:href="@{/estilo.css}" rel="stylesheet">
 </head>
-<body>
+<body class="admin-page">
 
 <div class="mob-admin-bar">
     <button class="mob-admin-ham" onclick="document.querySelector('.sidebar').classList.toggle('mob-open');document.getElementById('mobOverlay').classList.toggle('open')">

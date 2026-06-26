@@ -540,17 +540,10 @@
     </section>
 
     <!-- ═══ BANNER PERSONALIZACIÓN ═══ -->
-    <section class="custom-banner-section">
-        <div class="custom-banner-inner">
-            <div class="custom-banner-text">
-                <h2 class="custom-banner-title">Diseño integral<br>y soluciones<br>de impresión<br><span>personalizadas</span></h2>
-                <p class="custom-banner-sub">La elección profesional | Fabricación a medida Full Toldos</p>
-                <a th:href="@{/}" class="custom-banner-btn" onclick="event.preventDefault();openCotizModal()">Personalizar</a>
-            </div>
-            <div class="custom-banner-img">
-                <img th:src="@{img/personalizas.png}" src="img/personalizas.png" alt="Personalización Full Toldos">
-            </div>
-        </div>
+    <section style="text-align:center;">
+        <a th:href="${wspLink}" target="_blank" style="display:block;line-height:0;">
+            <img th:src="@{img/fulltoldos.png}" src="img/fulltoldos.png" alt="Full Toldos" style="width:100%;max-width:100%;">
+        </a>
     </section>
 
     <!-- ═══ TABS PRODUCTOS ═══ -->
@@ -659,7 +652,7 @@
     <!-- ═══ NEWSLETTER ═══ -->
     <section class="nl-section">
         <div class="nl-text-col">
-            <h2 class="nl-title">Suscríbete a Nuestro Boletín</h2>
+            <h2 class="nl-title">Suscríbete a Nuestro Newsletter</h2>
             <p class="nl-desc">Novedades, ofertas exclusivas y consejos sobre toldos y carpas.</p>
             <div class="nl-form">
                 <span class="nl-icon"><i class="bi bi-envelope"></i></span>
@@ -703,18 +696,13 @@
                         </th:block>
                     </ul>
                 </div>
+
                 <div class="col-lg-2 col-6">
-                    <div class="footer-heading">Materiales</div>
-                    <ul class="footer-links" id="footerMat">
-                        <!-- Llenado por buildFooter() en JS (o desde Thymeleaf si se pasa 'footerMats') -->
-                        <th:block th:if="${footerMats != null}">
-                            <li th:each="fm : ${footerMats}">
-                                <a href="#materiales">
-                                    <i class="bi bi-chevron-right"></i>
-                                    <span th:text="${fm}">Material</span>
-                                </a>
-                            </li>
-                        </th:block>
+                    <div class="footer-heading">Políticas</div>
+                    <ul class="footer-links">
+                        <li><a href="/cambios-y-devoluciones"><i class="bi bi-chevron-right"></i> Cambios y devoluciones</a></li>
+                        <li><a href="/terminos-y-condiciones"><i class="bi bi-chevron-right"></i> Términos y condiciones</a></li>
+                        <li><a href="/politica-de-privacidad"><i class="bi bi-chevron-right"></i> Política de privacidad</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-4">

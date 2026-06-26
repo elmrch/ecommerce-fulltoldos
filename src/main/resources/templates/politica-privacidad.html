@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Política de Privacidad — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+</head>
+<body class="policy-page">
+
+
+<div class="policy-hero" style="margin-top:72px;">
+    <div class="container">
+        <a href="/" class="back-link"><i class="bi bi-arrow-left"></i> Volver al inicio</a>
+        <h1>Política de Privacidad</h1>
+        <div class="updated">Última actualización: 24 de junio de 2026</div>
+    </div>
+</div>
+
+<div class="container" style="max-width:860px;">
+    <div class="pp-card">
+
+        <div class="pp-section">
+            <p>
+                Esta Política de Privacidad describe cómo <strong>Full Toldos</strong> ("el Sitio", "nosotros", "nos" o "nuestro")
+                recopila, utiliza y divulga su información personal cuando visita nuestro sitio web, utiliza nuestros servicios,
+                solicita una cotización o se comunica con nosotros en relación con nuestros productos y servicios
+                (en conjunto, los "Servicios"). A los efectos de esta Política, "usted" y "su" se refieren a usted como usuario
+                de los Servicios, ya sea cliente, visitante del sitio web u otra persona cuya información hayamos recopilado
+                de conformidad con esta Política.
+            </p>
+            <p>Lea atentamente esta Política de Privacidad.</p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Cambios a esta Política de Privacidad</h2>
+            <p>
+                Podemos actualizar esta Política de Privacidad ocasionalmente para reflejar cambios en nuestras prácticas
+                o por otros motivos operativos, legales o regulatorios. Publicaremos la Política revisada en el Sitio y
+                actualizaremos la fecha de "Última actualización". Le recomendamos revisarla periódicamente.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Cómo recopilamos y utilizamos su información personal</h2>
+            <p>
+                Para prestar los Servicios, recopilamos información personal sobre usted de diversas fuentes.
+                La información que recopilamos varía según cómo interactúe con nosotros. Además de los usos específicos
+                que se detallan a continuación, podemos utilizar la información recopilada para comunicarnos con usted,
+                prestar o mejorar los Servicios, cumplir con obligaciones legales, y proteger nuestros derechos y los de
+                nuestros usuarios.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Qué información personal recopilamos</h2>
+            <p>El tipo de información personal que obtenemos depende de cómo interactúe con nuestro Sitio y Servicios.</p>
+            <p><strong>Información que recopilamos directamente de usted:</strong></p>
+            <ul>
+                <li><strong>Datos de contacto:</strong> nombre, dirección, número de teléfono y correo electrónico.</li>
+                <li><strong>Información de cotización/pedido:</strong> tipo de producto consultado, dimensiones, dirección de entrega y teléfono.</li>
+                <li><strong>Información de la cuenta</strong> (si aplica): nombre de usuario, contraseña y datos de seguridad.</li>
+                <li><strong>Atención al cliente:</strong> cualquier detalle que incluya en sus comunicaciones con nosotros.</li>
+            </ul>
+            <p><strong>Información que recopilamos sobre su uso:</strong></p>
+            <p>
+                También podemos recopilar automáticamente cierta información sobre su interacción con los Servicios
+                ("Datos de uso"), mediante cookies y tecnologías similares. Estos datos pueden incluir información del
+                dispositivo, del navegador, dirección IP, páginas visitadas y tiempo de navegación.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Cómo usamos su información personal</h2>
+            <ul>
+                <li><strong>Provisión de servicios:</strong> procesar cotizaciones, coordinar la fabricación e instalación de toldos, carpas e inflables, y gestionar su cuenta.</li>
+                <li><strong>Comunicación:</strong> responder sus consultas, enviar notificaciones sobre su pedido y brindar atención postventa.</li>
+                <li><strong>Marketing (con su consentimiento):</strong> enviarle novedades, catálogos y ofertas especiales por correo electrónico o WhatsApp. Puede darse de baja en cualquier momento.</li>
+                <li><strong>Seguridad y prevención del fraude:</strong> detectar e investigar posibles actividades ilegales o maliciosas.</li>
+                <li><strong>Mejora del servicio:</strong> analizar el uso del Sitio para optimizar nuestra experiencia de usuario y catálogo de productos.</li>
+            </ul>
+        </div>
+
+        <div class="pp-section">
+            <h2>Cookies</h2>
+            <p>
+                Utilizamos cookies para optimizar nuestro Sitio, recordar sus preferencias y realizar análisis de uso.
+                La mayoría de los navegadores aceptan cookies automáticamente, pero puede configurar el suyo para eliminarlas
+                o rechazarlas. Tenga en cuenta que hacerlo puede afectar la funcionalidad del Sitio.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Cómo divulgamos información personal</h2>
+            <p>En determinadas circunstancias podemos compartir su información con terceros, incluyendo:</p>
+            <ul>
+                <li>Proveedores de servicios que actúan en nuestro nombre (transporte, instalación, tecnología).</li>
+                <li>Cuando la ley lo exija o para proteger nuestros derechos legales.</li>
+                <li>En el contexto de una fusión, adquisición u otra transacción comercial.</li>
+            </ul>
+            <p>No vendemos su información personal a terceros con fines comerciales.</p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Seguridad y conservación de su información</h2>
+            <p>
+                Implementamos medidas de seguridad razonables para proteger su información personal. Sin embargo, ninguna
+                transmisión por internet es completamente segura. Conservamos su información el tiempo necesario para cumplir
+                los fines descritos en esta Política o según lo exija la legislación aplicable.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Sus derechos</h2>
+            <p>Dependiendo de su lugar de residencia, usted puede tener los siguientes derechos:</p>
+            <ul>
+                <li><strong>Acceso:</strong> solicitar qué información personal tenemos sobre usted.</li>
+                <li><strong>Rectificación:</strong> solicitar la corrección de datos inexactos.</li>
+                <li><strong>Eliminación:</strong> solicitar que eliminemos su información personal.</li>
+                <li><strong>Oposición:</strong> oponerse al uso de su información para fines de marketing.</li>
+                <li><strong>Portabilidad:</strong> recibir una copia de su información en formato estructurado.</li>
+            </ul>
+            <p>Para ejercer cualquiera de estos derechos, contáctenos usando los datos al final de esta página.</p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Datos de menores</h2>
+            <p>
+                Nuestros Servicios no están destinados a menores de 18 años y no recopilamos deliberadamente
+                información personal de menores. Si usted es padre o tutor y cree que su hijo nos ha proporcionado
+                datos personales, contáctenos para solicitar su eliminación.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Sitios web y enlaces de terceros</h2>
+            <p>
+                Nuestro Sitio puede contener enlaces a sitios de terceros. No somos responsables de las prácticas
+                de privacidad ni del contenido de dichos sitios. Le recomendamos revisar sus políticas de privacidad
+                antes de proporcionarles información personal.
+            </p>
+        </div>
+
+        <div class="pp-section">
+            <h2>Contacto</h2>
+            <p>
+                Si tiene alguna pregunta sobre esta Política de Privacidad o desea ejercer alguno de sus derechos,
+                puede contactarnos a través de:
+            </p>
+            <ul>
+                <li><i class="bi bi-envelope-fill"></i> <strong>Correo:</strong> contacto@fulltoldos.com</li>
+                <li><i class="bi bi-whatsapp"></i> <strong>WhatsApp:</strong> +51 999 999 999</li>
+                <li><i class="bi bi-geo-alt-fill"></i> <strong>Dirección:</strong> Lima, Perú</li>
+            </ul>
+            <p style="margin-top:16px;font-size:0.85rem;color:#888;">
+                Full Toldos es el responsable del tratamiento de sus datos personales conforme a la
+                Ley N.° 29733 — Ley de Protección de Datos Personales del Perú y su reglamento.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+
+</body>
+</html>

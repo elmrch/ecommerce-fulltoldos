@@ -1076,11 +1076,9 @@ function buildWhy() {
 
 // ═══════════════════════════ FOOTER ═══════════════════════════
 function buildFooter() {
-  document.getElementById('footerProd').innerHTML = CATS.slice(0,5).map(c=>`
+  const prodEl = document.getElementById('footerProd');
+  if (prodEl) prodEl.innerHTML = CATS.slice(0,5).map(c=>`
     <li><a href="#productos" onclick="filterProducts('${c.id}')"><i class="bi bi-chevron-right"></i>${c.name}</a></li>`).join('');
-  document.getElementById('footerMat').innerHTML = [
-    'Polietileno HD','Lona PVC','Lona Taiwan','Mallas PVC','Acero Galvanizado','Insumos Costura'
-  ].map(m=>`<li><a href="#materiales"><i class="bi bi-chevron-right"></i>${m}</a></li>`).join('');
 }
 
 // ═══════════════════════════ TOAST ═══════════════════════════

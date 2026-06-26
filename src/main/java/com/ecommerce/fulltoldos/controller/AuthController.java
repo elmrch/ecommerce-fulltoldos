@@ -142,6 +142,45 @@ public class AuthController {
         return "index";
     }
 
+    @GetMapping("/politica-de-privacidad")
+    public String politicaPrivacidad(Model model) {
+        addCommonAttrs(model);
+        return "politica-privacidad";
+    }
+
+    @GetMapping("/terminos-y-condiciones")
+    public String terminosYCondiciones(Model model) {
+        addCommonAttrs(model);
+        return "terminos-y-condiciones";
+    }
+
+    @GetMapping("/cambios-y-devoluciones")
+    public String cambiosYDevoluciones(Model model) {
+        addCommonAttrs(model);
+        return "cambios-y-devoluciones";
+    }
+
+    private void addCommonAttrs(Model model) {
+        String wspNum = configService.get("cotizacion.whatsapp", "51999999999");
+        model.addAttribute("wspLink", "https://wa.me/" + wspNum);
+
+        Map<String, String> topbar = new HashMap<>();
+        topbar.put("telefono", configService.get("topbar.telefono", "+51 999 999 999"));
+        topbar.put("horario",  configService.get("topbar.horario",  "Lun–Sáb 8am–7pm"));
+        topbar.put("envios",   configService.get("topbar.envios",   "Envíos a todo el Perú"));
+        model.addAttribute("topbar", topbar);
+
+        Map<String, String> redes = new HashMap<>();
+        redes.put("whatsapp",  configService.get("redes.whatsapp",  "https://wa.me/" + wspNum));
+        redes.put("facebook",  configService.get("redes.facebook",  "#"));
+        redes.put("instagram", configService.get("redes.instagram", "#"));
+        redes.put("tiktok",    configService.get("redes.tiktok",    "#"));
+        redes.put("youtube",   configService.get("redes.youtube",   "#"));
+        model.addAttribute("redes", redes);
+
+        model.addAttribute("ruc", configService.get("empresa.ruc", "RUC: 20XXXXXXXXX"));
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login";

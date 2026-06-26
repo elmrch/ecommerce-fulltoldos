@@ -29,6 +29,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/login", "/registro",
                                 "/cotizar",
+                                "/politica-de-privacidad",
+                                "/terminos-y-condiciones",
+                                "/cambios-y-devoluciones",
                                 "/css/**", "/js/**", "/img/**",
                                 "/uploads/**",
                                 "/estilo.css", "/scrip.js",

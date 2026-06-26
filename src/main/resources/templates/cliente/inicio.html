@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -8,124 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link th:href="@{/estilo.css}" rel="stylesheet">
-    <style>
-        body { background: #f0f4ff; font-family: 'Poppins', sans-serif; margin: 0; }
-
-        /* ── Navbar cliente ── */
-        .navbar-cli {
-          background: #1949c9; padding: 0;
-          box-shadow: 0 2px 16px rgba(25,73,201,0.25);
-          position: sticky; top: 0; z-index: 100;
-        }
-        .navbar-inner {
-          display: flex; align-items: center;
-          justify-content: space-between;
-          padding: 12px 28px; gap: 16px;
-        }
-        .navbar-inner img { height: 40px; filter: brightness(0) invert(1); }
-        .nav-links-cli { display: flex; align-items: center; gap: 4px; }
-        .nav-link-cli {
-          color: rgba(255,255,255,0.75); text-decoration: none;
-          font-size: 0.8rem; font-weight: 500; padding: 8px 14px;
-          border-radius: 8px; transition: all 0.18s;
-          display: flex; align-items: center; gap: 6px;
-        }
-        .nav-link-cli:hover { background: rgba(255,255,255,0.12); color: white; }
-        .nav-link-cli.active { background: rgba(255,255,255,0.18); color: white; }
-        .nav-right-cli { display: flex; align-items: center; gap: 10px; }
-        .user-pill {
-          background: rgba(255,255,255,0.15);
-          border: 1px solid rgba(255,255,255,0.25);
-          border-radius: 20px; padding: 6px 14px 6px 8px;
-          display: flex; align-items: center; gap: 7px;
-          color: white; font-size: 0.75rem;
-        }
-        .user-pill i { font-size: 1rem; }
-        .btn-logout-top {
-          background: rgba(255,255,255,0.12);
-          border: 1px solid rgba(255,255,255,0.2);
-          color: rgba(255,255,255,0.8); padding: 7px 14px;
-          border-radius: 8px; font-size: 0.75rem; font-weight: 600;
-          cursor: pointer; transition: all 0.18s;
-          display: flex; align-items: center; gap: 6px;
-          font-family: 'Poppins', sans-serif;
-        }
-        .btn-logout-top:hover { background: rgba(255,255,255,0.22); color: white; }
-
-        /* ── Contenido ── */
-        .main-wrap { max-width: 1000px; margin: 0 auto; padding: 32px 20px; }
-        .welcome-card {
-          background: linear-gradient(135deg, #1949c9, #1237a8);
-          border-radius: 16px; padding: 28px 32px;
-          color: white; margin-bottom: 28px;
-          display: flex; align-items: center;
-          justify-content: space-between; flex-wrap: wrap; gap: 16px;
-        }
-        .welcome-title { font-size: 1.3rem; font-weight: 800; margin-bottom: 4px; }
-        .welcome-sub { font-size: 0.82rem; opacity: 0.75; }
-        .welcome-icon { font-size: 3rem; opacity: 0.3; }
-
-        .section-title {
-          font-size: 0.65rem; letter-spacing: 2px;
-          text-transform: uppercase; color: #1949c9;
-          font-weight: 700; margin-bottom: 14px;
-          display: flex; align-items: center; gap: 8px;
-        }
-        .section-title::before {
-          content: ''; width: 20px; height: 2px;
-          background: #1949c9; border-radius: 2px;
-        }
-
-        /* ── Tarjetas menú ── */
-        .menu-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 16px; margin-bottom: 28px;
-        }
-        .menu-card {
-          background: white; border-radius: 14px;
-          padding: 24px 20px; text-align: center;
-          box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-          border: 1.5px solid #f0f0f0;
-          text-decoration: none; color: #111;
-          transition: all 0.22s; display: block;
-        }
-        .menu-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 8px 28px rgba(25,73,201,0.14);
-          border-color: #1949c9; color: #111;
-        }
-        .menu-card i {
-          font-size: 2rem; color: #1949c9;
-          display: block; margin-bottom: 10px;
-        }
-        .menu-card-title { font-size: 0.88rem; font-weight: 700; margin-bottom: 3px; }
-        .menu-card-sub { font-size: 0.72rem; color: #90a4ae; }
-
-        /* ── Botón tienda ── */
-        .btn-shop {
-          background: linear-gradient(135deg, #1949c9, #1237a8);
-          color: white; border: none; padding: 14px 28px;
-          border-radius: 10px; font-family: 'Poppins', sans-serif;
-          font-weight: 700; font-size: 0.9rem;
-          cursor: pointer; transition: all 0.2s;
-          text-decoration: none;
-          display: inline-flex; align-items: center; gap: 8px;
-        }
-        .btn-shop:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(25,73,201,0.35);
-          color: white;
-        }
-
-        @media(max-width: 768px) {
-          .navbar-inner { padding: 10px 16px; }
-          .nav-links-cli { display: none; }
-          .menu-grid { grid-template-columns: repeat(2,1fr); }
-        }
-    </style>
 </head>
-<body>
+<body class="cliente-page">
 
 <!-- ── Navbar ── -->
 <nav class="navbar-cli">
