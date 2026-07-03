@@ -50,11 +50,14 @@
         <a th:href="@{/admin/usuarios}" class="nav-item">
             <i class="bi bi-people"></i> Usuarios
         </a>
+        <span class="nav-section-lbl">Tienda</span>
+        <a th:href="@{/admin/slides}" class="nav-item">
+            <i class="bi bi-images"></i> Carrusel
+        </a>
         <span class="nav-section-lbl">Configuración</span>
         <a th:href="@{/admin/ajustes}" class="nav-item">
             <i class="bi bi-gear"></i> Ajustes
         </a>
-        <span class="nav-section-lbl">Tienda</span>
         <a th:href="@{/}" class="nav-item">
             <i class="bi bi-shop"></i> Ver tienda
         </a>
@@ -97,7 +100,7 @@
                 <i class="bi bi-bag-check" style="color:#2e7d32;"></i>
             </div>
             <div>
-                <div class="stat-num">0</div>
+                <div class="stat-num" th:text="${totalPedidos}">0</div>
                 <div class="stat-lbl">Pedidos</div>
             </div>
         </div>

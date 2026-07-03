@@ -42,7 +42,7 @@
     <!-- Fila principal: logo + búsqueda + carrito -->
     <div class="container">
         <div class="navbar-inner">
-            <a href="#" class="logo-wrap">
+            <a href="#" class="logo-wrap" onclick="event.preventDefault();goHome()">
                 <img th:src="@{logofulltoldos.png}" src="logofulltoldos.png" alt="Full Toldos" class="logo-img">
             </a>
             <div class="nav-search-container">
@@ -91,9 +91,9 @@
                 <!-- Con login -->
                 <div sec:authorize="isAuthenticated()" class="user-nav-wrap">
                     <!-- Botón "Hola, nombre" -->
-                    <a th:href="@{/cliente/inicio}" class="btn-hola-nav">
+                    <a th:href="${#authorization.expression('hasRole(''ADMIN'')')} ? @{/admin/dashboard} : @{/cliente/inicio}" class="btn-hola-nav">
                         <span class="user-avatar-mini"><i class="bi bi-person-fill"></i></span>
-                        <span>Hola, <strong th:text="${#strings.capitalize(#strings.substringBefore(#strings.substringBefore(#authentication.name, ' '), '@'))}">Usuario</strong></span>
+                        <span>Hola, <strong th:text="${usuarioNombre != null ? usuarioNombre : #strings.capitalize(#strings.substringBefore(#strings.substringBefore(#authentication.name, ' '), '@'))}">Usuario</strong></span>
                         <i class="bi bi-chevron-down user-drop-arrow"></i>
                     </a>
                     <!-- Dropdown panel (hover) -->
@@ -101,11 +101,27 @@
                         <div class="user-drop-head">
                             <div class="user-drop-avatar"><i class="bi bi-person-circle"></i></div>
                             <div>
-                                <div class="user-drop-name" sec:authentication="name">Usuario</div>
-                                <div class="user-drop-sub">Mi cuenta Full Toldos</div>
+                                <div class="user-drop-name" th:text="${usuarioNombre != null ? usuarioNombre : #authentication.name}">Usuario</div>
+                                <div class="user-drop-sub" sec:authorize="hasRole('ADMIN')">Panel de administración</div>
+                                <div class="user-drop-sub" sec:authorize="hasRole('CLIENTE')">Mi cuenta Full Toldos</div>
                             </div>
                         </div>
-                        <div class="user-drop-menu">
+
+                        <!-- Menú admin -->
+                        <div class="user-drop-menu" sec:authorize="hasRole('ADMIN')">
+                            <a th:href="@{/admin/dashboard}" class="user-drop-item">
+                                <i class="bi bi-grid-fill"></i> Panel admin
+                            </a>
+                            <a th:href="@{/admin/pedidos}" class="user-drop-item">
+                                <i class="bi bi-bag-check-fill"></i> Pedidos
+                            </a>
+                            <a th:href="@{/admin/cotizaciones}" class="user-drop-item">
+                                <i class="bi bi-file-earmark-text-fill"></i> Cotizaciones
+                            </a>
+                        </div>
+
+                        <!-- Menú cliente -->
+                        <div class="user-drop-menu" sec:authorize="hasRole('CLIENTE')">
                             <a th:href="@{/cliente/inicio}" class="user-drop-item">
                                 <i class="bi bi-house-fill"></i> Inicio
                             </a>
@@ -122,6 +138,7 @@
                                 <i class="bi bi-person-gear"></i> Mi perfil
                             </a>
                         </div>
+
                         <div class="user-drop-divider"></div>
                         <div class="user-drop-menu">
                             <a th:href="@{/}" class="user-drop-item">
@@ -161,7 +178,7 @@
     <div class="navbar-nav-row">
         <div class="container">
             <div class="nav-links">
-                <a href="#inicio">Inicio</a>
+                <a href="#" onclick="event.preventDefault();goHome()">Inicio</a>
                 <div class="nav-dropdown">
                     <a href="#" class="nav-dropdown-toggle" data-goto="cat">Categorías <i class="bi bi-chevron-down drop-arrow"></i></a>
                     <div class="nav-dropdown-menu" id="navCatMenu"></div>
@@ -209,10 +226,27 @@
                      th:id="'slide-' + ${iterStat.index}"
                      th:class="'hero-slide' + (${iterStat.first} ? ' active' : '')">
                     <div class="slide-bg"
-                         th:style="'background-image:url(\'' + @{fulltolfdos12.png}__} + '\'); background-size:cover; background-position:center right;'"></div>
+                         th:style="${slide.imagenUrl != null ? 'background-image:url(' + slide.imagenUrl + ');' : 'background:#0e3460;'}"></div>
                     <div class="slide-overlay"></div>
-                    <div class="container h-100" style="position:relative;z-index:2;">
-                        <div class="row align-items-center" style="min-height:86vh;">
+                    <!-- Enlace de imagen: overlay transparente detrás del contenido -->
+                    <a th:if="${slide.imagenLinkTipo == 'url'}"
+                       th:href="${slide.imagenLinkValor}" target="_blank" rel="noopener"
+                       class="slide-img-link" aria-label="Ver más"></a>
+                    <a th:if="${slide.imagenLinkTipo == 'whatsapp'}"
+                       th:href="|https://wa.me/${slide.imagenLinkValor}|" target="_blank" rel="noopener"
+                       class="slide-img-link" aria-label="Contactar por WhatsApp"></a>
+                    <a th:if="${slide.imagenLinkTipo == 'categoria'}"
+                       href="javascript:void(0)"
+                       th:attr="data-valor=${slide.imagenLinkValor}"
+                       onclick="openCatPage(this.dataset.valor)"
+                       class="slide-img-link" aria-label="Ver categoría"></a>
+                    <a th:if="${slide.imagenLinkTipo == 'producto'}"
+                       href="javascript:void(0)"
+                       th:attr="data-valor=${slide.imagenLinkValor}"
+                       onclick="openModal(parseInt(this.dataset.valor))"
+                       class="slide-img-link" aria-label="Ver producto"></a>
+                    <div class="container h-100 slide-content-wrap" style="position:relative;z-index:3;">
+                        <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
                                 <div class="slide-content">
                                     <div class="slide-tag">
@@ -223,7 +257,8 @@
                                     <p class="slide-desc" th:text="${slide.descripcion}">Descripción</p>
                                     <div class="d-flex flex-wrap gap-3">
                                         <button class="btn-slide-primary"
-                                                th:onclick="'openCatPage(\'' + ${slide.btnPrimaryAction} + '\')'"
+                                                th:attr="data-action=${slide.btnPrimaryAction}"
+                                                onclick="openCatPage(this.dataset.action)"
                                                 th:if="${slide.btnPrimaryText != null}">
                                             <i th:class="'bi ' + ${slide.btnPrimaryIcon}"></i>
                                             <span th:text="${slide.btnPrimaryText}">Ver</span>
@@ -257,8 +292,8 @@
             <th:block th:unless="${slides != null and !slides.isEmpty()}">
 
                 <!-- SLIDE 1 -->
-                <div class="hero-slide active" id="slide-0" style="aspect-ratio:3/1;">
-                    <div class="slide-bg" style="background-image:url('carpas2.png'); background-size:100%; background-position:top right;"></div>
+                <div class="hero-slide active" id="slide-0">
+                    <div class="slide-bg" style="background-image:url('carpas2.png'); background-size:cover; background-position:top center;"></div>
                     <div class="slide-overlay"></div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
@@ -282,8 +317,8 @@
                 </div>
 
                 <!-- SLIDE 2 -->
-                <div class="hero-slide" id="slide-1" style="aspect-ratio:2/1;">
-                    <div class="slide-bg" style="background-image:url('envio2.png'); background-size:100%; background-position:top center;"></div>
+                <div class="hero-slide" id="slide-1">
+                    <div class="slide-bg" style="background-image:url('envio2.png'); background-size:cover; background-position:top center;"></div>
                     <div class="slide-overlay"></div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
@@ -301,8 +336,8 @@
                 </div>
 
                 <!-- SLIDE 3 -->
-                <div class="hero-slide" id="slide-2" style="aspect-ratio:3/1;">
-                    <div class="slide-bg" style="background-image:url('carpas3.png'); background-size:100%; background-position:top center;"></div>
+                <div class="hero-slide" id="slide-2">
+                    <div class="slide-bg" style="background-image:url('carpas3.png'); background-size:cover; background-position:top center;"></div>
                     <div class="slide-overlay"></div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
@@ -319,8 +354,8 @@
                 </div>
 
                 <!-- SLIDE 4 -->
-                <div class="hero-slide" id="slide-3" style="aspect-ratio:3/1;">
-                    <div class="slide-bg" style="background-image:url('carpasvivir.png'); background-size:100%; background-position:top center;"></div>
+                <div class="hero-slide" id="slide-3">
+                    <div class="slide-bg" style="background-image:url('carpasvivir.png'); background-size:cover; background-position:top center;"></div>
                     <div class="slide-overlay"></div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
@@ -337,8 +372,8 @@
                 </div>
 
                 <!-- SLIDE 5 -->
-                <div class="hero-slide" id="slide-4" style="aspect-ratio:3/1;">
-                    <div class="slide-bg" style="background-image:url('carpasahorra.png'); background-size:100%; background-position:top center;"></div>
+                <div class="hero-slide" id="slide-4">
+                    <div class="slide-bg" style="background-image:url('carpasahorra.png'); background-size:cover; background-position:top center;"></div>
                     <div class="slide-overlay"></div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
@@ -364,7 +399,8 @@
             <th:block th:if="${slides != null and !slides.isEmpty()}">
                 <div th:each="slide, iterStat : ${slides}"
                      th:class="'hero-dot' + (${iterStat.first} ? ' active' : '')"
-                     th:onclick="'goSlide(' + ${iterStat.index} + ')'"></div>
+                     th:attr="data-idx=${iterStat.index}"
+                     onclick="goSlide(parseInt(this.dataset.idx))"></div>
             </th:block>
             <th:block th:unless="${slides != null and !slides.isEmpty()}">
                 <div class="hero-dot active" onclick="goSlide(0)"></div>
@@ -411,50 +447,80 @@
     </section>
 
     <section class="promo-banner">
-        <div class="promo-row promo-row-top">
-            <div class="promo-cell" style="flex:3;" onclick="openCatPage('toldos')">
-                <img src="/img/img13.png" alt="Toldos">
-                <div class="promo-overlay" style="background:linear-gradient(to right,rgba(20,80,20,0.82),rgba(20,80,20,0.18))">
-                    <div class="promo-title">Toldos Resistentes para<br>Todo Tipo de Espacios</div>
-                    <div class="promo-desc">Protección, diseño y durabilidad para exteriores</div>
-                    <button class="promo-btn" onclick="event.stopPropagation();openCatPage('toldos')">VER PRODUCTOS ›</button>
+
+        <!-- ── DINÁMICO (desde /admin/promos) ── -->
+        <th:block th:if="${promoFilas != null and !promoFilas.isEmpty()}">
+            <div th:each="entrada, entStat : ${promoFilas.entrySet()}"
+                 th:class="${entStat.first} ? 'promo-row promo-row-top' : 'promo-row promo-row-bottom'">
+                <div th:each="b : ${entrada.value}"
+                     class="promo-cell"
+                     th:style="'flex:' + ${b.flex}"
+                     th:attr="data-accion=${b.btnAccion}"
+                     onclick="handlePromoClick(this.dataset.accion)">
+                    <img th:if="${b.imagenUrl != null}" th:src="${b.imagenUrl}" th:alt="${b.titulo}">
+                    <div class="promo-overlay"
+                         th:style="${b.colorBase != null ? 'background:linear-gradient(to right,' + b.colorBase + 'D4,' + b.colorBase + '30)' : ''}">
+                        <div class="promo-title" th:text="${b.titulo}"></div>
+                        <div class="promo-desc" th:if="${b.descripcion != null}" th:text="${b.descripcion}"></div>
+                        <button class="promo-btn"
+                                th:if="${b.btnTexto != null}"
+                                th:text="${b.btnTexto}"
+                                th:attr="data-accion=${b.btnAccion}"
+                                onclick="event.stopPropagation();handlePromoClick(this.dataset.accion)">
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="promo-cell" style="flex:2;" onclick="openCatPage('lonas')">
-                <img src="/img/img14.png" alt="Mallas">
-                <div class="promo-overlay" style="background:linear-gradient(to right,rgba(60,0,100,0.82),rgba(60,0,100,0.25))">
-                    <div class="promo-title">Toldos Vela y<br>Mallas de Sombra</div>
-                    <div class="promo-desc">Soluciones elegantes para terrazas, jardines y negocios</div>
-                    <button class="promo-btn" onclick="event.stopPropagation();openCatPage('lonas')">VER MÁS ›</button>
+        </th:block>
+
+        <!-- ── FALLBACK ESTÁTICO (mientras no hay bloques en la BD) ── -->
+        <th:block th:unless="${promoFilas != null and !promoFilas.isEmpty()}">
+            <div class="promo-row promo-row-top">
+                <div class="promo-cell" style="flex:3;" onclick="openCatPage('toldos')">
+                    <img src="/img/img13.png" alt="Toldos">
+                    <div class="promo-overlay" style="background:linear-gradient(to right,rgba(20,80,20,0.82),rgba(20,80,20,0.18))">
+                        <div class="promo-title">Toldos Resistentes para<br>Todo Tipo de Espacios</div>
+                        <div class="promo-desc">Protección, diseño y durabilidad para exteriores</div>
+                        <button class="promo-btn" onclick="event.stopPropagation();openCatPage('toldos')">VER PRODUCTOS ›</button>
+                    </div>
+                </div>
+                <div class="promo-cell" style="flex:2;" onclick="openCatPage('lonas')">
+                    <img src="/img/img14.png" alt="Mallas">
+                    <div class="promo-overlay" style="background:linear-gradient(to right,rgba(60,0,100,0.82),rgba(60,0,100,0.25))">
+                        <div class="promo-title">Toldos Vela y<br>Mallas de Sombra</div>
+                        <div class="promo-desc">Soluciones elegantes para terrazas, jardines y negocios</div>
+                        <button class="promo-btn" onclick="event.stopPropagation();openCatPage('lonas')">VER MÁS ›</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="promo-row promo-row-bottom">
-            <div class="promo-cell" style="flex:1;" onclick="openCatPage('carpas')">
-                <img src="/img/img15.png" alt="Carpas">
-                <div class="promo-overlay" style="background:linear-gradient(to right,rgba(160,0,70,0.84),rgba(160,0,70,0.25))">
-                    <div class="promo-title" style="font-size:0.97rem;">Toldos Plegables y Protección Solar</div>
-                    <div class="promo-desc">Ideales para eventos, ferias y actividades al aire libre</div>
-                    <button class="promo-btn" onclick="event.stopPropagation();openCatPage('carpas')">EXPLORAR ›</button>
+            <div class="promo-row promo-row-bottom">
+                <div class="promo-cell" style="flex:1;" onclick="openCatPage('carpas')">
+                    <img src="/img/img15.png" alt="Carpas">
+                    <div class="promo-overlay" style="background:linear-gradient(to right,rgba(160,0,70,0.84),rgba(160,0,70,0.25))">
+                        <div class="promo-title" style="font-size:0.97rem;">Toldos Plegables y Protección Solar</div>
+                        <div class="promo-desc">Ideales para eventos, ferias y actividades al aire libre</div>
+                        <button class="promo-btn" onclick="event.stopPropagation();openCatPage('carpas')">EXPLORAR ›</button>
+                    </div>
+                </div>
+                <div class="promo-cell" style="flex:1;" onclick="openCatPage('modulos')">
+                    <img src="/img/img16.png" alt="Gazebos">
+                    <div class="promo-overlay" style="background:linear-gradient(to right,rgba(0,30,100,0.84),rgba(0,30,100,0.25))">
+                        <div class="promo-title" style="font-size:0.97rem;">Gazebos y Coberturas Impermeables</div>
+                        <div class="promo-desc">Máxima resistencia frente al sol y la lluvia</div>
+                        <button class="promo-btn" onclick="event.stopPropagation();openCatPage('modulos')">VER CATÁLOGO ›</button>
+                    </div>
+                </div>
+                <div class="promo-cell" style="flex:1;" onclick="openCatPage('terminados')">
+                    <img src="/img/img17.png" alt="Accesorios">
+                    <div class="promo-overlay" style="background:linear-gradient(to right,rgba(140,0,0,0.84),rgba(140,0,0,0.25))">
+                        <div class="promo-title" style="font-size:0.97rem;">Accesorios y Complementos para Toldos</div>
+                        <div class="promo-desc">Todo lo que necesitas para una instalación segura y duradera</div>
+                        <button class="promo-btn" onclick="event.stopPropagation();openCatPage('terminados')">COMPRAR AHORA ›</button>
+                    </div>
                 </div>
             </div>
-            <div class="promo-cell" style="flex:1;" onclick="openCatPage('modulos')">
-                <img src="/img/img16.png" alt="Gazebos">
-                <div class="promo-overlay" style="background:linear-gradient(to right,rgba(0,30,100,0.84),rgba(0,30,100,0.25))">
-                    <div class="promo-title" style="font-size:0.97rem;">Gazebos y Coberturas Impermeables</div>
-                    <div class="promo-desc">Máxima resistencia frente al sol y la lluvia</div>
-                    <button class="promo-btn" onclick="event.stopPropagation();openCatPage('modulos')">VER CATÁLOGO ›</button>
-                </div>
-            </div>
-            <div class="promo-cell" style="flex:1;" onclick="openCatPage('terminados')">
-                <img src="/img/img17.png" alt="Accesorios">
-                <div class="promo-overlay" style="background:linear-gradient(to right,rgba(140,0,0,0.84),rgba(140,0,0,0.25))">
-                    <div class="promo-title" style="font-size:0.97rem;">Accesorios y Complementos para Toldos</div>
-                    <div class="promo-desc">Todo lo que necesitas para una instalación segura y duradera</div>
-                    <button class="promo-btn" onclick="event.stopPropagation();openCatPage('terminados')">COMPRAR AHORA ›</button>
-                </div>
-            </div>
-        </div>
+        </th:block>
+
     </section>
 
     <!-- ═══ PRODUCTOS ═══ -->
@@ -476,7 +542,8 @@
                 <th:block th:if="${productos != null and !productos.isEmpty()}">
                     <div th:each="p : ${productos}"
                          class="prod-card"
-                         th:onclick="'openModal(' + ${p.id} + ')'">
+                         th:attr="data-id=${p.id}"
+                         onclick="openModal(parseInt(this.dataset.id))">
                         <div class="prod-img-area" th:style="'background:' + ${p.gradiente}">
                             <th:block th:if="${p.imagenPrincipal != null}">
                                 <img th:src="${p.imagenPrincipal}" th:alt="${p.name}"
@@ -497,7 +564,8 @@
                                 <span th:if="${p.badge == 'sale'}" class="prod-badge badge-sale">Oferta</span>
                             </div>
                             <button class="prod-eye-btn"
-                                    th:onclick="'event.stopPropagation();openProductPage(' + ${p.id} + ')'"
+                                    th:attr="data-id=${p.id}"
+                                    onclick="event.stopPropagation();openProductPage(parseInt(this.dataset.id))"
                                     title="Ver producto completo">
                                 <i class="bi bi-eye"></i>
                             </button>
@@ -541,9 +609,38 @@
 
     <!-- ═══ BANNER PERSONALIZACIÓN ═══ -->
     <section style="text-align:center;">
-        <a th:href="${wspLink}" target="_blank" style="display:block;line-height:0;">
-            <img th:src="@{img/fulltoldos.png}" src="img/fulltoldos.png" alt="Full Toldos" style="width:100%;max-width:100%;">
+        <!-- Enlace dinámico según tipo configurado en ajustes -->
+        <a th:if="${bannerCentral != null and bannerCentral['linkTipo'] == 'url'}"
+           th:href="${bannerCentral['linkValor']}" target="_blank" rel="noopener"
+           style="display:block;line-height:0;">
+            <img th:src="${bannerCentral['imagen']}" alt="Full Toldos" style="width:100%;max-width:100%;">
         </a>
+        <a th:if="${bannerCentral != null and bannerCentral['linkTipo'] == 'whatsapp'}"
+           th:href="|https://wa.me/${bannerCentral['linkValor']}|" target="_blank" rel="noopener"
+           style="display:block;line-height:0;">
+            <img th:src="${bannerCentral['imagen']}" alt="Full Toldos" style="width:100%;max-width:100%;">
+        </a>
+        <a th:if="${bannerCentral != null and bannerCentral['linkTipo'] == 'categoria'}"
+           href="javascript:void(0)"
+           th:attr="data-cat=${bannerCentral['linkValor']}"
+           onclick="openCatPage(this.dataset.cat)"
+           style="display:block;line-height:0;cursor:pointer;">
+            <img th:src="${bannerCentral['imagen']}" alt="Full Toldos" style="width:100%;max-width:100%;">
+        </a>
+        <a th:if="${bannerCentral != null and bannerCentral['linkTipo'] == 'producto'}"
+           href="javascript:void(0)"
+           th:attr="data-pid=${bannerCentral['linkValor']}"
+           onclick="openModal(parseInt(this.dataset.pid))"
+           style="display:block;line-height:0;cursor:pointer;">
+            <img th:src="${bannerCentral['imagen']}" alt="Full Toldos" style="width:100%;max-width:100%;">
+        </a>
+        <!-- Sin enlace o fallback -->
+        <th:block th:if="${bannerCentral == null or bannerCentral['linkTipo'] == '' or bannerCentral['linkTipo'] == 'ninguno'}">
+            <div style="display:block;line-height:0;">
+                <img th:src="${bannerCentral != null ? bannerCentral['imagen'] : '/img/fulltoldos.png'}"
+                     src="img/fulltoldos.png" alt="Full Toldos" style="width:100%;max-width:100%;">
+            </div>
+        </th:block>
     </section>
 
     <!-- ═══ TABS PRODUCTOS ═══ -->
@@ -650,22 +747,22 @@
     </section>
 
     <!-- ═══ NEWSLETTER ═══ -->
-    <section class="nl-section">
+    <section class="nl-section" th:style="'background:' + ${newsletter.colorFondo} + ';'">
         <div class="nl-text-col">
-            <h2 class="nl-title">Suscríbete a Nuestro Newsletter</h2>
-            <p class="nl-desc">Novedades, ofertas exclusivas y consejos sobre toldos y carpas.</p>
-            <div class="nl-form">
+            <h2 class="nl-title" th:text="${newsletter.titulo}">Suscríbete a Nuestro Newsletter</h2>
+            <p class="nl-desc" th:text="${newsletter.descripcion}">Novedades, ofertas exclusivas y consejos sobre toldos y carpas.</p>
+            <form class="nl-form" onsubmit="submitNewsletter(event)">
                 <span class="nl-icon"><i class="bi bi-envelope"></i></span>
-                <input type="email" class="nl-input" placeholder="Ingresa tu correo electrónico">
-                <button class="nl-btn" onclick="showToast('¡Suscrito! Gracias.')">SUSCRIBIRME</button>
-            </div>
+                <input type="email" name="email" class="nl-input" th:placeholder="${newsletter.placeholder}" placeholder="Ingresa tu correo electrónico" required>
+                <button type="submit" class="nl-btn" th:text="${newsletter.boton}">SUSCRIBIRME</button>
+            </form>
             <div class="nl-note">
                 <i class="bi bi-send-fill"></i>
-                <span>No te pierdas lo mejor en toldos y carpas.</span>
+                <span th:text="${newsletter.nota}">No te pierdas lo mejor en toldos y carpas.</span>
             </div>
         </div>
         <div class="nl-img-col">
-            <img th:src="@{/img/imgfooter.png}" src="/img/imgfooter.png" alt="Toldos y carpas" class="nl-img">
+            <img th:src="${newsletter.imagen}" src="/img/imgfooter.png" alt="Toldos y carpas" class="nl-img">
         </div>
     </section>
 
@@ -688,7 +785,8 @@
                         <th:block th:if="${footerCats != null}">
                             <li th:each="fc : ${footerCats}">
                                 <a href="#productos"
-                                   th:onclick="'filterProducts(\'' + ${fc.id} + '\')'"
+                                   th:attr="data-id=${fc.id}"
+                                   onclick="filterProducts(this.dataset.id)"
                                    th:text="${fc.name}">
                                     <i class="bi bi-chevron-right"></i> Categoría
                                 </a>
@@ -1110,9 +1208,9 @@
 
                 <!-- Izquierda: info -->
                 <div class="contacto-left">
-                    <div class="contacto-tag">Contáctenos</div>
-                    <h2 class="contacto-title">¡Estamos aquí para ayudarte!</h2>
-                    <p class="contacto-desc">Si tienes preguntas sobre tu pedido, necesitas ayuda con nuestros productos o simplemente deseas comunicarte con nosotros, no dudes en escribirnos.</p>
+                    <div class="contacto-tag" th:text="${contactoForm.tag}">Contáctenos</div>
+                    <h2 class="contacto-title" th:text="${contactoForm.titulo}">¡Estamos aquí para ayudarte!</h2>
+                    <p class="contacto-desc" th:text="${contactoForm.descripcion}">Si tienes preguntas sobre tu pedido, necesitas ayuda con nuestros productos o simplemente deseas comunicarte con nosotros, no dudes en escribirnos.</p>
 
                     <div class="contacto-info-item">
                         <i class="bi bi-telephone-fill"></i>

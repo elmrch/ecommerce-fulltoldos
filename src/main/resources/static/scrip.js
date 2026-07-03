@@ -326,21 +326,49 @@ function tickCountdowns() {
 }
 setInterval(tickCountdowns, 1000);
 
-// ═══ IMG CYCLE ON HOVER ═══
-var _imgCycleTimers = {};
+// ═══ IMG ARROWS (multi-image nav on product cards) ═══
 function initProdImgCycle(container) {
   (container || document).querySelectorAll('.prod-img-area[data-imgs]').forEach(function(area) {
     var imgs = JSON.parse(area.getAttribute('data-imgs') || '[]');
     if (imgs.length <= 1) return;
-    var pid = area.getAttribute('data-pid');
-    var imgEl = area.querySelector('.prod-img-real');
-    if (!imgEl) return;
-    area.addEventListener('mouseenter', function() {
-      imgEl.src = imgs[1];
+    if (area.querySelector('.prod-img-arrow-prev')) return; // ya inicializado
+
+    area.setAttribute('data-img-idx', '0');
+
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'prod-img-arrow prod-img-arrow-prev';
+    prevBtn.innerHTML = '<i class="bi bi-chevron-left"></i>';
+    prevBtn.addEventListener('click', function(e) { e.stopPropagation(); prodImgNav(area, -1); });
+
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'prod-img-arrow prod-img-arrow-next';
+    nextBtn.innerHTML = '<i class="bi bi-chevron-right"></i>';
+    nextBtn.addEventListener('click', function(e) { e.stopPropagation(); prodImgNav(area, 1); });
+
+    area.appendChild(prevBtn);
+    area.appendChild(nextBtn);
+
+    var dotsWrap = document.createElement('div');
+    dotsWrap.className = 'prod-img-dots';
+    imgs.forEach(function(_, i) {
+      var dot = document.createElement('div');
+      dot.className = 'prod-img-dot' + (i === 0 ? ' active' : '');
+      dotsWrap.appendChild(dot);
     });
-    area.addEventListener('mouseleave', function() {
-      imgEl.src = imgs[0];
-    });
+    area.appendChild(dotsWrap);
+  });
+}
+
+function prodImgNav(area, dir) {
+  var imgs = JSON.parse(area.getAttribute('data-imgs') || '[]');
+  if (imgs.length <= 1) return;
+  var imgEl = area.querySelector('.prod-img-real');
+  if (!imgEl) return;
+  var idx = (parseInt(area.getAttribute('data-img-idx') || '0') + dir + imgs.length) % imgs.length;
+  area.setAttribute('data-img-idx', idx);
+  imgEl.src = imgs[idx];
+  area.querySelectorAll('.prod-img-dot').forEach(function(dot, i) {
+    dot.classList.toggle('active', i === idx);
   });
 }
 function renderProducts() {
@@ -927,8 +955,7 @@ document.addEventListener('keydown', function(e) {
 async function submitCotiz(e) {
   e.preventDefault();
   const btn = document.getElementById('cotizSubmitBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Enviando...';
+  ftSetBtnLoading(btn, 'Enviando...');
 
   const form = document.getElementById('cotizForm');
   const data = new URLSearchParams(new FormData(form));
@@ -954,8 +981,7 @@ async function submitCotiz(e) {
   } catch {
     showToast('Error de conexión. Intente por WhatsApp.');
   }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="bi bi-send-fill"></i> Enviar solicitud';
+  ftRestoreBtn(btn);
 }
 
 function toggleMiCuentaMenu(e) {
@@ -1024,7 +1050,7 @@ function renderCart() {
       <span class="cart-subtotal-val">${subtotalStr}</span>
     </div>
     <button class="btn-ver-carrito" onclick="window.location.href='/cliente/carrito'">VER CARRITO</button>
-    <button class="btn-finalizar-compra" onclick="sendCartWsp()">
+    <button class="btn-finalizar-compra" onclick="window.location.href='/checkout'">
       FINALIZAR COMPRA
     </button>
   `;
@@ -1113,6 +1139,25 @@ const COLOR_NAMES = {
 function hideAllViews() {
   ['mainView','catPageView','prodPageView','galPageView','sobrePageView','contactoPageView']
     .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+}
+
+function goHome() {
+  closeAllDropdowns();
+  closeMobileMenu && closeMobileMenu();
+  hideAllViews();
+  const main = document.getElementById('mainView');
+  if (main) main.style.display = 'block';
+  history.pushState({type:'inicio'}, '', '/');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function handlePromoClick(accion) {
+  if (!accion) return;
+  if (accion.startsWith('http') || accion.startsWith('/')) {
+    window.open(accion, '_blank');
+  } else {
+    openCatPage(accion);
+  }
 }
 
 function openCatPage(catId) {
@@ -1922,18 +1967,72 @@ function closeContactoPage() {
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-function submitContacto(e) {
+function ftSetBtnLoading(btn, textoCarga) {
+  if (!btn) return;
+  btn.dataset.ftOriginalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat ft-spin-icon"></i> ' + textoCarga;
+}
+function ftRestoreBtn(btn) {
+  if (!btn) return;
+  btn.disabled = false;
+  if (btn.dataset.ftOriginalHtml) btn.innerHTML = btn.dataset.ftOriginalHtml;
+}
+
+async function submitContacto(e) {
   e.preventDefault();
   const form    = e.target;
+  const btn     = form.querySelector('button[type="submit"]');
   const nombre  = form.nombre.value.trim();
   const email   = form.email.value.trim();
   const mensaje = form.mensaje.value.trim();
-  const wspBase = document.querySelector('a[href*="wa.me"]')?.href || '';
-  const text    = encodeURIComponent(`Hola! Soy ${nombre} (${email}).\n${mensaje}`);
-  const url     = wspBase ? wspBase.split('?')[0] + `?text=${text}` : `https://wa.me/?text=${text}`;
-  window.open(url, '_blank');
-  showToast('¡Mensaje enviado! Te responderemos pronto.');
-  form.reset();
+
+  ftSetBtnLoading(btn, 'Enviando...');
+
+  const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+  try {
+    const res = await fetch('/contacto/enviar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+      body: new URLSearchParams({ nombre, email, mensaje })
+    });
+    if (!res.ok) throw new Error('fallo el envio');
+    showToast('¡Mensaje enviado! Te responderemos pronto.');
+    form.reset();
+  } catch (err) {
+    showToast('No se pudo enviar el mensaje. Intenta nuevamente.');
+  } finally {
+    ftRestoreBtn(btn);
+  }
+}
+
+async function submitNewsletter(e) {
+  e.preventDefault();
+  const form  = e.target;
+  const btn   = form.querySelector('button[type="submit"]');
+  const email = form.email.value.trim();
+
+  ftSetBtnLoading(btn, 'Enviando...');
+
+  const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+  try {
+    const res = await fetch('/newsletter/suscribir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+      body: new URLSearchParams({ email })
+    });
+    if (!res.ok) throw new Error('fallo el envio');
+    showToast('¡Suscrito! Gracias.');
+    form.reset();
+  } catch (err) {
+    showToast('No se pudo completar la suscripción.');
+  } finally {
+    ftRestoreBtn(btn);
+  }
 }
 
 // ═══════════════════════════ SOBRE NOSOTROS ═══════════════════════════
@@ -2339,7 +2438,7 @@ function buildMobileMenu() {
   let html = '';
 
   // 1. Inicio
-  html += `<a href="#inicio" class="mob-nav-link" onclick="closeMobileMenu()">
+  html += `<a href="#" class="mob-nav-link" onclick="event.preventDefault();closeMobileMenu();goHome()">
     <span><i class="bi bi-house-fill" style="margin-right:8px;color:var(--azul-claro)"></i>Inicio</span>
   </a>`;
 
@@ -2948,10 +3047,27 @@ function closeWelcomePopup(e) {
   localStorage.setItem('ft_wpopup_dismissed', Date.now());
 }
 
-function submitWelcomeEmail(e) {
+async function submitWelcomeEmail(e) {
   e.preventDefault();
+  const form  = e.target;
+  const btn   = form.querySelector('button[type="submit"]');
   const email = document.getElementById('wpopupEmail').value.trim();
   if (!email) return;
+
+  ftSetBtnLoading(btn, 'Enviando...');
+
+  const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+  try {
+    await fetch('/newsletter/suscribir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+      body: new URLSearchParams({ email })
+    });
+  } catch (err) {}
+
+  ftRestoreBtn(btn);
   document.getElementById('wpopupOverlay').classList.remove('open');
   localStorage.setItem('ft_wpopup_dismissed', Date.now());
   showToast('¡Gracias! Te mantendremos informado.');

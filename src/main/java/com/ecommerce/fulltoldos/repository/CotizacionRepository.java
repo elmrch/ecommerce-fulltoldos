@@ -8,4 +8,5 @@ import java.util.List;
 public interface CotizacionRepository extends JpaRepository<Cotizacion, Long> {
     List<Cotizacion> findAllByOrderByFechaSolicitudDesc();
     List<Cotizacion> findByEstado(Cotizacion.Estado estado);
+    List<Cotizacion> findByCorreoIgnoreCaseOrderByFechaSolicitudDesc(String correo);
 }

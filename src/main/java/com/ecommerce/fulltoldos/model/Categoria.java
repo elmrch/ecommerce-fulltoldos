@@ -25,11 +25,10 @@ public class Categoria extends AuditableEntity {
     @Column
     private int orden = 0;
 
-    // Un categoria tiene muchos productos
     @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL)
     private List<Producto> productos;
 
-    // ── Constructores ──
+
     public Categoria() {}
 
     public Categoria(String nombre, String descripcion) {

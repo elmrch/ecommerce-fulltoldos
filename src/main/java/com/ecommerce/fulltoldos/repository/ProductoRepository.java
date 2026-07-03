@@ -14,7 +14,6 @@ import java.util.List;
 @Repository
 public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
-    // Todos los productos activos (con medias en una sola query — evita N+1)
     @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.medias WHERE p.activo = true ORDER BY p.fechaCreacion DESC")
     List<Producto> findActivosConMedias();
 
@@ -28,6 +27,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     List<Producto> findByNombreContainingIgnoreCaseAndActivoTrue(String nombre);
 
+
     @Query("SELECT DISTINCT p FROM Producto p LEFT JOIN FETCH p.medias WHERE " +
             "(:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%',:nombre,'%'))) AND " +
             "(:categoriaId IS NULL OR p.categoria.id = :categoriaId) AND " +
@@ -37,6 +37,5 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     Page<Producto> findAllByOrderByFechaCreacionDesc(Pageable pageable);
 
-    // Contar productos por categoría
     long countByCategoriaId(Long categoriaId);
 }

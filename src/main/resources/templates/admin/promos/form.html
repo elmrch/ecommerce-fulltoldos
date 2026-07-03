@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo + ' — Full Toldos'}">Bloque — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+</head>
+<body class="admin-page">
+
+<div class="mob-admin-bar">
+    <button class="mob-admin-ham" onclick="document.querySelector('.sidebar').classList.toggle('mob-open');document.getElementById('mobOverlay').classList.toggle('open')">
+        <i class="bi bi-list"></i>
+    </button>
+    <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+</div>
+<div class="mob-admin-overlay" id="mobOverlay" onclick="document.querySelector('.sidebar').classList.remove('mob-open');this.classList.remove('open')"></div>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+        <div class="sidebar-role"><i class="bi bi-shield-fill-check"></i> Panel Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+        <span class="nav-section-lbl">Principal</span>
+        <a th:href="@{/admin/dashboard}" class="nav-item"><i class="bi bi-grid-fill"></i> Dashboard</a>
+        <span class="nav-section-lbl">Gestión</span>
+        <a th:href="@{/admin/productos}" class="nav-item"><i class="bi bi-box-seam"></i> Productos</a>
+        <a th:href="@{/admin/categorias}" class="nav-item"><i class="bi bi-tags"></i> Categorías</a>
+        <a th:href="@{/admin/subcategorias}" class="nav-item"><i class="bi bi-diagram-3"></i> Subcategorías</a>
+        <a th:href="@{/admin/pedidos}" class="nav-item"><i class="bi bi-bag-check"></i> Pedidos</a>
+        <a th:href="@{/admin/cotizaciones}" class="nav-item"><i class="bi bi-file-earmark-text"></i> Cotizaciones</a>
+        <a th:href="@{/admin/usuarios}" class="nav-item"><i class="bi bi-people"></i> Usuarios</a>
+        <span class="nav-section-lbl">Tienda</span>
+        <a th:href="@{/admin/slides}" class="nav-item"><i class="bi bi-images"></i> Carrusel</a>
+        <a th:href="@{/admin/promos}" class="nav-item active"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
+        <span class="nav-section-lbl">Configuración</span>
+        <a th:href="@{/admin/ajustes}" class="nav-item"><i class="bi bi-gear"></i> Ajustes</a>
+        <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
+    </nav>
+    <div class="sidebar-foot">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;">
+            <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="user-email" th:text="${#authentication.name}">admin</div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+        <a th:href="@{/admin/promos}" class="btn-icon" title="Volver"><i class="bi bi-arrow-left"></i></a>
+        <h1 class="page-title" style="margin:0;" th:text="${titulo}">Bloque</h1>
+    </div>
+    <div class="page-sub" style="margin-bottom:20px;">Configura la imagen, texto y enlace del bloque promocional.</div>
+
+    <!-- Vista previa en vivo -->
+    <div id="previewBox" style="position:relative;border-radius:10px;overflow:hidden;margin-bottom:24px;height:180px;background:#eee;display:none;">
+        <img id="previewImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
+        <div id="previewOverlay" style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;">
+            <div id="previewTitle" style="font-weight:800;font-size:1.1rem;color:#fff;margin-bottom:6px;"></div>
+            <div id="previewDesc" style="font-size:0.82rem;color:rgba(255,255,255,0.85);margin-bottom:12px;"></div>
+            <button style="background:#fff;color:#111;font-weight:700;font-size:0.78rem;padding:7px 16px;border:none;border-radius:4px;width:fit-content;" id="previewBtn"></button>
+        </div>
+    </div>
+
+    <form th:action="@{/admin/promos/guardar}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="id"        th:value="${bloque.id}">
+        <input type="hidden" name="orden"     th:value="${bloque.orden}">
+        <input type="hidden" name="imagenUrl" th:value="${bloque.imagenUrl}">
+
+        <!-- IMAGEN -->
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-image"></i><span>Imagen de fondo</span></div>
+            <div th:if="${bloque.imagenUrl != null}" style="padding:16px 20px 0;">
+                <img th:src="${bloque.imagenUrl}" alt="Actual"
+                     style="max-width:280px;height:140px;object-fit:cover;border-radius:8px;border:1px solid #dde;display:block;margin-bottom:6px;">
+                <div style="font-size:0.78rem;color:#888;">Imagen actual. Sube otra para reemplazarla.</div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Imagen <span th:if="${bloque.imagenUrl == null}" style="color:#e53e3e;">*</span></div>
+                    <div class="settings-desc">JPG, PNG o WEBP. Recomendado: 800×500 px mínimo</div>
+                </div>
+                <input type="file" name="imagen" accept="image/*" class="settings-input"
+                       id="imgInput" onchange="onImgChange(this)">
+            </div>
+        </div>
+
+        <!-- LAYOUT -->
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-layout-three-columns"></i><span>Posición y tamaño</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Fila</div>
+                    <div class="settings-desc">1 = fila superior · 2 = fila inferior</div>
+                </div>
+                <select name="fila" class="settings-input">
+                    <option value="1" th:selected="${bloque.fila == 1}">Fila 1 (superior)</option>
+                    <option value="2" th:selected="${bloque.fila == 2}">Fila 2 (inferior)</option>
+                    <option value="3" th:selected="${bloque.fila == 3}">Fila 3</option>
+                    <option value="4" th:selected="${bloque.fila == 4}">Fila 4</option>
+                </select>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Ancho relativo (flex)</div>
+                    <div class="settings-desc">Controla el tamaño respecto a los demás bloques de la misma fila</div>
+                </div>
+                <select name="flex" class="settings-input">
+                    <option value="1" th:selected="${bloque.flex == 1}">1 — Igual que los demás</option>
+                    <option value="2" th:selected="${bloque.flex == 2}">2 — El doble de ancho</option>
+                    <option value="3" th:selected="${bloque.flex == 3}">3 — El triple de ancho</option>
+                </select>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Color de overlay</div>
+                    <div class="settings-desc">Tinte de color sobre la imagen para dar contraste al texto</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <input type="color" name="colorBase" id="colorPicker"
+                           th:value="${bloque.colorBase != null ? bloque.colorBase : '#1a5276'}"
+                           style="width:48px;height:36px;border:1px solid #dde;border-radius:6px;cursor:pointer;padding:2px;"
+                           oninput="updatePreviewColor(this.value)">
+                    <span style="font-size:0.82rem;color:#888;">El color se aplica como degradado semitransparente</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- TEXTOS -->
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-type"></i><span>Textos</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Título</div>
+                </div>
+                <input class="settings-input" type="text" name="titulo"
+                       th:value="${bloque.titulo}"
+                       placeholder="Ej: Toldos Resistentes para Todo Tipo de Espacios"
+                       oninput="document.getElementById('previewTitle').textContent=this.value">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Descripción</div>
+                </div>
+                <input class="settings-input" type="text" name="descripcion"
+                       th:value="${bloque.descripcion}"
+                       placeholder="Ej: Protección, diseño y durabilidad para exteriores"
+                       oninput="document.getElementById('previewDesc').textContent=this.value">
+            </div>
+        </div>
+
+        <!-- BOTÓN -->
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-cursor-fill"></i><span>Botón y enlace</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Texto del botón</div>
+                    <div class="settings-desc">Vacío = sin botón</div>
+                </div>
+                <input class="settings-input" type="text" name="btnTexto"
+                       th:value="${bloque.btnTexto}"
+                       placeholder="Ej: VER PRODUCTOS ›"
+                       oninput="document.getElementById('previewBtn').textContent=this.value">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Acción al hacer clic</div>
+                    <div class="settings-desc">
+                        Categoría interna: <code>toldos</code>, <code>carpas</code>, <code>lonas</code>, <code>modulos</code>, <code>inflables</code>, <code>all</code><br>
+                        O URL completa: <code>https://wa.me/51999999999</code>
+                    </div>
+                </div>
+                <input class="settings-input" type="text" name="btnAccion"
+                       th:value="${bloque.btnAccion}"
+                       placeholder="toldos  o  https://wa.me/51...">
+            </div>
+        </div>
+
+        <!-- VISIBILIDAD -->
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-toggle-on"></i><span>Visibilidad</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Mostrar en tienda</div></div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" name="activo" id="activoCheck"
+                           th:checked="${bloque.activo}" value="true"
+                           style="width:18px;height:18px;cursor:pointer;">
+                    <label for="activoCheck" style="font-size:0.9rem;cursor:pointer;">Activo</label>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
+            <button type="submit" class="save-btn"><i class="bi bi-floppy"></i> Guardar bloque</button>
+            <a th:href="@{/admin/promos}" class="save-btn" style="background:#64748b;text-decoration:none;">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</main>
+
+<script th:inline="javascript">
+    var currentColor = /*[[${bloque.colorBase != null ? bloque.colorBase : '#1a5276'}]]*/ '#1a5276';
+    var existingImg  = /*[[${bloque.imagenUrl}]]*/ null;
+
+    function hexToRgb(hex) {
+        var r = parseInt(hex.slice(1,3),16);
+        var g = parseInt(hex.slice(3,5),16);
+        var b = parseInt(hex.slice(5,7),16);
+        return r+','+g+','+b;
+    }
+
+    function updatePreviewColor(hex) {
+        currentColor = hex;
+        var rgb = hexToRgb(hex);
+        document.getElementById('previewOverlay').style.background =
+            'linear-gradient(to right,rgba('+rgb+',0.83),rgba('+rgb+',0.18))';
+    }
+
+    function onImgChange(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                showPreview();
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function showPreview() {
+        var box = document.getElementById('previewBox');
+        box.style.display = 'block';
+        updatePreviewColor(currentColor);
+        var titulo = document.querySelector('[name="titulo"]').value;
+        var desc   = document.querySelector('[name="descripcion"]').value;
+        var btn    = document.querySelector('[name="btnTexto"]').value;
+        document.getElementById('previewTitle').textContent = titulo;
+        document.getElementById('previewDesc').textContent  = desc;
+        document.getElementById('previewBtn').textContent   = btn;
+    }
+
+    // Si ya hay imagen, mostrar preview con la existente
+    window.addEventListener('DOMContentLoaded', function() {
+        if (existingImg) {
+            document.getElementById('previewImg').src = existingImg;
+            showPreview();
+        }
+    });
+</script>
+</body>
+</html>

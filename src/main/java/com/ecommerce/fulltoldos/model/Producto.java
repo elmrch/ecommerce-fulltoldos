@@ -13,7 +13,6 @@ public class Producto extends AuditableEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Muchos productos pertenecen a una categoría
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
@@ -64,7 +63,6 @@ public class Producto extends AuditableEntity {
     @Column(name = "fecha_fin_oferta")
     private LocalDateTime fechaFinOferta;
 
-    // Un producto tiene muchos archivos media
     @OneToMany(mappedBy = "producto",
             cascade = CascadeType.ALL,
             orphanRemoval = true)

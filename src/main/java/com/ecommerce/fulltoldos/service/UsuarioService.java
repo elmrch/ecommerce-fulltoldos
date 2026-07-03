@@ -70,4 +70,22 @@ public class UsuarioService implements UserDetailsService {
         );
         usuarioRepository.save(admin);
     }
+
+    // ── Actualizar nombre del perfil ──
+    public void actualizarNombre(String email, String nuevoNombre) {
+        usuarioRepository.findByEmail(email).ifPresent(u -> {
+            u.setNombre(nuevoNombre);
+            usuarioRepository.save(u);
+        });
+    }
+
+    // ── Cambiar contraseña (valida la actual). Devuelve false si la actual no coincide ──
+    public boolean cambiarPassword(String email, String actual, String nueva) {
+        return usuarioRepository.findByEmail(email).map(u -> {
+            if (!passwordEncoder.matches(actual, u.getPassword())) return false;
+            u.setPassword(passwordEncoder.encode(nueva));
+            usuarioRepository.save(u);
+            return true;
+        }).orElse(false);
+    }
 }

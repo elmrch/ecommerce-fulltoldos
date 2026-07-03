@@ -29,6 +29,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/login", "/registro",
                                 "/cotizar",
+                                "/newsletter/suscribir",
+                                "/contacto/enviar",
                                 "/politica-de-privacidad",
                                 "/terminos-y-condiciones",
                                 "/cambios-y-devoluciones",
@@ -37,7 +39,8 @@ public class SecurityConfig {
                                 "/estilo.css", "/scrip.js",
                                 "/*.png", "/*.jpg", "/*.ico", "/*.jfif",
                                 "/webjars/**", "/error",
-                                "/cliente/carrito"
+                                "/cliente/carrito",
+                                "/checkout", "/checkout/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/cliente/**").hasAuthority("ROLE_CLIENTE")

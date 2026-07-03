@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Finalizar Compra — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+    <script th:if="${culqiPublicKey != null and !culqiPublicKey.isEmpty()}" src="https://checkout.culqi.com/js/v4"></script>
+</head>
+<body class="cliente-page">
+
+<!-- ── Navbar ── -->
+<nav class="navbar-cli">
+    <div class="navbar-inner-cli">
+        <a th:href="@{/}">
+            <img th:src="@{/logofulltoldos.png}" src="/logofulltoldos.png" alt="Full Toldos">
+        </a>
+        <div class="nav-links-cli">
+            <a th:href="@{/}" class="nav-link-cli">
+                <i class="bi bi-arrow-left"></i> Seguir comprando
+            </a>
+        </div>
+        <div class="nav-right-cli">
+            <div sec:authorize="isAuthenticated()" class="user-pill">
+                <i class="bi bi-person-fill"></i>
+                <span sec:authentication="name">Usuario</span>
+            </div>
+            <div sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="btn-nav-action">
+                    <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Banner de pasos ── -->
+<div class="cart-banner">
+    <div class="cart-steps" id="checkoutSteps">
+        <span class="cart-step active" data-step="1">1. Envío</span>
+        <span class="cart-step-arrow"><i class="bi bi-arrow-right"></i></span>
+        <span class="cart-step" data-step="2">2. Entrega</span>
+        <span class="cart-step-arrow"><i class="bi bi-arrow-right"></i></span>
+        <span class="cart-step" data-step="3">3. Pago</span>
+    </div>
+</div>
+
+<!-- ── Contenido ── -->
+<div class="page-wrap">
+    <div class="row g-4 align-items-start">
+
+        <div class="col-lg-8">
+
+            <!-- Paso 1: Envío -->
+            <div class="checkout-panel" id="stepEnvio">
+                <div class="checkout-panel-title">1. Datos de envío</div>
+                <div class="checkout-grid">
+                    <input class="settings-input" id="ckEmail" type="email" placeholder="Correo electrónico" th:value="${clienteEmail}">
+                    <input class="settings-input" id="ckTelefono" type="tel" placeholder="Número de teléfono">
+                    <input class="settings-input" id="ckNombre" type="text" placeholder="Nombre" th:value="${clienteNombre}">
+                    <input class="settings-input" id="ckApellido" type="text" placeholder="Apellidos">
+                    <input class="settings-input span-2" id="ckDireccion" type="text" placeholder="Dirección">
+                    <input class="settings-input span-2" id="ckReferencia" type="text" placeholder="Referencia (apartamento, edificio, piso) — opcional">
+                    <input class="settings-input" id="ckCiudad" type="text" placeholder="Ciudad">
+                    <input class="settings-input" id="ckProvincia" type="text" placeholder="Provincia / Región">
+                    <input class="settings-input" id="ckCodigoPostal" type="text" placeholder="Código postal (opcional)">
+                </div>
+                <button class="btn-finalizar" style="max-width:260px;" onclick="goStep(2)">Continuar</button>
+            </div>
+
+            <!-- Paso 2: Entrega -->
+            <div class="checkout-panel" id="stepEntrega" style="display:none;">
+                <div class="checkout-panel-title">2. Método de entrega</div>
+                <label class="checkout-radio">
+                    <input type="radio" name="metodoEnvio" value="estandar" checked>
+                    <div>
+                        <div class="checkout-radio-title">Envío estándar</div>
+                        <div class="checkout-radio-sub">Entrega en 3–5 días hábiles a todo el Perú</div>
+                    </div>
+                    <div class="checkout-radio-price" id="precioEnvioEstandarLbl">S/ 0.00</div>
+                </label>
+                <label class="checkout-radio">
+                    <input type="radio" name="metodoEnvio" value="recojo">
+                    <div>
+                        <div class="checkout-radio-title">Recojo en tienda</div>
+                        <div class="checkout-radio-sub">Coordinamos el horario por WhatsApp</div>
+                    </div>
+                    <div class="checkout-radio-price">Gratis</div>
+                </label>
+                <div style="display:flex;gap:12px;">
+                    <button class="btn-update" onclick="goStep(1)">Volver</button>
+                    <button class="btn-finalizar" style="max-width:260px;" onclick="goStep(3)">Continuar</button>
+                </div>
+            </div>
+
+            <!-- Paso 3: Pago -->
+            <div class="checkout-panel" id="stepPago" style="display:none;">
+                <div class="checkout-panel-title">3. Pago</div>
+
+                <div th:if="${culqiPublicKey == null or culqiPublicKey.isEmpty()}" id="pagoPendienteBox">
+                    <div class="checkout-pago-info">
+                        <i class="bi bi-whatsapp"></i>
+                        <div>
+                            <div style="font-weight:700;">Pago con tarjeta próximamente</div>
+                            <div style="font-size:0.8rem;color:#6b7280;">Confirma tu pedido y coordinamos el pago por WhatsApp.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-finalizar" id="btnConfirmarPedido" onclick="confirmarPedido()">
+                    <span th:if="${culqiPublicKey == null or culqiPublicKey.isEmpty()}">Confirmar pedido</span>
+                    <span th:unless="${culqiPublicKey == null or culqiPublicKey.isEmpty()}">Pagar con tarjeta</span>
+                </button>
+
+                <div style="margin-top:6px;">
+                    <button class="btn-update" onclick="goStep(2)">Volver</button>
+                </div>
+            </div>
+
+            <!-- Confirmación -->
+            <div class="checkout-panel" id="stepDone" style="display:none;text-align:center;">
+                <i class="bi bi-check-circle-fill" style="font-size:3rem;color:#2e7d32;"></i>
+                <div style="font-size:1.1rem;font-weight:800;margin:12px 0 4px;">¡Pedido recibido!</div>
+                <div style="color:#6b7280;font-size:0.88rem;margin-bottom:18px;" id="doneMsg">Nos pondremos en contacto para coordinar el pago.</div>
+                <a href="/" class="btn-shop">Seguir comprando</a>
+            </div>
+        </div>
+
+        <!-- Resumen -->
+        <div class="col-lg-4">
+            <div class="sidebar-totales">
+                <div class="totales-title">Resumen del pedido</div>
+                <div id="ckSummaryItems"></div>
+                <div class="totales-row">
+                    <span class="totales-lbl">Subtotal</span>
+                    <span class="totales-val" id="ckSubtotal">S/0.00</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-lbl">Envío</span>
+                    <span class="totales-val" id="ckEnvioVal">—</span>
+                </div>
+                <div class="totales-row">
+                    <span class="totales-lbl">Total</span>
+                    <span class="totales-val total" id="ckTotal">S/0.00</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script th:inline="javascript">
+const CART_KEY = 'ft_cart';
+const COSTO_ENVIO = Number(/*[[${costoEnvio}]]*/ 15);
+const ENVIO_GRATIS_DESDE = Number(/*[[${envioGratisDesde}]]*/ 300);
+const CULQI_PUBLIC_KEY = /*[[${culqiPublicKey}]]*/ '';
+
+function loadCart() { try { return JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { return []; } }
+const fmt = n => Number(n).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+function goStep(n) {
+    if (n === 2 && !validarEnvio()) return;
+    document.getElementById('stepEnvio').style.display   = n === 1 ? 'block' : 'none';
+    document.getElementById('stepEntrega').style.display = n === 2 ? 'block' : 'none';
+    document.getElementById('stepPago').style.display    = n === 3 ? 'block' : 'none';
+    document.querySelectorAll('.cart-step').forEach(s => s.classList.toggle('active', Number(s.dataset.step) === n));
+    window.scrollTo({top:0, behavior:'smooth'});
+    renderSummary();
+}
+
+function validarEnvio() {
+    const req = ['ckEmail','ckTelefono','ckNombre','ckApellido','ckDireccion','ckCiudad'];
+    for (const id of req) {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) { el.focus(); alert('Completa los datos de envío.'); return false; }
+    }
+    return true;
+}
+
+function metodoEnvioSeleccionado() {
+    const r = document.querySelector('input[name="metodoEnvio"]:checked');
+    return r ? r.value : 'estandar';
+}
+
+function renderSummary() {
+    const cart = loadCart();
+    const itemsEl = document.getElementById('ckSummaryItems');
+    itemsEl.innerHTML = cart.map(it => {
+        const precio = (it.precio != null && Number(it.precio) > 0) ? Number(it.precio) : 0;
+        const img = (it.imgs && it.imgs[0])
+            ? `<img src="${it.imgs[0]}" alt="">`
+            : `<i class="bi ${it.icon || 'bi-box'}"></i>`;
+        return `<div class="ck-summary-item">
+            <div class="ck-summary-thumb">${img}</div>
+            <div class="ck-summary-info">
+                <div class="ck-summary-name">${it.name}</div>
+                <div class="ck-summary-qty">Cantidad: ${it.qty}</div>
+            </div>
+            <div class="ck-summary-price">${precio > 0 ? 'S/' + fmt(precio * it.qty) : '—'}</div>
+        </div>`;
+    }).join('');
+
+    const subtotal = cart.reduce((s, it) => s + ((it.precio && Number(it.precio) > 0 ? Number(it.precio) : 0) * it.qty), 0);
+    const metodo = metodoEnvioSeleccionado();
+    const envio = (metodo === 'recojo' || subtotal >= ENVIO_GRATIS_DESDE) ? 0 : COSTO_ENVIO;
+
+    document.getElementById('ckSubtotal').textContent = 'S/' + fmt(subtotal);
+    document.getElementById('ckEnvioVal').textContent = envio > 0 ? 'S/' + fmt(envio) : 'Gratis';
+    document.getElementById('ckTotal').textContent    = 'S/' + fmt(subtotal + envio);
+    document.getElementById('precioEnvioEstandarLbl').textContent = 'S/ ' + fmt(COSTO_ENVIO);
+}
+
+document.querySelectorAll('input[name="metodoEnvio"]').forEach(r => r.addEventListener('change', renderSummary));
+
+async function confirmarPedido() {
+    const cart = loadCart();
+    if (!cart.length) { alert('Tu carrito está vacío.'); return; }
+
+    const items = cart.map(it => ({ id: it.id, name: it.name, img: (it.imgs && it.imgs[0]) || null, precio: it.precio || 0, qty: it.qty }));
+
+    const form = new URLSearchParams();
+    form.set('nombre', document.getElementById('ckNombre').value.trim());
+    form.set('apellido', document.getElementById('ckApellido').value.trim());
+    form.set('email', document.getElementById('ckEmail').value.trim());
+    form.set('telefono', document.getElementById('ckTelefono').value.trim());
+    form.set('direccion', document.getElementById('ckDireccion').value.trim());
+    form.set('referencia', document.getElementById('ckReferencia').value.trim());
+    form.set('ciudad', document.getElementById('ckCiudad').value.trim());
+    form.set('provincia', document.getElementById('ckProvincia').value.trim());
+    form.set('codigoPostal', document.getElementById('ckCodigoPostal').value.trim());
+    form.set('metodoEnvio', metodoEnvioSeleccionado());
+    form.set('itemsJson', JSON.stringify(items));
+
+    const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+    const btn = document.getElementById('btnConfirmarPedido');
+    const btnOriginalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Procesando...';
+
+    try {
+        const res = await fetch('/checkout/crear', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+            body: form
+        });
+        const json = await res.json();
+        if (json.status !== 'ok') {
+            alert(json.message || 'No se pudo procesar el pedido.');
+            btn.disabled = false; btn.innerHTML = btnOriginalHtml;
+            return;
+        }
+
+        if (json.culqiEnabled && CULQI_PUBLIC_KEY) {
+            abrirCulqi(json.pedidoId, json.total, btn, btnOriginalHtml);
+        } else {
+            localStorage.removeItem(CART_KEY);
+            mostrarConfirmacion('Nos pondremos en contacto por WhatsApp para coordinar el pago.', json.wspUrl);
+        }
+    } catch (e) {
+        alert('Error de conexión. Intenta de nuevo.');
+        btn.disabled = false; btn.innerHTML = btnOriginalHtml;
+    }
+}
+
+function abrirCulqi(pedidoId, total, btn, btnOriginalHtml) {
+    if (typeof Culqi === 'undefined') {
+        alert('No se pudo cargar la pasarela de pago.');
+        btn.disabled = false; btn.innerHTML = btnOriginalHtml;
+        return;
+    }
+    Culqi.publicKey = CULQI_PUBLIC_KEY;
+    Culqi.settings({ title: 'Full Toldos', currency: 'PEN', amount: Math.round(total * 100) });
+    window.culqi = async function() {
+        if (Culqi.token) {
+            const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+            const body = new URLSearchParams({ culqiToken: Culqi.token.id });
+            const res = await fetch(`/checkout/${pedidoId}/pagar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+                body
+            });
+            const json = await res.json();
+            if (json.status === 'ok') {
+                localStorage.removeItem(CART_KEY);
+                mostrarConfirmacion('¡Pago aprobado! Te contactaremos para coordinar la entrega.', null);
+            } else {
+                alert(json.message || 'El pago no pudo procesarse.');
+                btn.disabled = false; btn.innerHTML = btnOriginalHtml;
+            }
+        } else if (Culqi.error) {
+            alert(Culqi.error.user_message || 'El pago no pudo procesarse.');
+            btn.disabled = false; btn.innerHTML = btnOriginalHtml;
+        }
+    };
+    Culqi.open();
+    btn.disabled = false; btn.innerHTML = btnOriginalHtml;
+}
+
+function mostrarConfirmacion(msg, wspUrl) {
+    ['stepEnvio','stepEntrega','stepPago'].forEach(id => document.getElementById(id).style.display = 'none');
+    document.querySelectorAll('.cart-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('doneMsg').textContent = msg;
+    document.getElementById('stepDone').style.display = 'block';
+    if (wspUrl) setTimeout(() => window.open(wspUrl, '_blank'), 600);
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!loadCart().length) { window.location.href = '/'; return; }
+    renderSummary();
+});
+</script>
+
+</body>
+</html>

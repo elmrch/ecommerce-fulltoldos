@@ -1,11 +1,16 @@
 package com.ecommerce.fulltoldos.controller;
 import com.ecommerce.fulltoldos.model.Producto;
 import com.ecommerce.fulltoldos.model.ProductoMedia;
+import com.ecommerce.fulltoldos.repository.UsuarioRepository;
 import com.ecommerce.fulltoldos.service.CategoriaService;
 import com.ecommerce.fulltoldos.service.ConfiguracionService;
 import com.ecommerce.fulltoldos.service.ProductoService;
+import com.ecommerce.fulltoldos.service.PromoBloqueService;
+import com.ecommerce.fulltoldos.service.SlideService;
 import com.ecommerce.fulltoldos.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,12 +36,27 @@ public class AuthController {
     @Autowired
     private ConfiguracionService configService;
 
+    @Autowired
+    private SlideService slideService;
+
+    @Autowired
+    private PromoBloqueService promoBloqueService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     // ── Página principal (tienda) ──
     @GetMapping("/")
-    public String inicio(Model model) {
+    public String inicio(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
         // Datos de contacto desde la DB (editables desde /admin/ajustes)
         String wspNum = configService.get("cotizacion.whatsapp", "51999999999");
         model.addAttribute("wspLink", "https://wa.me/" + wspNum);
+
+        // Nombre real del usuario logueado (para el saludo "Hola, ___" del navbar)
+        if (usuarioLogueado != null) {
+            usuarioRepository.findByEmail(usuarioLogueado.getUsername())
+                    .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
+        }
 
         Map<String, String> topbar = new HashMap<>();
         topbar.put("telefono", configService.get("topbar.telefono", "+51 999 999 999"));
@@ -51,6 +71,29 @@ public class AuthController {
         redes.put("tiktok",    configService.get("redes.tiktok",    "#"));
         redes.put("youtube",   configService.get("redes.youtube",   "#"));
         model.addAttribute("redes", redes);
+
+        Map<String, String> newsletter = new HashMap<>();
+        newsletter.put("titulo",       configService.get("newsletter.titulo",      "Suscríbete a Nuestro Newsletter"));
+        newsletter.put("descripcion",  configService.get("newsletter.descripcion", "Novedades, ofertas exclusivas y consejos sobre toldos y carpas."));
+        newsletter.put("placeholder",  configService.get("newsletter.placeholder", "Ingresa tu correo electrónico"));
+        newsletter.put("boton",        configService.get("newsletter.boton",       "SUSCRIBIRME"));
+        newsletter.put("nota",         configService.get("newsletter.nota",        "No te pierdas lo mejor en toldos y carpas."));
+        newsletter.put("colorFondo",   configService.get("newsletter.color.fondo", "#2a44d6"));
+        newsletter.put("imagen",       configService.get("newsletter.imagen",      "/img/imgfooter.png"));
+        model.addAttribute("newsletter", newsletter);
+
+        Map<String, String> contactoForm = new HashMap<>();
+        contactoForm.put("tag",         configService.get("contacto.form.tag",         "Contáctenos"));
+        contactoForm.put("titulo",      configService.get("contacto.form.titulo",      "¡Estamos aquí para ayudarte!"));
+        contactoForm.put("descripcion", configService.get("contacto.form.descripcion", "Si tienes preguntas sobre tu pedido, necesitas ayuda con nuestros productos o simplemente deseas comunicarte con nosotros, no dudes en escribirnos."));
+        model.addAttribute("contactoForm", contactoForm);
+
+        Map<String, String> bannerCentral = new HashMap<>();
+        bannerCentral.put("imagen",    configService.get("banner.central.imagen",    "/img/fulltoldos.png"));
+        bannerCentral.put("linkTipo",  configService.get("banner.central.link.tipo", "whatsapp"));
+        bannerCentral.put("linkValor", configService.get("banner.central.link.valor", wspNum));
+        model.addAttribute("bannerCentral", bannerCentral);
+
         List<Producto> prods = productoService.listarActivos();
 
         // Contar productos por categoría
@@ -91,7 +134,11 @@ public class AuthController {
                 m.put("precioOferta", p.getPrecioConDescuento());
                 m.put("fechaFinOferta", p.getFechaFinOferta() != null
                     ? p.getFechaFinOferta().toString() : null);
-                m.put("badge", null);
+                String badge = null;
+                if (p.getDescuento() != null && p.getDescuento() > 0) badge = "sale";
+                else if (p.isEsDestacado()) badge = "hot";
+                else if (p.isEsNuevo()) badge = "new";
+                m.put("badge", badge);
                 List<String> features = Collections.emptyList();
                 if (p.getCaracteristicas() != null && !p.getCaracteristicas().trim().isEmpty()) {
                     features = Arrays.stream(p.getCaracteristicas().split("[,\n]"))
@@ -139,6 +186,15 @@ public class AuthController {
 
         model.addAttribute("dbCats", dbCats);
         model.addAttribute("dbProducts", dbProducts);
+
+        // Slides del carrusel
+        List<?> slides = slideService.listarActivos();
+        if (!slides.isEmpty()) model.addAttribute("slides", slides);
+
+        // Bloques promo-banner
+        var promoFilas = promoBloqueService.listarActivosPorFila();
+        if (!promoFilas.isEmpty()) model.addAttribute("promoFilas", promoFilas);
+
         return "index";
     }
 
@@ -179,6 +235,12 @@ public class AuthController {
         model.addAttribute("redes", redes);
 
         model.addAttribute("ruc", configService.get("empresa.ruc", "RUC: 20XXXXXXXXX"));
+
+        Map<String, String> bannerCentral = new HashMap<>();
+        bannerCentral.put("imagen",    configService.get("banner.central.imagen",    "/img/fulltoldos.png"));
+        bannerCentral.put("linkTipo",  configService.get("banner.central.link.tipo", "whatsapp"));
+        bannerCentral.put("linkValor", configService.get("banner.central.link.valor", wspNum));
+        model.addAttribute("bannerCentral", bannerCentral);
     }
 
     @GetMapping("/login")
