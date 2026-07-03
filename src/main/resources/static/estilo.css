@@ -3896,7 +3896,7 @@ button:disabled .ft-spin-icon { opacity:0.9; }
 ═══════════════════════════════════════════════════════ */
 .sbc-section {
   padding: 60px 0;
-  background: #f7f8fc;
+  background: #ffffff;
   overflow: hidden;
 }
 .sbc-wrapper {
@@ -3983,8 +3983,8 @@ button:disabled .ft-spin-icon { opacity:0.9; }
   width: 200px;
   flex-shrink: 0;
   cursor: pointer;
-  background: white;
-  border-radius: 4px;
+  background: linear-gradient(160deg, #f4f4f7 0%, #e5e6ec 100%);
+  border-radius: 16px;
   border: 1px solid #e8e8e8;
   overflow: hidden;
   transition: box-shadow 0.2s, transform 0.2s;
@@ -3996,7 +3996,7 @@ button:disabled .ft-spin-icon { opacity:0.9; }
 .sbc-img-area {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background: #f5f6f8;
+  background: transparent;
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
