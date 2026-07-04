@@ -2064,6 +2064,14 @@ function initSobreScroll() {
   const blocks  = document.querySelectorAll('.sobre-text-block');
   const mainImg = document.getElementById('sobreMainImg');
   if (!blocks.length || !mainImg) return;
+
+  // Usar fotos reales de productos en vez de las imágenes genéricas
+  const prodImgs = PRODUCTS.filter(p => p.imgs && p.imgs[0]).map(p => p.imgs[0]);
+  if (prodImgs.length) {
+    blocks.forEach((b, i) => { b.dataset.img = prodImgs[i % prodImgs.length]; });
+    mainImg.src = prodImgs[0];
+  }
+
   if (_sobreObserver) _sobreObserver.disconnect();
   _sobreObserver = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -3072,3 +3080,87 @@ async function submitWelcomeEmail(e) {
   localStorage.setItem('ft_wpopup_dismissed', Date.now());
   showToast('¡Gracias! Te mantendremos informado.');
 }
+
+/* ═══════════════════════════════════════════════
+   CAROUSEL: COMPRAR POR TAMAÑO
+═══════════════════════════════════════════════ */
+let sizeCarrIdx  = 0;
+let sizeCarrData = [];
+const SIZE_VISIBLE = 5;
+
+function initSizeCarr() {
+  const track = document.getElementById('sizeCarrTrack');
+  const dots  = document.getElementById('sizeCarrDots');
+  if (!track || !dots) return;
+
+  // Construir mapa medida → primer producto con imagen
+  const medidasMap = {};
+  (DB_PRODUCTS || []).forEach(p => {
+    if (!p.medidas || !Array.isArray(p.medidas)) return;
+    const imgSrc = (p.imgs && p.imgs.length > 0) ? p.imgs[0] : '';
+    p.medidas.forEach(m => {
+      const key = (m || '').trim();
+      if (key && !medidasMap[key]) {
+        medidasMap[key] = imgSrc;
+      }
+    });
+  });
+
+  sizeCarrData = Object.entries(medidasMap).map(([label, img]) => ({ label, img }));
+
+  if (sizeCarrData.length === 0) {
+    const sec = document.querySelector('.size-section');
+    if (sec) sec.style.display = 'none';
+    return;
+  }
+
+  sizeCarrData.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'size-carr-card';
+    card.onclick   = () => openCatPage('', s.label);
+    card.innerHTML = `
+      <div class="size-carr-img">
+        ${s.img
+          ? `<img src="${s.img}" alt="${s.label}" loading="lazy">`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:2.8rem;"><i class="bi bi-rulers"></i></div>`}
+      </div>
+      <div class="size-carr-label">${s.label}</div>`;
+    track.appendChild(card);
+
+    const dot = document.createElement('div');
+    dot.className = 'size-carr-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = () => sizeCarrGoTo(i);
+    dots.appendChild(dot);
+  });
+
+  sizeCarrUpdate();
+}
+
+function sizeCarrScroll(dir) {
+  const max = Math.max(0, sizeCarrData.length - SIZE_VISIBLE);
+  sizeCarrIdx = Math.max(0, Math.min(sizeCarrIdx + dir, max));
+  sizeCarrUpdate();
+}
+
+function sizeCarrGoTo(idx) {
+  const max = Math.max(0, sizeCarrData.length - SIZE_VISIBLE);
+  sizeCarrIdx = Math.max(0, Math.min(idx, max));
+  sizeCarrUpdate();
+}
+
+function sizeCarrUpdate() {
+  const track   = document.getElementById('sizeCarrTrack');
+  const prevBtn = document.getElementById('sizePrev');
+  const nextBtn = document.getElementById('sizeNext');
+  if (!track || !track.children.length) return;
+
+  const cardW = track.children[0].offsetWidth + 16;
+  track.style.transform = `translateX(-${sizeCarrIdx * cardW}px)`;
+
+  document.querySelectorAll('.size-carr-dot').forEach((d, i) =>
+    d.classList.toggle('active', i === sizeCarrIdx));
+  if (prevBtn) prevBtn.disabled = sizeCarrIdx === 0;
+  if (nextBtn) nextBtn.disabled = sizeCarrIdx >= sizeCarrData.length - SIZE_VISIBLE;
+}
+
+document.addEventListener('DOMContentLoaded', initSizeCarr);

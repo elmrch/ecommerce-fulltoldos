@@ -14,8 +14,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-
-<!-- ═══ TOP BAR ═══ -->
 <div class="topbar-ft">
     <div class="container">
         <div class="topbar-inner">
@@ -37,9 +35,7 @@
     </div>
 </div>
 
-<!-- ═══ NAVBAR ═══ -->
 <nav class="navbar-ft">
-    <!-- Fila principal: logo + búsqueda + carrito -->
     <div class="container">
         <div class="navbar-inner">
             <a href="#" class="logo-wrap" onclick="event.preventDefault();goHome()">
@@ -62,7 +58,7 @@
             </div>
             <div class="nav-right">
 
-                <!-- Sin login -->
+
                 <div sec:authorize="!isAuthenticated()" class="micuenta-wrap">
                     <button class="btn-micuenta" onclick="toggleMiCuentaMenu(event)">
                         <i class="bi bi-person"></i>
@@ -88,15 +84,15 @@
                     </div>
                 </div>
 
-                <!-- Con login -->
+
                 <div sec:authorize="isAuthenticated()" class="user-nav-wrap">
-                    <!-- Botón "Hola, nombre" -->
+
                     <a th:href="${#authorization.expression('hasRole(''ADMIN'')')} ? @{/admin/dashboard} : @{/cliente/inicio}" class="btn-hola-nav">
                         <span class="user-avatar-mini"><i class="bi bi-person-fill"></i></span>
                         <span>Hola, <strong th:text="${usuarioNombre != null ? usuarioNombre : #strings.capitalize(#strings.substringBefore(#strings.substringBefore(#authentication.name, ' '), '@'))}">Usuario</strong></span>
                         <i class="bi bi-chevron-down user-drop-arrow"></i>
                     </a>
-                    <!-- Dropdown panel (hover) -->
+
                     <div class="user-nav-dropdown">
                         <div class="user-drop-head">
                             <div class="user-drop-avatar"><i class="bi bi-person-circle"></i></div>
@@ -107,7 +103,7 @@
                             </div>
                         </div>
 
-                        <!-- Menú admin -->
+
                         <div class="user-drop-menu" sec:authorize="hasRole('ADMIN')">
                             <a th:href="@{/admin/dashboard}" class="user-drop-item">
                                 <i class="bi bi-grid-fill"></i> Panel admin
@@ -120,7 +116,7 @@
                             </a>
                         </div>
 
-                        <!-- Menú cliente -->
+
                         <div class="user-drop-menu" sec:authorize="hasRole('CLIENTE')">
                             <a th:href="@{/cliente/inicio}" class="user-drop-item">
                                 <i class="bi bi-house-fill"></i> Inicio
@@ -174,7 +170,6 @@
             </div>
         </div>
     </div>
-    <!-- Fila de navegación -->
     <div class="navbar-nav-row">
         <div class="container">
             <div class="nav-links">
@@ -215,12 +210,8 @@
 
 <div id="mainView">
 
-    <!-- ═══ HERO SLIDER ═══ -->
     <section class="hero-section" id="inicio">
         <div id="heroSlider">
-
-            <!-- SLIDE 1 — renderizado con Thymeleaf si se pasa lista de slides desde el controller,
-                 de lo contrario se usa el bloque estático de fallback -->
             <th:block th:if="${slides != null and !slides.isEmpty()}">
                 <div th:each="slide, iterStat : ${slides}"
                      th:id="'slide-' + ${iterStat.index}"
@@ -228,7 +219,6 @@
                     <div class="slide-bg"
                          th:style="${slide.imagenUrl != null ? 'background-image:url(' + slide.imagenUrl + ');' : 'background:#0e3460;'}"></div>
                     <div class="slide-overlay"></div>
-                    <!-- Enlace de imagen: overlay transparente detrás del contenido -->
                     <a th:if="${slide.imagenLinkTipo == 'url'}"
                        th:href="${slide.imagenLinkValor}" target="_blank" rel="noopener"
                        class="slide-img-link" aria-label="Ver más"></a>
@@ -271,7 +261,6 @@
                                             <span th:text="${slide.btnSecondaryText}">Acción</span>
                                         </a>
                                     </div>
-                                    <!-- Stats solo en el primer slide -->
                                     <div class="hero-stats" th:if="${iterStat.first and heroStats != null}">
                                         <div th:each="stat : ${heroStats}">
                                             <div class="stat-num">
@@ -288,7 +277,6 @@
                 </div>
             </th:block>
 
-            <!-- FALLBACK ESTÁTICO (cuando no hay modelo Thymeleaf inyectado) -->
             <th:block th:unless="${slides != null and !slides.isEmpty()}">
 
                 <!-- SLIDE 1 -->
@@ -395,7 +383,6 @@
         <button class="hero-prev" onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
         <button class="hero-next" onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
         <div class="hero-controls" id="heroDots">
-            <!-- Los dots se generan con Thymeleaf si hay slides, sino JS los gestiona -->
             <th:block th:if="${slides != null and !slides.isEmpty()}">
                 <div th:each="slide, iterStat : ${slides}"
                      th:class="'hero-dot' + (${iterStat.first} ? ' active' : '')"
@@ -420,7 +407,6 @@
     <!-- ═══ CATEGORÍAS ═══ -->
     <section class="sbc-section" id="categorias">
         <div class="sbc-wrapper">
-            <!-- Panel izquierdo -->
             <div class="sbc-left">
                 <div class="eyebrow" style="text-align:left;margin:0 0 12px;">Nuestras categorías</div>
                 <h2 class="sbc-title">Lo mejor de nuestros <span class="hl">Toldos &amp; Carpas</span></h2>
@@ -429,14 +415,14 @@
                     Ver todas las categorías <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
-            <!-- Carrusel derecho -->
+
             <div class="sbc-right">
                 <button class="sbc-arr sbc-arr-l" id="catPrevBtn" onclick="catSliderNav(-1)">
                     <i class="bi bi-chevron-left"></i>
                 </button>
                 <div class="cat-slider-viewport sbc-viewport">
                     <div class="cat-grid sbc-track" id="catGrid">
-                        <!-- JS buildCats() llena este div -->
+
                     </div>
                 </div>
                 <button class="sbc-arr sbc-arr-r" id="catNextBtn" onclick="catSliderNav(1)">
@@ -448,7 +434,7 @@
 
     <section class="promo-banner">
 
-        <!-- ── DINÁMICO (desde /admin/promos) ── -->
+
         <th:block th:if="${promoFilas != null and !promoFilas.isEmpty()}">
             <div th:each="entrada, entStat : ${promoFilas.entrySet()}"
                  th:class="${entStat.first} ? 'promo-row promo-row-top' : 'promo-row promo-row-bottom'">
@@ -473,7 +459,7 @@
             </div>
         </th:block>
 
-        <!-- ── FALLBACK ESTÁTICO (mientras no hay bloques en la BD) ── -->
+
         <th:block th:unless="${promoFilas != null and !promoFilas.isEmpty()}">
             <div class="promo-row promo-row-top">
                 <div class="promo-cell" style="flex:3;" onclick="openCatPage('toldos')">
@@ -523,7 +509,7 @@
 
     </section>
 
-    <!-- ═══ PRODUCTOS ═══ -->
+
     <section class="section-pad bg-light-blue" id="productos">
         <div class="container">
             <div class="row mb-4">
@@ -534,10 +520,6 @@
                 </div>
             </div>
 
-            <!--
-              OPCIÓN A: Thymeleaf renderiza los productos desde el controller (lista 'productos' en el modelo).
-              OPCIÓN B (fallback): el div vacío es llenado por renderProducts() en JS.
-            -->
             <div class="products-grid-4" id="productsGrid">
                 <th:block th:if="${productos != null and !productos.isEmpty()}">
                     <div th:each="p : ${productos}"
@@ -602,14 +584,25 @@
                         </div>
                     </div>
                 </th:block>
-                <!-- Si 'productos' es null, renderProducts() en JS llena este div -->
             </div>
         </div>
     </section>
 
-    <!-- ═══ BANNER PERSONALIZACIÓN ═══ -->
+    <section class="size-section">
+        <div class="container">
+            <h2 class="size-section-title">COMPRAR POR <span class="hl">TAMAÑO DE TOLDO</span></h2>
+        </div>
+        <div class="size-carr-outer">
+            <button class="size-carr-arrow size-carr-prev" id="sizePrev" onclick="sizeCarrScroll(-1)">&#8249;</button>
+            <div class="size-carr-viewport" id="sizeCarrViewport">
+                <div class="size-carr-track" id="sizeCarrTrack"></div>
+            </div>
+            <button class="size-carr-arrow size-carr-next" id="sizeNext" onclick="sizeCarrScroll(1)">&#8250;</button>
+        </div>
+        <div class="size-carr-dots" id="sizeCarrDots"></div>
+    </section>
+
     <section style="text-align:center;">
-        <!-- Enlace dinámico según tipo configurado en ajustes -->
         <a th:if="${bannerCentral != null and bannerCentral['linkTipo'] == 'url'}"
            th:href="${bannerCentral['linkValor']}" target="_blank" rel="noopener"
            style="display:block;line-height:0;">
@@ -634,7 +627,6 @@
            style="display:block;line-height:0;cursor:pointer;">
             <img th:src="${bannerCentral['imagen']}" alt="Full Toldos" style="width:100%;max-width:100%;">
         </a>
-        <!-- Sin enlace o fallback -->
         <th:block th:if="${bannerCentral == null or bannerCentral['linkTipo'] == '' or bannerCentral['linkTipo'] == 'ninguno'}">
             <div style="display:block;line-height:0;">
                 <img th:src="${bannerCentral != null ? bannerCentral['imagen'] : '/img/fulltoldos.png'}"
@@ -642,12 +634,9 @@
             </div>
         </th:block>
     </section>
-
-    <!-- ═══ TABS PRODUCTOS ═══ -->
     <section class="section-pad bg-light-blue" id="tabsProductos">
         <div class="container">
             <div class="tprod-layout">
-                <!-- Izquierda: producto destacado -->
                 <div class="tprod-left">
                     <div class="tprod-left-header">
                         <span class="tprod-left-title">Productos +</span>
@@ -658,7 +647,6 @@
                     </div>
                     <div id="tprodFeatured"></div>
                 </div>
-                <!-- Derecha: tabs + grilla -->
                 <div class="tprod-right">
                     <div class="tprod-tabs-header">
                         <div class="tprod-tabs">
@@ -679,15 +667,31 @@
     </section>
 
 
-    <!-- ═══ BANNER CONSTRUIMOS ═══ -->
     <section class="build-banner-section">
         <div class="build-banner-img-wrap">
-            <img th:src="@{img/construimos.png}" src="img/construimos.png" alt="Full Toldos fabricación">
+            <img th:src="${buildBanner['imagen']}" src="img/construimos.png" alt="Full Toldos fabricación">
             <div class="build-banner-overlay">
                 <div class="build-banner-content">
-                    <h2 class="build-banner-title">FABRICADO<br>MEJOR.<br>FABRICADO DE<br>FORMA DIFERENTE.</h2>
-                    <p class="build-banner-desc">Full Toldos, una marca auténtica y original, líder en estructuras de cobertura y toldos a medida en el Perú. Llevamos más de 25 años construyendo sobre nuestro legado de innovación y experiencia en fabricación con productos que marcan la pauta en calidad, durabilidad y facilidad de uso.</p>
-                    <a href="#" class="build-banner-btn" onclick="event.preventDefault();openCotizModal()">Más información</a>
+                    <h2 class="build-banner-title" th:utext="${buildBanner['titulo']}">FABRICADO<br>MEJOR.<br>FABRICADO DE<br>FORMA DIFERENTE.</h2>
+                    <p class="build-banner-desc" th:text="${buildBanner['descripcion']}">Full Toldos, una marca auténtica y original, líder en estructuras de cobertura y toldos a medida en el Perú. Llevamos más de 25 años construyendo sobre nuestro legado de innovación y experiencia en fabricación con productos que marcan la pauta en calidad, durabilidad y facilidad de uso.</p>
+
+                    <a th:if="${buildBanner['btnTipo'] == 'url'}"
+                       th:href="${buildBanner['btnValor']}" target="_blank" rel="noopener"
+                       class="build-banner-btn" th:text="${buildBanner['btnTexto']}">Más información</a>
+                    <a th:if="${buildBanner['btnTipo'] == 'whatsapp'}"
+                       th:href="|https://wa.me/${buildBanner['btnValor']}|" target="_blank" rel="noopener"
+                       class="build-banner-btn" th:text="${buildBanner['btnTexto']}">Más información</a>
+                    <a th:if="${buildBanner['btnTipo'] == 'categoria'}"
+                       href="javascript:void(0)" th:attr="data-valor=${buildBanner['btnValor']}"
+                       onclick="openCatPage(this.dataset.valor)"
+                       class="build-banner-btn" th:text="${buildBanner['btnTexto']}">Más información</a>
+                    <a th:if="${buildBanner['btnTipo'] == 'producto'}"
+                       href="javascript:void(0)" th:attr="data-valor=${buildBanner['btnValor']}"
+                       onclick="openModal(parseInt(this.dataset.valor))"
+                       class="build-banner-btn" th:text="${buildBanner['btnTexto']}">Más información</a>
+                    <a th:if="${buildBanner['btnTipo'] == null or buildBanner['btnTipo'] == '' or buildBanner['btnTipo'] == 'cotizador'}"
+                       href="#" onclick="event.preventDefault();openCotizModal()"
+                       class="build-banner-btn" th:text="${buildBanner['btnTexto']}">Más información</a>
                 </div>
             </div>
         </div>
@@ -709,8 +713,8 @@
             <a th:href="${wspLink}" href="#" target="_blank" class="build-feat-item build-feat-link">
                 <i class="bi bi-whatsapp"></i>
                 <div>
-                    <div class="build-feat-title">Chatea con un experto.</div>
-                    <div class="build-feat-sub">Asesoría personalizada por WhatsApp sin costo.</div>
+                    <div class="build-feat-title" th:text="${buildBanner['chatTitulo']}">Chatea con un experto.</div>
+                    <div class="build-feat-sub" th:text="${buildBanner['chatSub']}">Asesoría personalizada por WhatsApp sin costo.</div>
                 </div>
             </a>
         </div>
@@ -727,7 +731,7 @@
             </div>
             <div class="clientes-gal-slider-wrap">
                 <div class="clientes-gal-track" id="clientesGalTrack">
-                    <!-- JS buildClientesGal() llena este div con imágenes reales -->
+
                 </div>
             </div>
             <div class="clientes-gal-controls">
@@ -752,8 +756,10 @@
             <h2 class="nl-title" th:text="${newsletter.titulo}">Suscríbete a Nuestro Newsletter</h2>
             <p class="nl-desc" th:text="${newsletter.descripcion}">Novedades, ofertas exclusivas y consejos sobre toldos y carpas.</p>
             <form class="nl-form" onsubmit="submitNewsletter(event)">
-                <span class="nl-icon"><i class="bi bi-envelope"></i></span>
-                <input type="email" name="email" class="nl-input" th:placeholder="${newsletter.placeholder}" placeholder="Ingresa tu correo electrónico" required>
+                <div class="nl-input-wrap">
+                    <span class="nl-icon"><i class="bi bi-envelope"></i></span>
+                    <input type="email" name="email" class="nl-input" th:placeholder="${newsletter.placeholder}" placeholder="Ingresa tu correo electrónico" required>
+                </div>
                 <button type="submit" class="nl-btn" th:text="${newsletter.boton}">SUSCRIBIRME</button>
             </form>
             <div class="nl-note">
@@ -781,7 +787,7 @@
                 <div class="col-lg-2 col-6">
                     <div class="footer-heading">Productos</div>
                     <ul class="footer-links" id="footerProd">
-                        <!-- Llenado por buildFooter() en JS (o desde Thymeleaf si se pasa 'footerCats') -->
+
                         <th:block th:if="${footerCats != null}">
                             <li th:each="fc : ${footerCats}">
                                 <a href="#productos"
@@ -840,11 +846,15 @@
 </div><!-- /#mainView -->
 
 <!-- ═══ CATEGORY PAGE VIEW ═══ -->
-<div id="catPageView" style="display:none; background:#f5f5f5; min-height:100vh; padding-top:148px;">
+<div id="catPageView" style="display:none; background:#ffffff; min-height:100vh; padding-top:148px;">
     <div class="cat-page-header">
-        <div class="container" style="display:flex;align-items:center;position:relative;min-height:58px;">
-            <button class="cat-back-btn" onclick="closeCatPage()"><i class="bi bi-arrow-left"></i> Volver</button>
-            <h1 id="catPageTitle" class="cat-page-title" style="position:absolute;left:50%;transform:translateX(-50%);margin:0;"></h1>
+        <div class="container">
+            <h1 id="catPageTitle" class="cat-page-title"></h1>
+        </div>
+    </div>
+    <div class="cat-breadcrumb-bar">
+        <div class="container">
+            <div id="catBreadcrumb" class="cat-breadcrumb"></div>
         </div>
     </div>
     <div class="container" style="padding:8px 12px 60px;">
@@ -867,7 +877,6 @@
             <div class="col-lg-9">
                 <div class="cat-desc-box" id="catDescBox"></div>
                 <div class="cat-toolbar">
-                    <div id="catBreadcrumb" class="cat-breadcrumb"></div>
                     <div class="cat-toolbar-right">
                         <div class="toolbar-show-group">
                             <span>Show:</span>
@@ -901,7 +910,7 @@
 </div>
 
 <!-- ═══ PRODUCT PAGE VIEW ═══ -->
-<div id="prodPageView" style="display:none; background:#f8faff; min-height:100vh; padding-top:148px;">
+<div id="prodPageView" style="display:none; background:#ffffff; min-height:100vh; padding-top:148px;">
     <div class="prod-page-topbar">
         <div class="container">
             <div id="prodBreadcrumb" class="prod-breadcrumb"></div>
@@ -1035,7 +1044,6 @@
     </div>
   </div>
 
-  <!-- ── Sticky scroll: imagen izquierda + texto derecho ── -->
   <section class="sobre-scroll-section">
     <div class="container">
       <div class="sobre-scroll-layout">
@@ -1047,7 +1055,7 @@
           </div>
         </div>
 
-        <!-- Bloques de texto (scroll) -->
+
         <div class="sobre-text-col">
 
           <div class="sobre-text-block" data-img="carpas2.png">

@@ -94,6 +94,17 @@ public class AuthController {
         bannerCentral.put("linkValor", configService.get("banner.central.link.valor", wspNum));
         model.addAttribute("bannerCentral", bannerCentral);
 
+        Map<String, String> buildBanner = new HashMap<>();
+        buildBanner.put("imagen",      configService.get("build.banner.imagen",     "/img/construimos.png"));
+        buildBanner.put("titulo",      configService.get("build.banner.titulo",      "FABRICADO<br>MEJOR.<br>FABRICADO DE<br>FORMA DIFERENTE."));
+        buildBanner.put("descripcion", configService.get("build.banner.descripcion", "Full Toldos, una marca auténtica y original, líder en estructuras de cobertura y toldos a medida en el Perú. Llevamos más de 25 años construyendo sobre nuestro legado de innovación y experiencia en fabricación con productos que marcan la pauta en calidad, durabilidad y facilidad de uso."));
+        buildBanner.put("btnTexto",    configService.get("build.banner.btn.texto",   "Más información"));
+        buildBanner.put("btnTipo",     configService.get("build.banner.btn.tipo",    "cotizador"));
+        buildBanner.put("btnValor",    configService.get("build.banner.btn.valor",   ""));
+        buildBanner.put("chatTitulo",  configService.get("build.banner.chat.titulo", "Chatea con un experto."));
+        buildBanner.put("chatSub",     configService.get("build.banner.chat.sub",    "Asesoría personalizada por WhatsApp sin costo."));
+        model.addAttribute("buildBanner", buildBanner);
+
         List<Producto> prods = productoService.listarActivos();
 
         // Contar productos por categoría

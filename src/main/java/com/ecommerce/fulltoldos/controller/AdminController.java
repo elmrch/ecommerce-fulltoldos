@@ -58,6 +58,16 @@ public class AdminController {
         model.addAttribute("bannerLinkTipo",  configService.get("banner.central.link.tipo", "whatsapp"));
         model.addAttribute("bannerLinkValor", configService.get("banner.central.link.valor",""));
         model.addAttribute("newsletterImagen", configService.get("newsletter.imagen", "/img/imgfooter.png"));
+
+        model.addAttribute("buildBannerImagen",      configService.get("build.banner.imagen",      "/img/construimos.png"));
+        model.addAttribute("buildBannerTitulo",       configService.get("build.banner.titulo",       "FABRICADO<br>MEJOR.<br>FABRICADO DE<br>FORMA DIFERENTE."));
+        model.addAttribute("buildBannerDescripcion",  configService.get("build.banner.descripcion",  "Full Toldos, una marca auténtica y original, líder en estructuras de cobertura y toldos a medida en el Perú. Llevamos más de 25 años construyendo sobre nuestro legado de innovación y experiencia en fabricación con productos que marcan la pauta en calidad, durabilidad y facilidad de uso."));
+        model.addAttribute("buildBannerBtnTexto",     configService.get("build.banner.btn.texto",     "Más información"));
+        model.addAttribute("buildBannerBtnTipo",      configService.get("build.banner.btn.tipo",      "cotizador"));
+        model.addAttribute("buildBannerBtnValor",     configService.get("build.banner.btn.valor",     ""));
+        model.addAttribute("buildBannerChatTitulo",   configService.get("build.banner.chat.titulo",   "Chatea con un experto."));
+        model.addAttribute("buildBannerChatSub",      configService.get("build.banner.chat.sub",      "Asesoría personalizada por WhatsApp sin costo."));
+
         model.addAttribute("categorias", categoriaRepository.findByActivoTrueOrderByOrdenAsc());
         model.addAttribute("productos",  productoRepository.findByActivoTrueOrderByFechaCreacionDesc());
         return "admin/ajustes";
@@ -90,6 +100,37 @@ public class AdminController {
             configService.guardar("banner.central.link.tipo",  linkTipo);
             configService.guardar("banner.central.link.valor", linkValor);
             ra.addFlashAttribute("ok", "Banner central actualizado.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al guardar el banner: " + e.getMessage());
+        }
+        return "redirect:/admin/ajustes";
+    }
+
+    @PostMapping("/ajustes/build-banner")
+    public String guardarBuildBanner(@RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                                      @RequestParam(value = "buildBannerTitulo",      defaultValue = "") String titulo,
+                                      @RequestParam(value = "buildBannerDescripcion", defaultValue = "") String descripcion,
+                                      @RequestParam(value = "buildBannerBtnTexto",    defaultValue = "") String btnTexto,
+                                      @RequestParam(value = "buildBannerBtnTipo",     defaultValue = "cotizador") String btnTipo,
+                                      @RequestParam(value = "buildBannerBtnValor",    defaultValue = "") String btnValor,
+                                      @RequestParam(value = "buildBannerChatTitulo",  defaultValue = "") String chatTitulo,
+                                      @RequestParam(value = "buildBannerChatSub",     defaultValue = "") String chatSub,
+                                      RedirectAttributes ra) {
+        try {
+            if (imagen != null && !imagen.isEmpty()) {
+                if (!fileStorage.esImagenValida(imagen))
+                    throw new RuntimeException("Formato de imagen no válido");
+                String url = fileStorage.guardarArchivo(imagen, "banner");
+                configService.guardar("build.banner.imagen", url);
+            }
+            configService.guardar("build.banner.titulo", titulo);
+            configService.guardar("build.banner.descripcion", descripcion);
+            configService.guardar("build.banner.btn.texto", btnTexto);
+            configService.guardar("build.banner.btn.tipo", btnTipo);
+            configService.guardar("build.banner.btn.valor", btnValor);
+            configService.guardar("build.banner.chat.titulo", chatTitulo);
+            configService.guardar("build.banner.chat.sub", chatSub);
+            ra.addFlashAttribute("ok", "Banner actualizado.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Error al guardar el banner: " + e.getMessage());
         }
