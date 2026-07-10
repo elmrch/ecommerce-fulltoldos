@@ -1,6 +1,8 @@
 package com.ecommerce.fulltoldos;
 
 import com.ecommerce.fulltoldos.service.ConfiguracionService;
+import com.ecommerce.fulltoldos.service.NosotrosBloqueService;
+import com.ecommerce.fulltoldos.service.PreguntaFrecuenteService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +15,13 @@ public class FulltoldosApplication {
     }
 
     @Bean
-    CommandLineRunner initConfig(ConfiguracionService configService) {
-        return args -> configService.initDefaults();
+    CommandLineRunner initConfig(ConfiguracionService configService,
+                                  NosotrosBloqueService nosotrosBloqueService,
+                                  PreguntaFrecuenteService preguntaFrecuenteService) {
+        return args -> {
+            configService.initDefaults();
+            nosotrosBloqueService.seedDefaults();
+            preguntaFrecuenteService.seedDefaults();
+        };
     }
 }

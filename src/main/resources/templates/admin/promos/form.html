@@ -39,6 +39,7 @@
         <a th:href="@{/admin/promos}" class="nav-item active"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
         <span class="nav-section-lbl">Configuración</span>
         <a th:href="@{/admin/ajustes}" class="nav-item"><i class="bi bi-gear"></i> Ajustes</a>
+        <a th:href="@{/admin/envios}" class="nav-item"><i class="bi bi-truck"></i> Envíos</a>
         <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
     </nav>
     <div class="sidebar-foot">
@@ -102,7 +103,7 @@
                     <div>Fila</div>
                     <div class="settings-desc">1 = fila superior · 2 = fila inferior</div>
                 </div>
-                <select name="fila" class="settings-input">
+                <select name="fila" id="filaSelect" class="settings-input" onchange="checkAncho()">
                     <option value="1" th:selected="${bloque.fila == 1}">Fila 1 (superior)</option>
                     <option value="2" th:selected="${bloque.fila == 2}">Fila 2 (inferior)</option>
                     <option value="3" th:selected="${bloque.fila == 3}">Fila 3</option>
@@ -111,14 +112,17 @@
             </div>
             <div class="settings-row">
                 <div class="settings-lbl">
-                    <div>Ancho relativo (flex)</div>
-                    <div class="settings-desc">Controla el tamaño respecto a los demás bloques de la misma fila</div>
+                    <div>Ancho (%)</div>
+                    <div class="settings-desc">Los bloques de la misma fila deben sumar 100%. Ej: 2 columnas → 70% y 30%; 3 columnas → 30%, 30% y 40%.</div>
                 </div>
-                <select name="flex" class="settings-input">
-                    <option value="1" th:selected="${bloque.flex == 1}">1 — Igual que los demás</option>
-                    <option value="2" th:selected="${bloque.flex == 2}">2 — El doble de ancho</option>
-                    <option value="3" th:selected="${bloque.flex == 3}">3 — El triple de ancho</option>
-                </select>
+                <input type="number" name="ancho" id="anchoInput" class="settings-input"
+                       min="1" max="100" step="1"
+                       th:value="${bloque.ancho}"
+                       oninput="checkAncho()">
+            </div>
+            <div class="settings-row" id="anchoCheckRow">
+                <div class="settings-lbl"></div>
+                <div id="anchoCheckMsg" style="font-size:0.85rem;font-weight:600;"></div>
             </div>
             <div class="settings-row">
                 <div class="settings-lbl">
@@ -211,6 +215,23 @@
 <script th:inline="javascript">
     var currentColor = /*[[${bloque.colorBase != null ? bloque.colorBase : '#1a5276'}]]*/ '#1a5276';
     var existingImg  = /*[[${bloque.imagenUrl}]]*/ null;
+    var sumasOtrasFilas = /*[[${sumasOtrasFilas}]]*/ {};
+
+    function checkAncho() {
+        var fila = document.getElementById('filaSelect').value;
+        var ancho = parseInt(document.getElementById('anchoInput').value, 10) || 0;
+        var otros = sumasOtrasFilas[fila] || 0;
+        var total = otros + ancho;
+        var msg = document.getElementById('anchoCheckMsg');
+        if (total === 100) {
+            msg.style.color = '#2e7d32';
+            msg.textContent = 'Ancho correcto: la fila suma 100%.';
+        } else {
+            msg.style.color = '#e53e3e';
+            msg.textContent = 'Ajustar ancho: la fila suma ' + total + '% (debe sumar 100%).'
+                + (otros > 0 ? ' Otros bloques de esta fila ya suman ' + otros + '%.' : '');
+        }
+    }
 
     function hexToRgb(hex) {
         var r = parseInt(hex.slice(1,3),16);
@@ -255,6 +276,7 @@
             document.getElementById('previewImg').src = existingImg;
             showPreview();
         }
+        checkAncho();
     });
 </script>
 </body>

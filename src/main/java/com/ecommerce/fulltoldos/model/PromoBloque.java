@@ -16,8 +16,9 @@ public class PromoBloque {
     @Column(nullable = false)
     private int fila = 1;
 
-    @Column(nullable = false)
-    private int flex = 1;
+    /** Ancho del bloque en porcentaje (1-100). Los bloques de una misma fila deben sumar 100. */
+    @Column(name = "flex", nullable = false)
+    private int ancho = 100;
 
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Envíos — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+    <style>
+        .env-page { background: #fff; }
+
+        /* ── HERO ── */
+        .env-hero { padding: 72px 0 48px; text-align: center; }
+        .env-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #eaf0ff; color: var(--azul-claro);
+            font-weight: 700; font-size: 0.78rem; letter-spacing: 0.3px;
+            padding: 9px 18px; border-radius: 999px; margin-bottom: 26px;
+        }
+        .env-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--azul-claro); animation: envPulse 1.6s infinite; }
+        @keyframes envPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+        .env-hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); font-weight: 800; color: var(--azul-marino); line-height: 1.18; margin-bottom: 20px; }
+        .env-hero h1 span { color: var(--azul-claro); }
+        .env-hero p.lead { max-width: 640px; margin: 0 auto; color: var(--gris-texto); font-size: 1.02rem; line-height: 1.6; }
+
+        .env-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; max-width: 1080px; margin: 46px auto 0; }
+        .env-stat { background: #f7f8fb; border: 1px solid #eef0f4; border-radius: 14px; padding: 26px 12px; text-align: center; }
+        .env-stat i { font-size: 1.5rem; color: var(--azul-claro); margin-bottom: 12px; display: block; }
+        .env-stat .num { font-size: 1.5rem; font-weight: 800; color: var(--azul-marino); }
+        .env-stat .lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.4px; color: #8b93a7; text-transform: uppercase; margin-top: 4px; }
+
+        /* ── HISTORIAL ── */
+        .env-hist { padding: 56px 0; background: #fbfcfe; }
+        .env-hist-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 22px; }
+        .env-hist-head h2 { font-size: 1.5rem; font-weight: 800; color: var(--azul-marino); margin-bottom: 4px; }
+        .env-hist-head p { color: #8b93a7; font-size: 0.9rem; margin: 0; }
+        .env-hist-nav { display: flex; gap: 8px; }
+        .env-hist-arrow {
+            width: 38px; height: 38px; border-radius: 50%; border: 1px solid #e2e6f0; background: #fff;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--azul-marino);
+            transition: all .2s;
+        }
+        .env-hist-arrow:hover { background: var(--azul-claro); color: #fff; border-color: var(--azul-claro); }
+
+        .env-tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+        .env-tab {
+            border: 1px solid #e2e6f0; background: #fff; color: #6b7280; font-weight: 600; font-size: 0.85rem;
+            padding: 8px 18px; border-radius: 999px; cursor: pointer; transition: all .2s;
+        }
+        .env-tab.active, .env-tab:hover { background: var(--azul-claro); color: #fff; border-color: var(--azul-claro); }
+
+        .env-hist-row { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 8px; scroll-behavior: smooth; }
+        .env-hist-row::-webkit-scrollbar { height: 6px; }
+        .env-hist-row::-webkit-scrollbar-thumb { background: var(--azul-claro); border-radius: 3px; }
+        .env-card {
+            flex: 0 0 260px; background: #fff; border: 1px solid #eef0f4; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 18px rgba(20,40,90,0.05);
+        }
+        .env-card-img { position: relative; height: 150px; background: #eef1f6 center/cover no-repeat; }
+        .env-card-badge {
+            position: absolute; top: 10px; right: 10px; display: inline-flex; align-items: center; gap: 4px;
+            background: rgba(255,255,255,0.95); color: var(--azul-claro); font-size: 0.68rem; font-weight: 700;
+            padding: 5px 10px; border-radius: 999px;
+        }
+        .env-card-badge.entregado { color: #1b8a4c; }
+        .env-card-body { padding: 14px 16px; }
+        .env-card-lbl { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.4px; color: #a3aabb; text-transform: uppercase; margin-bottom: 4px; }
+        .env-card-dest { font-size: 0.92rem; font-weight: 700; color: var(--azul-marino); display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+        .env-card-dest i { color: var(--azul-claro); }
+        .env-card-prod { font-size: 0.82rem; color: #6b7280; margin-bottom: 14px; min-height: 20px; }
+        .env-card-foot { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #f0f1f5; padding-top: 10px; }
+        .env-card-ref { font-size: 0.7rem; color: #a3aabb; font-weight: 600; }
+        .env-card-estado { font-size: 0.68rem; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .env-card-estado.entregado { color: #1b8a4c; }
+        .env-card-estado.enruta { color: var(--azul-claro); }
+
+        /* ── AGENCIAS / MAPA ── */
+        .env-s3 { padding: 64px 0; }
+        .env-s3-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; align-items: center; }
+        .env-s3 h2 { font-size: 1.7rem; font-weight: 800; color: var(--azul-marino); line-height: 1.25; margin-bottom: 16px; }
+        .env-s3 p.desc { color: var(--gris-texto); font-size: 0.95rem; line-height: 1.6; margin-bottom: 14px; }
+        .env-s3-nota { display: flex; align-items: center; gap: 8px; color: #1b8a4c; font-size: 0.85rem; font-weight: 600; margin-bottom: 24px; }
+        .env-s3-btns { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 34px; }
+        .env-btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.88rem; padding: 12px 22px; border-radius: 10px; text-decoration: none; border: none; cursor: pointer; transition: all .2s; }
+        .env-btn-wsp { background: #25D366; color: #fff; }
+        .env-btn-wsp:hover { background: #1fb955; color: #fff; }
+        .env-btn-ghost { background: #f2f3f7; color: var(--azul-marino); }
+        .env-btn-ghost:hover { background: #e6e9f2; }
+
+        .env-agencias-lbl { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.4px; color: #a3aabb; text-transform: uppercase; margin-bottom: 14px; }
+        .env-agencias-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+        .env-agencia {
+            border: 1px solid #eef0f4; border-radius: 12px; padding: 14px 8px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 88px;
+        }
+        .env-agencia img { max-width: 100%; max-height: 32px; object-fit: contain; }
+        .env-agencia .name { font-size: 0.7rem; font-weight: 700; color: #6b7280; letter-spacing: 0.3px; }
+        .env-agencias-foot { font-size: 0.76rem; color: #a3aabb; font-style: italic; }
+
+        .env-map {
+            position: relative; border-radius: 20px; overflow: hidden; min-height: 420px;
+            background:
+                radial-gradient(circle, #c9d6ee 1.6px, transparent 1.6px) 0 0/16px 16px,
+                linear-gradient(160deg, #f3f6fc, #e8edf9);
+        }
+        .env-map i {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            font-size: 3.4rem; color: #b9c6e2;
+        }
+
+        @media (max-width: 900px) {
+            .env-stats { grid-template-columns: repeat(2, 1fr); }
+            .env-s3-grid { grid-template-columns: 1fr; }
+            .env-agencias-grid { grid-template-columns: repeat(2, 1fr); }
+            .env-map { min-height: 260px; }
+        }
+    </style>
+</head>
+<body class="env-page">
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- ═══ HERO ═══ -->
+<section class="env-hero">
+    <div class="container">
+        <span class="env-badge"><span class="dot"></span> <span th:text="${heroBadge}"></span></span>
+        <h1>
+            <span th:text="${heroTitulo1}">Enviamos tecnología</span><br>
+            <span th:text="${heroTitulo2} + ' '"></span><span th:text="${heroDestacado}">Perú</span>
+        </h1>
+        <p class="lead" th:text="${heroSubtitulo}"></p>
+
+        <div class="env-stats">
+            <div class="env-stat">
+                <i class="bi bi-shield-check"></i>
+                <div class="num" th:text="${stat1Numero}">100%</div>
+                <div class="lbl" th:text="${stat1Label}">Garantizado</div>
+            </div>
+            <div class="env-stat">
+                <i class="bi bi-truck"></i>
+                <div class="num" th:text="${stat2Numero}">24-73h</div>
+                <div class="lbl" th:text="${stat2Label}">Tiempo entrega</div>
+            </div>
+            <div class="env-stat">
+                <i class="bi bi-map"></i>
+                <div class="num" th:text="${stat3Numero}">24</div>
+                <div class="lbl" th:text="${stat3Label}">Regiones</div>
+            </div>
+            <div class="env-stat">
+                <i class="bi bi-box-seam"></i>
+                <div class="num" th:text="${stat4Numero}">+1,000</div>
+                <div class="lbl" th:text="${stat4Label}">Envíos exitosos</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ HISTORIAL ═══ -->
+<section class="env-hist" id="historial">
+    <div class="container">
+        <div class="env-hist-head">
+            <div>
+                <h2 th:text="${histTitulo}">Historial de Envíos Realizados</h2>
+                <p th:text="${histSubtitulo}"></p>
+            </div>
+            <div class="env-hist-nav">
+                <button class="env-hist-arrow" id="envHistPrev" aria-label="Anterior"><i class="bi bi-chevron-left"></i></button>
+                <button class="env-hist-arrow" id="envHistNext" aria-label="Siguiente"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="env-tabs">
+            <button class="env-tab active" data-filter="todos">Todos</button>
+            <button class="env-tab" data-filter="EN_RUTA">En Ruta</button>
+            <button class="env-tab" data-filter="ENTREGADO">Entregado</button>
+        </div>
+
+        <div th:if="${historial.isEmpty()}" style="color:#a3aabb;font-size:0.9rem;">Aún no hay envíos registrados.</div>
+
+        <div class="env-hist-row" id="envHistRow" th:unless="${historial.isEmpty()}">
+            <div class="env-card" th:each="h : ${historial}" th:attr="data-estado=${h.estado.name()}">
+                <div class="env-card-img" th:style="${h.imagenUrl != null ? 'background-image:url(' + h.imagenUrl + ');' : ''}">
+                    <span th:class="${h.estado.name() == 'ENTREGADO'} ? 'env-card-badge entregado' : 'env-card-badge'">
+                        <i th:class="${h.estado.name() == 'ENTREGADO'} ? 'bi bi-check-circle-fill' : 'bi bi-truck'"></i>
+                        <span th:text="${h.estado.name() == 'ENTREGADO'} ? 'Entregado' : 'En Ruta'"></span>
+                    </span>
+                </div>
+                <div class="env-card-body">
+                    <div class="env-card-lbl">Destino final</div>
+                    <div class="env-card-dest"><i class="bi bi-geo-alt-fill"></i> <span th:text="${h.destino}"></span></div>
+                    <div class="env-card-prod" th:text="${h.producto}"></div>
+                    <div class="env-card-foot">
+                        <span class="env-card-ref" th:text="'REF: ' + ${h.referencia}"></span>
+                        <span th:class="${h.estado.name() == 'ENTREGADO'} ? 'env-card-estado entregado' : 'env-card-estado enruta'">
+                            <i th:class="${h.estado.name() == 'ENTREGADO'} ? 'bi bi-check-circle-fill' : 'bi bi-truck'"></i>
+                            <span th:text="${h.estado.name() == 'ENTREGADO'} ? 'ENTREGADO' : 'EN RUTA'"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══ AGENCIAS Y MAPA ═══ -->
+<section class="env-s3">
+    <div class="container env-s3-grid">
+        <div>
+            <h2 th:text="${s3Titulo}">Envíos a todo el Perú por tu agencia favorita</h2>
+            <p class="desc" th:text="${s3Descripcion}"></p>
+            <div class="env-s3-nota"><i class="bi bi-chat-square-text-fill"></i> <span th:text="${s3Nota}"></span></div>
+
+            <div class="env-s3-btns">
+                <a th:href="${wspLink}" target="_blank" rel="noopener" class="env-btn env-btn-wsp">
+                    <i class="bi bi-whatsapp"></i> <span th:text="${s3Btn1}">Coordina tu envío</span>
+                </a>
+                <a href="#historial" class="env-btn env-btn-ghost">
+                    <i class="bi bi-search"></i> <span th:text="${s3Btn2}">Ver historial</span>
+                </a>
+            </div>
+
+            <div class="env-agencias-lbl">Agencias integradas:</div>
+            <div th:if="${agencias.isEmpty()}" style="color:#a3aabb;font-size:0.85rem;margin-bottom:12px;">Aún no hay agencias configuradas.</div>
+            <div class="env-agencias-grid" th:unless="${agencias.isEmpty()}">
+                <div class="env-agencia" th:each="a : ${agencias}">
+                    <img th:if="${a.logoUrl != null}" th:src="${a.logoUrl}" th:alt="${a.nombre}">
+                    <span th:unless="${a.logoUrl != null}" class="name" th:text="${a.nombre}"></span>
+                </div>
+            </div>
+            <div class="env-agencias-foot" th:text="${s3Nota2}"></div>
+        </div>
+
+        <div class="env-map" aria-hidden="true">
+            <i class="bi bi-geo-alt"></i>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/chrome :: chrome}"></div>
+
+<script>
+(function () {
+    var tabs = document.querySelectorAll('.env-tab');
+    var cards = document.querySelectorAll('#envHistRow .env-card');
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            tabs.forEach(function (t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            var filtro = tab.getAttribute('data-filter');
+            cards.forEach(function (card) {
+                var estado = card.getAttribute('data-estado');
+                card.style.display = (filtro === 'todos' || estado === filtro) ? '' : 'none';
+            });
+        });
+    });
+
+    var row = document.getElementById('envHistRow');
+    var prev = document.getElementById('envHistPrev');
+    var next = document.getElementById('envHistNext');
+    if (row && prev && next) {
+        prev.addEventListener('click', function () { row.scrollBy({ left: -280, behavior: 'smooth' }); });
+        next.addEventListener('click', function () { row.scrollBy({ left: 280, behavior: 'smooth' }); });
+    }
+})();
+</script>
+
+</body>
+</html>

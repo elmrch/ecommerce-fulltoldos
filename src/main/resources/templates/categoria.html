@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${pageTitle != null ? pageTitle : 'FULL TOLDOS — Toldos & Carpas Profesionales'}">FULL TOLDOS — Toldos &amp; Carpas Profesionales</title>
+    <meta name="description" th:content="${metaDescription ?: 'Toldos, carpas e inflables publicitarios a medida en Perú. Fabricación propia, más de 25 años de experiencia, envíos a todo el país.'}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;600;700;800;900&family=Playfair+Display:wght@400;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/estilo.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- ═══ CATEGORY PAGE VIEW ═══ -->
+<div id="catPageView" style="background:#ffffff; min-height:100vh; padding-top:148px;">
+    <div class="cat-page-header">
+        <div class="container">
+            <h1 id="catPageTitle" class="cat-page-title"></h1>
+        </div>
+    </div>
+    <div class="cat-breadcrumb-bar">
+        <div class="container">
+            <div id="catBreadcrumb" class="cat-breadcrumb"></div>
+        </div>
+    </div>
+    <div class="container" style="padding:8px 12px 60px;">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="sidebar-box">
+                    <div class="sidebar-title">Buscar</div>
+                    <div class="sidebar-search">
+                        <input type="text" id="catSearchInput" placeholder="Buscar productos..."
+                               onkeydown="if(event.key==='Enter')doCatSearch()">
+                        <button onclick="doCatSearch()">BUSCAR</button>
+                    </div>
+                </div>
+                <div class="sidebar-box">
+                    <div class="sidebar-title">Categorías</div>
+                    <div id="sidebarCatLinks"></div>
+                </div>
+                <div class="sidebar-box" id="sidebarFiltersBox"></div>
+            </div>
+            <div class="col-lg-9">
+                <div class="cat-desc-box" id="catDescBox"></div>
+                <div class="cat-toolbar">
+                    <div class="cat-toolbar-right">
+                        <div class="toolbar-show-group">
+                            <span>Show:</span>
+                            <button class="tsb active" onclick="setCatPerPage(9)">9</button>
+                            <button class="tsb" onclick="setCatPerPage(12)">12</button>
+                            <button class="tsb" onclick="setCatPerPage(18)">18</button>
+                            <button class="tsb" onclick="setCatPerPage(24)">24</button>
+                        </div>
+                        <div class="toolbar-view-group">
+                            <button class="tvb active" onclick="setCatGrid(3)" title="3 columnas"><i class="bi bi-grid-3x3-gap"></i></button>
+                            <button class="tvb" onclick="setCatGrid(4)" title="4 columnas"><i class="bi bi-grid-fill"></i></button>
+                            <button class="tvb" onclick="setCatGrid(2)" title="2 columnas"><i class="bi bi-layout-split"></i></button>
+                        </div>
+                        <select class="toolbar-sort-sel" onchange="setCatSort(this.value)">
+                            <option value="default">Orden predeterminado</option>
+                            <option value="name-asc">Nombre A-Z</option>
+                            <option value="name-desc">Nombre Z-A</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="catProductGrid" class="cat-page-grid cat-grid-3"></div>
+                <div id="catLoadMoreArea" style="text-align:center;margin-top:32px;display:none;">
+                    <button class="btn-slide-secondary" style="color:var(--azul-marino);border-color:var(--azul-claro);" onclick="catLoadMore()">
+                        <i class="bi bi-plus-circle"></i> Cargar más productos
+                    </button>
+                </div>
+                <div id="catTambienSection"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/chrome :: chrome}"></div>
+
+</body>
+</html>

@@ -39,6 +39,7 @@
         <a th:href="@{/admin/promos}" class="nav-item"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
         <span class="nav-section-lbl">Configuración</span>
         <a th:href="@{/admin/ajustes}" class="nav-item"><i class="bi bi-gear"></i> Ajustes</a>
+        <a th:href="@{/admin/envios}" class="nav-item"><i class="bi bi-truck"></i> Envíos</a>
         <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
     </nav>
     <div class="sidebar-foot">
@@ -104,11 +105,87 @@
 
             <div class="settings-row">
                 <div class="settings-lbl">
+                    <div>Color del título</div>
+                    <div class="settings-desc">Elige un color oscuro si la imagen de fondo es clara, o claro si es oscura</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <input type="color" name="colorTitulo"
+                           th:value="${slide.colorTitulo != null ? slide.colorTitulo : '#ffffff'}"
+                           style="width:48px;height:36px;border:1px solid #dde;border-radius:6px;cursor:pointer;padding:2px;">
+                </div>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Tamaño del título</div>
+                    <div class="settings-desc">"Grande" es el tamaño clásico; usa "Pequeño" o "Mediano" si el texto es largo</div>
+                </div>
+                <select class="settings-input" name="tamanoTitulo">
+                    <option value="clamp(1.6rem, 3.6vw, 2.4rem)" th:selected="${slide.tamanoTitulo == 'clamp(1.6rem, 3.6vw, 2.4rem)'}">Pequeño</option>
+                    <option value="clamp(2.2rem, 5vw, 3.6rem)" th:selected="${slide.tamanoTitulo == 'clamp(2.2rem, 5vw, 3.6rem)'}">Mediano</option>
+                    <option value="clamp(3.8rem, 9vw, 7.5rem)" th:selected="${slide.tamanoTitulo == null or slide.tamanoTitulo == 'clamp(3.8rem, 9vw, 7.5rem)'}">Grande (por defecto)</option>
+                    <option value="clamp(4.5rem, 10vw, 8.5rem)" th:selected="${slide.tamanoTitulo == 'clamp(4.5rem, 10vw, 8.5rem)'}">Extra grande</option>
+                </select>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Fuente del título</div>
+                    <div class="settings-desc">Tipografía del título</div>
+                </div>
+                <select class="settings-input" name="fuenteTitulo">
+                    <option value="Poppins" th:selected="${slide.fuenteTitulo == null or slide.fuenteTitulo == 'Poppins'}">Poppins (por defecto)</option>
+                    <option value="Montserrat" th:selected="${slide.fuenteTitulo == 'Montserrat'}">Montserrat</option>
+                    <option value="Playfair Display" th:selected="${slide.fuenteTitulo == 'Playfair Display'}">Playfair Display</option>
+                    <option value="Oswald" th:selected="${slide.fuenteTitulo == 'Oswald'}">Oswald</option>
+                    <option value="Bebas Neue" th:selected="${slide.fuenteTitulo == 'Bebas Neue'}">Bebas Neue</option>
+                    <option value="Raleway" th:selected="${slide.fuenteTitulo == 'Raleway'}">Raleway</option>
+                </select>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
                     <div>Descripción</div>
                     <div class="settings-desc">Texto corto debajo del título</div>
                 </div>
                 <input class="settings-input" type="text" name="descripcion" th:value="${slide.descripcion}"
                        placeholder="Ej: Fabricamos toldos a medida con los mejores materiales">
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Color de la descripción</div>
+                    <div class="settings-desc">Elige un color oscuro si la imagen de fondo es clara, o claro si es oscura</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <input type="color" name="colorDescripcion"
+                           th:value="${slide.colorDescripcion != null ? slide.colorDescripcion : '#ffffff'}"
+                           style="width:48px;height:36px;border:1px solid #dde;border-radius:6px;cursor:pointer;padding:2px;">
+                </div>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Tamaño de la descripción</div>
+                </div>
+                <select class="settings-input" name="tamanoDescripcion">
+                    <option value="0.85rem" th:selected="${slide.tamanoDescripcion == '0.85rem'}">Pequeño</option>
+                    <option value="1rem" th:selected="${slide.tamanoDescripcion == null or slide.tamanoDescripcion == '1rem'}">Mediano (por defecto)</option>
+                    <option value="1.25rem" th:selected="${slide.tamanoDescripcion == '1.25rem'}">Grande</option>
+                </select>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Fuente de la descripción</div>
+                </div>
+                <select class="settings-input" name="fuenteDescripcion">
+                    <option value="Poppins" th:selected="${slide.fuenteDescripcion == null or slide.fuenteDescripcion == 'Poppins'}">Poppins (por defecto)</option>
+                    <option value="Montserrat" th:selected="${slide.fuenteDescripcion == 'Montserrat'}">Montserrat</option>
+                    <option value="Playfair Display" th:selected="${slide.fuenteDescripcion == 'Playfair Display'}">Playfair Display</option>
+                    <option value="Oswald" th:selected="${slide.fuenteDescripcion == 'Oswald'}">Oswald</option>
+                    <option value="Raleway" th:selected="${slide.fuenteDescripcion == 'Raleway'}">Raleway</option>
+                </select>
             </div>
 
             <div class="settings-row">
@@ -159,6 +236,18 @@
                 <input class="settings-input" type="text" name="btnPrimaryAction" th:value="${slide.btnPrimaryAction}"
                        placeholder="all">
             </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Color del botón</div>
+                    <div class="settings-desc">Color de fondo del botón principal</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <input type="color" name="colorBtnPrimario"
+                           th:value="${slide.colorBtnPrimario != null ? slide.colorBtnPrimario : '#1949c9'}"
+                           style="width:48px;height:36px;border:1px solid #dde;border-radius:6px;cursor:pointer;padding:2px;">
+                </div>
+            </div>
         </div>
 
         <div class="settings-group">
@@ -189,6 +278,18 @@
                 </div>
                 <input class="settings-input" type="text" name="btnSecondaryHref" th:value="${slide.btnSecondaryHref}"
                        placeholder="https://wa.me/51999999999">
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Color del botón</div>
+                    <div class="settings-desc">Color del texto y borde (fondo transparente)</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <input type="color" name="colorBtnSecundario"
+                           th:value="${slide.colorBtnSecundario != null ? slide.colorBtnSecundario : '#ffffff'}"
+                           style="width:48px;height:36px;border:1px solid #dde;border-radius:6px;cursor:pointer;padding:2px;">
+                </div>
             </div>
         </div>
 

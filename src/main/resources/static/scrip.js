@@ -117,9 +117,11 @@ let slideInterval;
 
 // ═══════════════════════════ TICKER ═══════════════════════════
 function buildTicker() {
+  const track = document.getElementById('tickerTrack');
+  if (!track) return;
   const items = CATS.map(c => c.name).concat(['Fabricación a Medida','Acero Galvanizado','Lonas PVC','Lima y Provincias']);
   const doubled = [...items,...items];
-  document.getElementById('tickerTrack').innerHTML = doubled.map(i =>
+  track.innerHTML = doubled.map(i =>
     `<span class="ticker-item"><span class="ticker-dot"></span>${i}</span>`).join('');
 }
 
@@ -258,7 +260,9 @@ function buildCats() {
     }
   });
 
-  document.getElementById('catGrid').innerHTML = CATS.map(c => {
+  const catGrid = document.getElementById('catGrid');
+  if (!catGrid) return;
+  catGrid.innerHTML = CATS.map(c => {
     var min = minPriceByCat[c.id];
     var priceHtml = min
       ? 'Desde <strong>S/ ' + Number(min).toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2}) + '</strong>'
@@ -430,14 +434,16 @@ function findProductBySlug(slug) {
 
 function openProductPage(id) {
   const p = PRODUCTS.find(x => x.id === id);
-  if(!p) return;
-  prevPageView = document.getElementById('catPageView').style.display !== 'none' ? 'category' : 'main';
+  window.location.href = p ? '/producto/' + toSlug(p.name) : '/';
+}
+
+/** Pinta el contenido de la página de producto (producto.html) para el producto ya resuelto por el servidor. */
+function renderProductPage(p) {
+  if (!p) return;
   currentModalProduct = p;
   selectedMedida = p.medidas[0] || '';
   selectedColor = p.colores[0] || '';
   currentImgIdx = 0;
-  hideAllViews();
-  document.getElementById('prodPageView').style.display = 'block';
   renderProdPage(p);
   setTimeout(initProductZoom, 80);
   renderTambienInteresa('prodTambienSection', p.cat, [p.id]);
@@ -445,20 +451,13 @@ function openProductPage(id) {
   renderVistoRecientemente(p.id);
   window.scrollTo({top:0, behavior:'smooth'});
   initProdTopbarSticky();
-  history.pushState({type:'producto', id:id}, '', '/?producto=' + toSlug(p.name));
 }
 
 function closeProdPage() {
   cleanupProductZoom();
-  hideAllViews();
-  if(prevPageView === 'category') {
-    document.getElementById('catPageView').style.display = 'block';
-    history.pushState({type:'categoria'}, '', '/?categoria=' + cpCat);
-  } else {
-    document.getElementById('mainView').style.display = 'block';
-    history.pushState({type:'inicio'}, '', '/');
-  }
-  window.scrollTo({top:0, behavior:'smooth'});
+  const p = currentModalProduct;
+  const cat = p ? CATS.find(c => c.id === p.cat) : null;
+  window.location.href = cat ? '/categoria/' + toSlug(cat.name) : '/';
 }
 
 function switchProdTab(tab, btn) {
@@ -1137,16 +1136,17 @@ const COLOR_NAMES = {
 };
 
 function hideAllViews() {
-  ['mainView','catPageView','prodPageView','galPageView','sobrePageView','contactoPageView']
+  ['mainView','catPageView','prodPageView','galPageView']
     .forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
 }
 
 function goHome() {
+  const main = document.getElementById('mainView');
+  if (!main) { window.location.href = '/'; return; }
   closeAllDropdowns();
   closeMobileMenu && closeMobileMenu();
   hideAllViews();
-  const main = document.getElementById('mainView');
-  if (main) main.style.display = 'block';
+  main.style.display = 'block';
   history.pushState({type:'inicio'}, '', '/');
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -1161,26 +1161,28 @@ function handlePromoClick(accion) {
 }
 
 function openCatPage(catId) {
+  const cat = CATS.find(c => c.id === catId);
+  const slug = cat ? toSlug(cat.name) : toSlug(catId || 'all');
+  window.location.href = '/categoria/' + slug;
+}
+
+/** Pinta el contenido de la página de categoría (categoria.html) para la categoría ya resuelta por el servidor. */
+function renderCategoryPage(catId, opts) {
+  opts = opts || {};
   cpCat = catId || 'all';
-  cpSearch = ''; cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  cpBadges = []; cpColors = []; cpMedida = '';
-  hideAllViews();
-  document.getElementById('catPageView').style.display = 'block';
+  cpSearch = opts.search || '';
+  cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
+  cpBadges = []; cpColors = [];
+  cpMedida = opts.medida || '';
   const si = document.getElementById('catSearchInput');
-  if(si) si.value = '';
+  if(si) si.value = cpSearch;
   buildSidebarCats();
   renderCatPage();
   window.scrollTo({top:0, behavior:'smooth'});
-  const cat = CATS.find(c => c.id === catId);
-  const slug = cat ? toSlug(cat.name) : toSlug(catId);
-  history.pushState({type:'categoria', id:catId}, '', '/?categoria=' + slug);
 }
 
 function closeCatPage() {
-  document.getElementById('catPageView').style.display = 'none';
-  document.getElementById('mainView').style.display = 'block';
-  history.pushState({type:'inicio'}, '', '/');
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.location.href = '/';
 }
 
 function buildSidebarCats() {
@@ -1451,18 +1453,7 @@ function buildMedidaDropdown() {
 }
 
 function openCatByMedida(medida) {
-  cpMedida  = medida;
-  cpCat     = 'all';
-  cpBadges  = []; cpColors = [];
-  cpSearch  = '';
-  cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  hideAllViews();
-  document.getElementById('catPageView').style.display = 'block';
-  const si = document.getElementById('catSearchInput');
-  if(si) si.value = '';
-  buildSidebarCats();
-  renderCatPage();
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.location.href = '/categoria/all?medida=' + encodeURIComponent(medida);
 }
 
 // ═══════════════════════════ NAV DROPDOWNS ═══════════════════════════
@@ -1605,7 +1596,7 @@ function buildNavDropdowns() {
       const goto = toggle.dataset.goto;
       if (goto === 'cat')    { closeAllDropdowns(); openCatPage('all'); return; }
       if (goto === 'medida') { closeAllDropdowns(); openCatPage('all'); return; }
-      if (goto === 'sobre')  { closeAllDropdowns(); openSobrePage();    return; }
+      if (goto === 'sobre')  { window.location.href = '/sobre-nosotros'; return; }
       // Default: alternar dropdown
       const dropdown = toggle.closest('.nav-dropdown');
       if (!dropdown) return;
@@ -1911,9 +1902,9 @@ function buildGalleryItems() {
 }
 
 function openGallery(catId) {
+  if (!document.getElementById('mainView')) { window.location.href = '/'; return; }
   galActiveCat = catId || 'all';
-  prevGalView = document.getElementById('catPageView').style.display !== 'none' ? 'category'
-              : document.getElementById('prodPageView').style.display !== 'none' ? 'product' : 'main';
+  prevGalView = 'main';
   buildGalleryItems();
   hideAllViews();
   document.getElementById('galPageView').style.display = 'block';
@@ -1950,21 +1941,6 @@ function updateThumbArrows(total) {
     up.classList.remove('visible');
     down.classList.remove('visible');
   }
-}
-
-// ═══════════════════════════ CONTACTO ═══════════════════════════
-function openContactoPage() {
-  hideAllViews();
-  document.getElementById('contactoPageView').style.display = 'block';
-  window.scrollTo({top: 0, behavior: 'smooth'});
-  history.pushState({type: 'contacto'}, '', '/?page=contacto');
-}
-
-function closeContactoPage() {
-  document.getElementById('contactoPageView').style.display = 'none';
-  document.getElementById('mainView').style.display = 'block';
-  history.pushState({type: 'inicio'}, '', '/');
-  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function ftSetBtnLoading(btn, textoCarga) {
@@ -2038,39 +2014,10 @@ async function submitNewsletter(e) {
 // ═══════════════════════════ SOBRE NOSOTROS ═══════════════════════════
 let _sobreObserver = null;
 
-function openSobrePage(section) {
-  hideAllViews();
-  document.getElementById('sobrePageView').style.display = 'block';
-  window.scrollTo({top: 0, behavior: 'smooth'});
-  history.pushState({type: 'sobre'}, '', '/?page=sobre-nosotros');
-  setTimeout(() => {
-    initSobreScroll();
-    if (section) {
-      const el = document.getElementById(section);
-      if (el) el.scrollIntoView({behavior: 'smooth'});
-    }
-  }, 100);
-}
-
-function closeSobrePage() {
-  document.getElementById('sobrePageView').style.display = 'none';
-  document.getElementById('mainView').style.display = 'block';
-  history.pushState({type: 'inicio'}, '', '/');
-  window.scrollTo({top: 0, behavior: 'smooth'});
-  if (_sobreObserver) { _sobreObserver.disconnect(); _sobreObserver = null; }
-}
-
 function initSobreScroll() {
   const blocks  = document.querySelectorAll('.sobre-text-block');
   const mainImg = document.getElementById('sobreMainImg');
   if (!blocks.length || !mainImg) return;
-
-  // Usar fotos reales de productos en vez de las imágenes genéricas
-  const prodImgs = PRODUCTS.filter(p => p.imgs && p.imgs[0]).map(p => p.imgs[0]);
-  if (prodImgs.length) {
-    blocks.forEach((b, i) => { b.dataset.img = prodImgs[i % prodImgs.length]; });
-    mainImg.src = prodImgs[0];
-  }
 
   if (_sobreObserver) _sobreObserver.disconnect();
   _sobreObserver = new IntersectionObserver(entries => {
@@ -2504,24 +2451,29 @@ function buildMobileMenu() {
     <span><i class="bi bi-images" style="margin-right:8px;color:var(--azul-claro)"></i>Galería</span>
   </div>`;
 
+  // 5b. Envíos
+  html += `<a href="/envios" class="mob-nav-link">
+    <span><i class="bi bi-truck" style="margin-right:8px;color:var(--azul-claro)"></i>Envíos</span>
+  </a>`;
+
   // 6. Sobre Nosotros accordion
   html += `<div class="mob-nav-link" onclick="mobToggleSub('mobSubSobre',this)">
     <span><i class="bi bi-building" style="margin-right:8px;color:var(--azul-claro)"></i>Sobre Nosotros</span>
     <i class="bi bi-chevron-right mob-arrow"></i>
   </div>
   <div class="mob-sub" id="mobSubSobre">
-    <div class="mob-sub-link" onclick="closeMobileMenu();openSobrePage()">
+    <a class="mob-sub-link" href="/sobre-nosotros">
       <i class="bi bi-building"></i><span>About Us</span>
-    </div>
-    <div class="mob-sub-link" onclick="closeMobileMenu();openSobrePage('resenas')">
+    </a>
+    <a class="mob-sub-link" href="/sobre-nosotros#resenas">
       <i class="bi bi-star-fill"></i><span>Preguntas frecuentes</span>
-    </div>
+    </a>
   </div>`;
 
   // 7. Contacto
-  html += `<div class="mob-nav-link" onclick="event.preventDefault();closeMobileMenu();openContactoPage()">
+  html += `<a href="/contacto" class="mob-nav-link">
     <span><i class="bi bi-envelope-fill" style="margin-right:8px;color:var(--azul-claro)"></i>Contacto</span>
-  </div>`;
+  </a>`;
 
   nav.innerHTML = html;
 }
@@ -2552,12 +2504,7 @@ function doMobSearch() {
   const q = (document.getElementById('mobSearchInput').value || '').trim();
   if(!q) return;
   closeMobileMenu();
-  cpSearch = q; cpCat = 'all'; cpBadges = []; cpColors = [];
-  cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  hideAllViews();
-  document.getElementById('catPageView').style.display = 'block';
-  buildSidebarCats(); renderCatPage();
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.location.href = '/categoria/all?search=' + encodeURIComponent(q);
 }
 
 // ═══════════════════════════ NAV SEARCH ═══════════════════════════
@@ -2723,18 +2670,12 @@ function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<
 function escRe(s)   { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 function doNavSearch() {
-  const q   = (document.getElementById('navSearchInput').value || '').trim();
-  const cat = document.getElementById('navSearchCat').value || 'all';
+  const q      = (document.getElementById('navSearchInput').value || '').trim();
+  const catId  = document.getElementById('navSearchCat').value || 'all';
+  const catObj = CATS.find(c => c.id === catId);
+  const slug   = catObj ? toSlug(catObj.name) : 'all';
   closeAllDropdowns();
-  cpBadges = []; cpColors = [];
-  cpSearch  = q;
-  cpCat     = cat;
-  cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
-  hideAllViews();
-  document.getElementById('catPageView').style.display = 'block';
-  buildSidebarCats();
-  renderCatPage();
-  window.scrollTo({top:0, behavior:'smooth'});
+  window.location.href = '/categoria/' + slug + (q ? '?search=' + encodeURIComponent(q) : '');
 }
 
 // ═══════════════════════════ MERGE DB DATA ═══════════════════════════
@@ -2770,27 +2711,30 @@ renderProducts();
 
 // Navegación por URL: abre producto o categoría según parámetros
 (function urlRouting() {
+  const path = window.location.pathname;
+  const prodMatch = path.match(/^\/producto\/([^/]+)/);
+  const catMatch  = path.match(/^\/categoria\/([^/]+)/);
   const params = new URLSearchParams(window.location.search);
-  const prodId = params.get('producto');
-  const catId  = params.get('categoria');
+  const prodId = prodMatch ? decodeURIComponent(prodMatch[1]) : params.get('producto');
+  const catId  = catMatch  ? decodeURIComponent(catMatch[1])  : params.get('categoria');
+  const catOpts = { search: params.get('search'), medida: params.get('medida') };
   if (prodId) {
     setTimeout(function() {
       const p = findProductBySlug(prodId);
-      if (p) openProductPage(p.id);
+      if (p) renderProductPage(p);
     }, 100);
   } else if (catId) {
     setTimeout(function() {
+      if (catId === 'all') { renderCategoryPage('all', catOpts); return; }
       const cat = CATS.find(c => toSlug(c.name) === catId) || CATS.find(c => c.id === catId);
-      if (cat) openCatPage(cat.id);
+      if (cat) renderCategoryPage(cat.id, catOpts);
     }, 100);
   }
   window.addEventListener('popstate', function(e) {
     const st = e.state;
     if (!st) { closeProdPage(); return; }
-    if (st.type === 'producto') openProductPage(st.id);
-    else if (st.type === 'categoria') openCatPage(st.id);
-    else if (st.type === 'sobre') openSobrePage();
-    else if (st.type === 'contacto') openContactoPage();
+    if (st.type === 'producto') renderProductPage(PRODUCTS.find(x => x.id === st.id));
+    else if (st.type === 'categoria') renderCategoryPage(st.id);
     else closeProdPage();
   });
 })();
@@ -2817,7 +2761,7 @@ if(_ft) document.body.appendChild(_ft);
     nb.style.top = h + 'px';
     // Ajustar páginas al total del header
     const totalH = h + nb.getBoundingClientRect().height;
-    document.querySelectorAll('.hero-section').forEach(el => el.style.marginTop = totalH + 'px');
+    document.querySelectorAll('.hero-section, .env-hero').forEach(el => el.style.marginTop = totalH + 'px');
     document.querySelectorAll('#catPageView,#prodPageView,#galPageView,#sobrePageView,#contactoPageView').forEach(el => {
       if(el.style.display !== 'none') el.style.paddingTop = totalH + 'px';
     });

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<th:block th:fragment="header">
+
+<div class="topbar-ft" th:style="'background:' + ${topbar.colorFondo} + ';'">
+    <div class="container">
+        <div class="topbar-inner" th:style="'font-family:' + ${topbar.fuente} + ';color:' + ${topbar.colorFuente} + ';'">
+      <span class="topbar-item" style="color:inherit;font-family:inherit;">
+        <i class="bi bi-truck-front-fill"></i>
+        <span th:text="${topbar['envios'] ?: 'Envíos a todo el Perú'}">Envíos a todo el Perú</span>
+      </span>
+            <span class="topbar-sep">·</span>
+            <span class="topbar-item" style="color:inherit;font-family:inherit;">
+        <i class="bi bi-telephone-fill"></i>
+        <span th:text="${topbar['telefono'] ?: '+51 999 999 999'}">+51 999 999 999</span>
+      </span>
+            <span class="topbar-sep">·</span>
+            <span class="topbar-item" style="color:inherit;font-family:inherit;">
+        <i class="bi bi-clock-fill"></i>
+        <span th:text="${topbar['horario'] ?: 'Lun–Sáb 8am–7pm'}">Lun–Sáb 8am–7pm</span>
+      </span>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar-ft">
+    <div class="container">
+        <div class="navbar-inner">
+            <a href="#" class="logo-wrap" onclick="event.preventDefault();goHome()">
+                <img th:src="@{/logofulltoldos.png}" src="logofulltoldos.png" alt="Full Toldos" class="logo-img">
+            </a>
+            <div class="nav-search-container">
+                <div class="nav-search-wrap">
+                    <select class="nav-search-cat" id="navSearchCat">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                    <input type="text" class="nav-search-input" id="navSearchInput"
+                           placeholder="Buscar toldos, carpas, inflables..."
+                           onkeydown="handleNavSearchKey(event)"
+                           autocomplete="off">
+                    <button class="nav-search-btn" onclick="doNavSearch()">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+                <div class="nav-search-dropdown" id="navSearchDropdown"></div>
+            </div>
+            <div class="nav-right">
+
+
+                <div sec:authorize="!isAuthenticated()" class="micuenta-wrap">
+                    <button class="btn-micuenta" onclick="toggleMiCuentaMenu(event)">
+                        <i class="bi bi-person"></i>
+                        <span>Mi Cuenta</span>
+                        <i class="bi bi-chevron-down micuenta-arrow"></i>
+                    </button>
+                    <div class="micuenta-dropdown" id="miCuentaDropdown">
+                        <a th:href="@{/login}" class="micuenta-item">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <div>
+                                <div class="micuenta-item-title">Iniciar sesión</div>
+                                <div class="micuenta-item-sub">Accede a tu cuenta</div>
+                            </div>
+                        </a>
+                        <div class="micuenta-divider"></div>
+                        <a th:href="@{/registro}" class="micuenta-item">
+                            <i class="bi bi-person-plus"></i>
+                            <div>
+                                <div class="micuenta-item-title">Registrarse</div>
+                                <div class="micuenta-item-sub">Crear cuenta nueva</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+
+                <div sec:authorize="isAuthenticated()" class="user-nav-wrap">
+
+                    <a th:href="${#authorization.expression('hasRole(''ADMIN'')')} ? @{/admin/dashboard} : @{/cliente/inicio}" class="btn-hola-nav">
+                        <span class="user-avatar-mini"><i class="bi bi-person-fill"></i></span>
+                        <span>Hola, <strong th:text="${usuarioNombre != null ? usuarioNombre : #strings.capitalize(#strings.substringBefore(#strings.substringBefore(#authentication.name, ' '), '@'))}">Usuario</strong></span>
+                        <i class="bi bi-chevron-down user-drop-arrow"></i>
+                    </a>
+
+                    <div class="user-nav-dropdown">
+                        <div class="user-drop-head">
+                            <div class="user-drop-avatar"><i class="bi bi-person-circle"></i></div>
+                            <div>
+                                <div class="user-drop-name" th:text="${usuarioNombre != null ? usuarioNombre : #authentication.name}">Usuario</div>
+                                <div class="user-drop-sub" sec:authorize="hasRole('ADMIN')">Panel de administración</div>
+                                <div class="user-drop-sub" sec:authorize="hasRole('CLIENTE')">Mi cuenta Full Toldos</div>
+                            </div>
+                        </div>
+
+
+                        <div class="user-drop-menu" sec:authorize="hasRole('ADMIN')">
+                            <a th:href="@{/admin/dashboard}" class="user-drop-item">
+                                <i class="bi bi-grid-fill"></i> Panel admin
+                            </a>
+                            <a th:href="@{/admin/pedidos}" class="user-drop-item">
+                                <i class="bi bi-bag-check-fill"></i> Pedidos
+                            </a>
+                            <a th:href="@{/admin/cotizaciones}" class="user-drop-item">
+                                <i class="bi bi-file-earmark-text-fill"></i> Cotizaciones
+                            </a>
+                        </div>
+
+
+                        <div class="user-drop-menu" sec:authorize="hasRole('CLIENTE')">
+                            <a th:href="@{/cliente/inicio}" class="user-drop-item">
+                                <i class="bi bi-house-fill"></i> Inicio
+                            </a>
+                            <a th:href="@{/cliente/carrito}" class="user-drop-item">
+                                <i class="bi bi-bag-fill"></i> Mi carrito
+                            </a>
+                            <a th:href="@{/cliente/pedidos}" class="user-drop-item">
+                                <i class="bi bi-bag-check-fill"></i> Mis pedidos
+                            </a>
+                            <a th:href="@{/cliente/cotizaciones}" class="user-drop-item">
+                                <i class="bi bi-file-earmark-text-fill"></i> Mis cotizaciones
+                            </a>
+                            <a th:href="@{/cliente/perfil}" class="user-drop-item">
+                                <i class="bi bi-person-gear"></i> Mi perfil
+                            </a>
+                        </div>
+
+                        <div class="user-drop-divider"></div>
+                        <div class="user-drop-menu">
+                            <a th:href="@{/}" class="user-drop-item">
+                                <i class="bi bi-shop"></i> Ver tienda
+                            </a>
+                            <a th:href="${wspLink}" class="user-drop-item" target="_blank">
+                                <i class="bi bi-whatsapp" style="color:#25d366;"></i> WhatsApp ventas
+                            </a>
+                        </div>
+                        <div class="user-drop-divider"></div>
+                        <div class="user-drop-logout-area">
+                            <form th:action="@{/logout}" method="post" style="margin:0;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="user-drop-logout">
+                                    <i class="bi bi-box-arrow-left"></i> Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-btn" onclick="openCart()">
+                    <i class="bi bi-bag"></i>
+                    <span class="cart-badge" id="cartCount">0</span>
+                    <span class="cart-total-label" id="cartTotalLabel">S/ 0.00</span>
+                </div>
+                <a href="#" onclick="event.preventDefault();openCotizModal()" class="btn-cotizar">
+                    <i class="bi bi-chat-text-fill"></i> Cotizar
+                </a>
+                <button class="mob-ham" onclick="openMobileMenu()" aria-label="Menú">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="navbar-nav-row">
+        <div class="container">
+            <div class="nav-links">
+                <a href="#" onclick="event.preventDefault();goHome()">Inicio</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-dropdown-toggle" data-goto="cat">Categorías <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu" id="navCatMenu"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#productos" class="nav-dropdown-toggle">Productos <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu nav-dropdown-wide" id="navProdMenu"></div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-dropdown-toggle" data-goto="medida">Por Medida <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu" id="navMedidaMenu"></div>
+                </div>
+                <a href="#" onclick="event.preventDefault();openGallery()">Galería</a>
+                <a th:href="@{/envios}">Envíos</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-dropdown-toggle" data-goto="sobre">Sobre Nosotros <i class="bi bi-chevron-down drop-arrow"></i></a>
+                    <div class="nav-dropdown-menu nav-sobre-menu" id="navSobreMenu">
+                        <div class="nav-sobre-links">
+                            <a th:href="@{/sobre-nosotros}" class="nav-sobre-link">
+                                <i class="bi bi-building"></i>
+                                <span>About Us</span>
+                            </a>
+                            <a th:href="@{/sobre-nosotros} + '#resenas'" class="nav-sobre-link">
+                                <i class="bi bi-star-fill"></i>
+                                <span>Preguntas frecuentes</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <a th:href="@{/contacto}">Contacto</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+</th:block>
+</body>
+</html>

@@ -229,7 +229,7 @@ button:disabled .ft-spin-icon { opacity:0.9; }
 }
 
 /* ═══ HERO SLIDER — SPLIT PANEL DESIGN ═══ */
-.hero-section {
+.hero-section, .env-hero {
   margin-top: 148px;
   position: relative;
   overflow: hidden;
@@ -2484,7 +2484,7 @@ button:disabled .ft-spin-icon { opacity:0.9; }
   /* Topbar - simplificado */
   .topbar-ft { display: none; }
   .navbar-ft { top: 0; }
-  .hero-section { margin-top: 70px; }
+  .hero-section, .env-hero { margin-top: 70px; }
 
   /* ── Hero: tarjeta apilada en tablet/móvil — imagen arriba, contenido abajo, sin overlay oscuro ── */
   .hero-slide {

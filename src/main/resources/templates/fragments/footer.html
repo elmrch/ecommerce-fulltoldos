@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer class="footer-main" th:fragment="footer">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-lg-4">
+                <div class="footer-logo">
+                    <img th:src="@{/img/logofulltoldos.png}" src="logofulltoldos.png"
+                         alt="Full Toldos" class="footer-logo-img">
+                </div>
+                <div class="footer-tagline">Cobeaasssrturas &amp; Estrussscturas · Desde 1999</div>
+                <p class="footer-about">Fabricamos toldos, carpas, inflables y todo tipo de coberturas publicitarias con los más altos estándares de calidad y servicio.</p>
+            </div>
+            <div class="col-lg-2 col-6">
+                <div class="footer-heading">Productos</div>
+                <ul class="footer-links" id="footerProd">
+
+                    <th:block th:if="${footerCats != null}">
+                        <li th:each="fc : ${footerCats}">
+                            <a href="#productos"
+                               th:attr="data-id=${fc.id}"
+                               onclick="filterProducts(this.dataset.id)"
+                               th:text="${fc.name}">
+                                <i class="bi bi-chevron-right"></i> Categoría
+                            </a>
+                        </li>
+                    </th:block>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-6">
+                <div class="footer-heading">Políticas</div>
+                <ul class="footer-links">
+                    <li><a href="/envios"><i class="bi bi-chevron-right"></i> Envíos</a></li>
+                    <li><a href="/cambios-y-devoluciones"><i class="bi bi-chevron-right"></i> Cambios y devoluciones</a></li>
+                    <li><a href="/terminos-y-condiciones"><i class="bi bi-chevron-right"></i> Términos y condiciones</a></li>
+                    <li><a href="/politica-de-privacidad"><i class="bi bi-chevron-right"></i> Política de privacidad</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <div class="footer-heading">Newsletter</div>
+                <p style="font-size:0.82rem;color:#888;margin-bottom:14px;font-weight:300;">
+                    Recibe novedades, catálogos y ofertas especiales.
+                </p>
+                <div style="display:flex;">
+                    <input type="email" class="form-inp" placeholder="tu@email.com"
+                           style="border-radius:8px 0 0 8px;border-right:none;border-color:#dde;background:#f4f5f8;color:#333;flex:1;">
+                    <button style="background:var(--azul-marino);color:white;border:none;padding:0 18px;border-radius:0 8px 8px 0;font-family:var(--font-mono);font-size:0.68rem;letter-spacing:1px;font-weight:700;cursor:pointer;"
+                            onclick="showToast('¡Suscrito! Gracias.')">OK</button>
+                </div>
+                <div style="margin-top:20px;">
+                    <div class="footer-heading">Redes Sociales</div>
+                    <div class="social-links">
+                        <a th:href="${redes['facebook']  ?: '#'}" class="soc-link"><i class="bi bi-facebook"></i></a>
+                        <a th:href="${redes['instagram'] ?: '#'}" class="soc-link"><i class="bi bi-instagram"></i></a>
+                        <a th:href="${redes['tiktok']    ?: '#'}" class="soc-link"><i class="bi bi-tiktok"></i></a>
+                        <a th:href="${redes['whatsapp']  ?: '#'}" class="soc-link"><i class="bi bi-whatsapp"></i></a>
+                        <a th:href="${redes['youtube']   ?: '#'}" class="soc-link"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+      <span class="footer-copy"
+            th:text="'© ' + ${#dates.year(#dates.createNow())} + ' Full Toldos · Lima, Perú · Todos los derechos reservados'">
+        © 2026 Full Toldos · Lima, Perú · Todos los derechos reservados
+      </span>
+            <span style="font-size:0.72rem;color:rgba(255,255,255,0.2);font-family:var(--font-mono);"
+                  th:text="${ruc ?: 'RUC: 20XXXXXXXXX'}">RUC: 20XXXXXXXXX</span>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

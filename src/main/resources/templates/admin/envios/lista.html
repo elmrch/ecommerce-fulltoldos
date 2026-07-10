@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Envíos — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+</head>
+<body class="admin-page">
+
+<div class="mob-admin-bar">
+    <button class="mob-admin-ham" onclick="document.querySelector('.sidebar').classList.toggle('mob-open');document.getElementById('mobOverlay').classList.toggle('open')">
+        <i class="bi bi-list"></i>
+    </button>
+    <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+</div>
+<div class="mob-admin-overlay" id="mobOverlay" onclick="document.querySelector('.sidebar').classList.remove('mob-open');this.classList.remove('open')"></div>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+        <div class="sidebar-role"><i class="bi bi-shield-fill-check"></i> Panel Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+        <span class="nav-section-lbl">Principal</span>
+        <a th:href="@{/admin/dashboard}" class="nav-item"><i class="bi bi-grid-fill"></i> Dashboard</a>
+        <span class="nav-section-lbl">Gestión</span>
+        <a th:href="@{/admin/productos}" class="nav-item"><i class="bi bi-box-seam"></i> Productos</a>
+        <a th:href="@{/admin/categorias}" class="nav-item"><i class="bi bi-tags"></i> Categorías</a>
+        <a th:href="@{/admin/subcategorias}" class="nav-item"><i class="bi bi-diagram-3"></i> Subcategorías</a>
+        <a th:href="@{/admin/pedidos}" class="nav-item"><i class="bi bi-bag-check"></i> Pedidos</a>
+        <a th:href="@{/admin/cotizaciones}" class="nav-item"><i class="bi bi-file-earmark-text"></i> Cotizaciones</a>
+        <a th:href="@{/admin/usuarios}" class="nav-item"><i class="bi bi-people"></i> Usuarios</a>
+        <span class="nav-section-lbl">Tienda</span>
+        <a th:href="@{/admin/slides}" class="nav-item"><i class="bi bi-images"></i> Carrusel</a>
+        <a th:href="@{/admin/promos}" class="nav-item"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
+        <a th:href="@{/admin/envios}" class="nav-item active"><i class="bi bi-truck"></i> Envíos</a>
+        <span class="nav-section-lbl">Configuración</span>
+        <a th:href="@{/admin/ajustes}" class="nav-item"><i class="bi bi-gear"></i> Ajustes</a>
+        <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
+    </nav>
+    <div class="sidebar-foot">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;">
+            <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="user-email" th:text="${#authentication.name}">admin</div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <h1 class="page-title">Envíos</h1>
+    <div class="page-sub">Administra la página pública de envíos: textos, historial de entregas y agencias integradas.</div>
+
+    <div th:if="${ok}"    class="alert-ok"><i class="bi bi-check-circle-fill"></i> <span th:text="${ok}"></span></div>
+    <div th:if="${error}" class="alert alert-danger"><i class="bi bi-x-circle-fill"></i> <span th:text="${error}"></span></div>
+
+    <a th:href="@{/envios}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:#1949c9;text-decoration:none;margin-bottom:16px;">
+        <i class="bi bi-box-arrow-up-right"></i> Ver página pública /envios
+    </a>
+
+    <!-- ═══ TEXTOS DE LA PÁGINA ═══ -->
+    <form th:action="@{/admin/envios/config}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-megaphone"></i><span>Sección Hero</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Texto de la insignia</div></div>
+                <input class="settings-input" type="text" name="envios.hero.badge" th:value="${heroBadge}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Título (línea 1)</div></div>
+                <input class="settings-input" type="text" name="envios.hero.titulo1" th:value="${heroTitulo1}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Título (línea 2)</div></div>
+                <input class="settings-input" type="text" name="envios.hero.titulo2" th:value="${heroTitulo2}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Palabra destacada</div>
+                    <div class="settings-desc">Se muestra en azul al final de la línea 2</div>
+                </div>
+                <input class="settings-input" type="text" name="envios.hero.destacado" th:value="${heroDestacado}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Subtítulo</div></div>
+                <input class="settings-input" type="text" name="envios.hero.subtitulo" th:value="${heroSubtitulo}">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-bar-chart-fill"></i><span>Estadísticas del hero</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Estadística 1 — Número / Etiqueta</div></div>
+                <div style="display:flex;gap:8px;">
+                    <input class="settings-input" type="text" name="envios.stat1.numero" th:value="${stat1Numero}" placeholder="100%">
+                    <input class="settings-input" type="text" name="envios.stat1.label"  th:value="${stat1Label}"  placeholder="GARANTIZADO">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Estadística 2 — Número / Etiqueta</div></div>
+                <div style="display:flex;gap:8px;">
+                    <input class="settings-input" type="text" name="envios.stat2.numero" th:value="${stat2Numero}" placeholder="24-73h">
+                    <input class="settings-input" type="text" name="envios.stat2.label"  th:value="${stat2Label}"  placeholder="TIEMPO ENTREGA">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Estadística 3 — Número / Etiqueta</div></div>
+                <div style="display:flex;gap:8px;">
+                    <input class="settings-input" type="text" name="envios.stat3.numero" th:value="${stat3Numero}" placeholder="24">
+                    <input class="settings-input" type="text" name="envios.stat3.label"  th:value="${stat3Label}"  placeholder="REGIONES">
+                </div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Estadística 4 — Número / Etiqueta</div></div>
+                <div style="display:flex;gap:8px;">
+                    <input class="settings-input" type="text" name="envios.stat4.numero" th:value="${stat4Numero}" placeholder="+1,000">
+                    <input class="settings-input" type="text" name="envios.stat4.label"  th:value="${stat4Label}"  placeholder="ENVÍOS EXITOSOS">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-clock-history"></i><span>Sección Historial</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Título</div></div>
+                <input class="settings-input" type="text" name="envios.hist.titulo" th:value="${histTitulo}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Subtítulo</div></div>
+                <input class="settings-input" type="text" name="envios.hist.subtitulo" th:value="${histSubtitulo}">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-geo-alt"></i><span>Sección Agencias / Mapa</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Título</div></div>
+                <input class="settings-input" type="text" name="envios.s3.titulo" th:value="${s3Titulo}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Descripción</div></div>
+                <input class="settings-input" type="text" name="envios.s3.descripcion" th:value="${s3Descripcion}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Nota de confirmación</div></div>
+                <input class="settings-input" type="text" name="envios.s3.nota" th:value="${s3Nota}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Texto botón WhatsApp</div></div>
+                <input class="settings-input" type="text" name="envios.s3.btn1" th:value="${s3Btn1}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Texto botón "Ver historial"</div></div>
+                <input class="settings-input" type="text" name="envios.s3.btn2" th:value="${s3Btn2}">
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl"><div>Nota al pie de agencias</div></div>
+                <input class="settings-input" type="text" name="envios.s3.nota2" th:value="${s3Nota2}">
+            </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;margin-bottom:32px;">
+            <button type="submit" class="save-btn"><i class="bi bi-floppy"></i> Guardar textos</button>
+        </div>
+    </form>
+
+    <!-- ═══ HISTORIAL DE ENVÍOS ═══ -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:8px;">
+        <div>
+            <h2 class="page-title" style="font-size:1.1rem;margin-bottom:2px;">Historial de Envíos Realizados</h2>
+            <div class="page-sub">Tarjetas que se muestran en la bitácora de la página pública.</div>
+        </div>
+        <a th:href="@{/admin/envios/historial/nuevo}" class="btn-admin-primary">
+            <i class="bi bi-plus-lg"></i> Nuevo Envío
+        </a>
+    </div>
+
+    <div th:if="${historial.isEmpty()}" class="alert alert-secondary mt-3">
+        No hay registros aún. <a th:href="@{/admin/envios/historial/nuevo}">Crear el primero</a>.
+    </div>
+
+    <div class="table-wrap" th:unless="${historial.isEmpty()}" style="margin-bottom:32px;">
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th style="width:60px;">Orden</th>
+                <th style="width:110px;">Imagen</th>
+                <th>Destino / Producto</th>
+                <th style="width:110px;">Referencia</th>
+                <th style="width:110px;">Estado</th>
+                <th style="width:80px;">Activo</th>
+                <th style="width:120px;">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${historial}" th:classappend="${!e.activo} ? 'row-inactive' : ''">
+                <td>
+                    <div style="display:flex;flex-direction:column;gap:2px;align-items:center;">
+                        <form th:action="@{'/admin/envios/historial/' + ${e.id} + '/subir'}" method="post" style="margin:0;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-icon" title="Subir"><i class="bi bi-chevron-up"></i></button>
+                        </form>
+                        <span th:text="${e.orden}" style="font-weight:700;font-size:0.85rem;"></span>
+                        <form th:action="@{'/admin/envios/historial/' + ${e.id} + '/bajar'}" method="post" style="margin:0;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-icon" title="Bajar"><i class="bi bi-chevron-down"></i></button>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <img th:if="${e.imagenUrl != null}" th:src="${e.imagenUrl}" alt="envio"
+                         style="width:88px;height:52px;object-fit:cover;border-radius:6px;border:1px solid #dde;">
+                    <span th:unless="${e.imagenUrl != null}" style="color:#aaa;font-size:0.78rem;">Sin imagen</span>
+                </td>
+                <td>
+                    <div th:text="${e.destino}" style="font-weight:600;font-size:0.88rem;"></div>
+                    <div th:if="${e.producto != null}" th:text="${e.producto}" style="font-size:0.75rem;color:#888;margin-top:2px;"></div>
+                </td>
+                <td th:text="${e.referencia}"></td>
+                <td>
+                    <span th:class="${e.estado.name() == 'ENTREGADO'} ? 'badge-activo badge-btn' : 'badge-inactivo badge-btn'"
+                          th:text="${e.estado.name() == 'ENTREGADO'} ? 'Entregado' : 'En Ruta'"></span>
+                </td>
+                <td>
+                    <form th:action="@{'/admin/envios/historial/' + ${e.id} + '/activo'}" method="post" style="margin:0;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" name="activo" th:value="${!e.activo}">
+                        <button type="submit"
+                                th:class="${e.activo} ? 'badge-activo badge-btn' : 'badge-inactivo badge-btn'"
+                                th:text="${e.activo} ? 'Activo' : 'Inactivo'">
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <a th:href="@{'/admin/envios/historial/editar/' + ${e.id}}" class="btn-icon" title="Editar">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                        <form th:action="@{'/admin/envios/historial/' + ${e.id} + '/eliminar'}" method="post"
+                              onsubmit="confirmarEliminar(event,this,'Se eliminará este registro del historial de envíos.')" style="margin:0;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-icon btn-icon-danger" title="Eliminar">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ═══ AGENCIAS INTEGRADAS ═══ -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:8px;">
+        <div>
+            <h2 class="page-title" style="font-size:1.1rem;margin-bottom:2px;">Agencias Integradas</h2>
+            <div class="page-sub">Logos de las agencias de transporte que se muestran en la página pública.</div>
+        </div>
+        <a th:href="@{/admin/envios/agencias/nuevo}" class="btn-admin-primary">
+            <i class="bi bi-plus-lg"></i> Nueva Agencia
+        </a>
+    </div>
+
+    <div th:if="${agencias.isEmpty()}" class="alert alert-secondary mt-3">
+        No hay agencias aún. <a th:href="@{/admin/envios/agencias/nuevo}">Crear la primera</a>.
+    </div>
+
+    <div class="table-wrap" th:unless="${agencias.isEmpty()}">
+        <table class="admin-table">
+            <thead>
+            <tr>
+                <th style="width:60px;">Orden</th>
+                <th style="width:110px;">Logo</th>
+                <th>Nombre</th>
+                <th style="width:80px;">Activo</th>
+                <th style="width:120px;">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${agencias}" th:classappend="${!a.activo} ? 'row-inactive' : ''">
+                <td>
+                    <div style="display:flex;flex-direction:column;gap:2px;align-items:center;">
+                        <form th:action="@{'/admin/envios/agencias/' + ${a.id} + '/subir'}" method="post" style="margin:0;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-icon" title="Subir"><i class="bi bi-chevron-up"></i></button>
+                        </form>
+                        <span th:text="${a.orden}" style="font-weight:700;font-size:0.85rem;"></span>
+                        <form th:action="@{'/admin/envios/agencias/' + ${a.id} + '/bajar'}" method="post" style="margin:0;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-icon" title="Bajar"><i class="bi bi-chevron-down"></i></button>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <img th:if="${a.logoUrl != null}" th:src="${a.logoUrl}" alt="logo"
+                         style="width:88px;height:52px;object-fit:contain;border-radius:6px;border:1px solid #dde;background:#fff;">
+                    <span th:unless="${a.logoUrl != null}" style="color:#aaa;font-size:0.78rem;">Sin logo</span>
+                </td>
+                <td th:text="${a.nombre}" style="font-weight:600;font-size:0.88rem;"></td>
+                <td>
+                    <form th:action="@{'/admin/envios/agencias/' + ${a.id} + '/activo'}" method="post" style="margin:0;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                        <input type="hidden" name="activo" th:value="${!a.activo}">
+                        <button type="submit"
+                                th:class="${a.activo} ? 'badge-activo badge-btn' : 'badge-inactivo badge-btn'"
+                                th:text="${a.activo} ? 'Activo' : 'Inactivo'">
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <a th:href="@{'/admin/envios/agencias/editar/' + ${a.id}}" class="btn-icon" title="Editar">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                        <form th:action="@{'/admin/envios/agencias/' + ${a.id} + '/eliminar'}" method="post"
+                              onsubmit="confirmarEliminar(event,this,'Se eliminará esta agencia de la página pública.')" style="margin:0;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="btn-icon btn-icon-danger" title="Eliminar">
+                                <i class="bi bi-trash3-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<!-- ═══ MODAL CONFIRMAR ELIMINAR (Bootstrap) ═══ -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-body text-center px-4 pt-4 pb-2">
+                <div class="d-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 mx-auto mb-3"
+                     style="width:64px;height:64px;">
+                    <i class="bi bi-trash3-fill text-danger fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2">¿Eliminar?</h5>
+                <p id="confirmMsg" class="text-muted small mb-0"></p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger px-4" id="confirmYesBtn">
+                    <i class="bi bi-trash3-fill me-1"></i> Sí, eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+var _pendingForm = null;
+var _bsModal = null;
+function confirmarEliminar(event, form, msg) {
+    event.preventDefault();
+    _pendingForm = form;
+    document.getElementById('confirmMsg').textContent = msg;
+    if (!_bsModal) _bsModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    _bsModal.show();
+}
+document.getElementById('confirmYesBtn').addEventListener('click', function () {
+    _bsModal.hide();
+    if (_pendingForm) { _pendingForm.submit(); _pendingForm = null; }
+});
+</script>
+
+</body>
+</html>

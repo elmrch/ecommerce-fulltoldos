@@ -7,4 +7,5 @@ import java.util.List;
 public interface PromoBloqueRepository extends JpaRepository<PromoBloque, Long> {
     List<PromoBloque> findAllByOrderByFilaAscOrdenAsc();
     List<PromoBloque> findByActivoTrueOrderByFilaAscOrdenAsc();
+    List<PromoBloque> findByFila(int fila);
 }

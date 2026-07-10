@@ -14,7 +14,7 @@
 <div class="login-wrapper">
     <div class="login-card">
 
-        <!-- Cabecera azul con logo -->
+
         <div class="login-header">
             <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
             <p>Ingresa a tu cuenta para continuar</p>
@@ -22,32 +22,31 @@
 
         <div class="login-body">
 
-            <!-- Mensaje de error (credenciales incorrectas) -->
+
             <div class="alert-error" th:if="${param.error}">
                 <i class="bi bi-exclamation-circle-fill"></i>
                 Email o contraseña incorrectos. Intenta de nuevo.
             </div>
 
-            <!-- Mensaje de éxito (después de registrarse) -->
+
             <div class="alert-success" th:if="${param.registro}">
                 <i class="bi bi-check-circle-fill"></i>
                 Cuenta creada exitosamente. Ya puedes iniciar sesión.
             </div>
 
-            <!-- Mensaje de cierre de sesión -->
+
             <div class="alert-success" th:if="${param.logout}">
                 <i class="bi bi-box-arrow-left"></i>
                 Sesión cerrada correctamente.
             </div>
 
-            <!-- Formulario de login -->
-            <!-- action="/login" es la URL que procesa Spring Security -->
+
             <form th:action="@{/login}" method="post">
 
-                <!-- Token CSRF (Spring Security lo requiere) -->
+
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-                <!-- Email -->
+
                 <div class="mb-3">
                     <label class="form-label">Email</label>
                     <div class="input-wrap">
@@ -61,7 +60,7 @@
                     </div>
                 </div>
 
-                <!-- Contraseña -->
+
                 <div class="mb-4">
                     <label class="form-label">Contraseña</label>
                     <div class="input-wrap">
@@ -77,7 +76,7 @@
                     </div>
                 </div>
 
-                <!-- Botón ingresar -->
+
                 <button type="submit" class="btn-login">
                     <i class="bi bi-box-arrow-in-right"></i>
                     Ingresar
@@ -85,10 +84,10 @@
 
             </form>
 
-            <!-- Separador -->
+
             <div class="divider">¿No tienes cuenta?</div>
 
-            <!-- Botón registro -->
+
             <a th:href="@{/registro}" class="btn-registro">
                 <i class="bi bi-person-plus"></i>
                 Crear cuenta nueva
@@ -97,7 +96,7 @@
         </div>
     </div>
 
-    <!-- Volver al inicio -->
+
     <div class="back-home">
         <a th:href="@{/}">
             <i class="bi bi-arrow-left"></i>

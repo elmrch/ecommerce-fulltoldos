@@ -39,6 +39,7 @@
         <a th:href="@{/admin/promos}" class="nav-item"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
         <span class="nav-section-lbl">Configuración</span>
         <a th:href="@{/admin/ajustes}" class="nav-item active"><i class="bi bi-gear"></i> Ajustes</a>
+        <a th:href="@{/admin/envios}" class="nav-item"><i class="bi bi-truck"></i> Envíos</a>
         <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
     </nav>
     <div class="sidebar-foot">
@@ -88,7 +89,11 @@
                     <div th:text="${c.descripcion}">Descripción</div>
                     <div class="settings-desc" th:text="${c.clave}"></div>
                 </div>
-                <input class="settings-input" type="text"
+                <input th:if="${#strings.contains(c.clave, '.color.')}"
+                       class="settings-input" type="color" style="max-width:80px;padding:4px;"
+                       th:name="${c.clave}" th:value="${c.valor}">
+                <input th:if="${!#strings.contains(c.clave, '.color.')}"
+                       class="settings-input" type="text"
                        th:name="${c.clave}" th:value="${c.valor}"
                        th:placeholder="${c.descripcion}">
             </div>

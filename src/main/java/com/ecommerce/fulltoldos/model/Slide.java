@@ -49,6 +49,30 @@ public class Slide {
     @Column(name = "btn_secondary_href", length = 500)
     private String btnSecondaryHref;
 
+    @Column(name = "color_titulo", length = 20)
+    private String colorTitulo;
+
+    @Column(name = "fuente_titulo", length = 60)
+    private String fuenteTitulo;
+
+    @Column(name = "tamano_titulo", length = 60)
+    private String tamanoTitulo;
+
+    @Column(name = "color_descripcion", length = 20)
+    private String colorDescripcion;
+
+    @Column(name = "fuente_descripcion", length = 60)
+    private String fuenteDescripcion;
+
+    @Column(name = "tamano_descripcion", length = 60)
+    private String tamanoDescripcion;
+
+    @Column(name = "color_btn_primario", length = 20)
+    private String colorBtnPrimario;
+
+    @Column(name = "color_btn_secundario", length = 20)
+    private String colorBtnSecundario;
+
     @Column(nullable = false)
     private boolean activo = true;
 

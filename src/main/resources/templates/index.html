@@ -8,205 +8,14 @@
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title th:text="${pageTitle != null ? pageTitle : 'FULL TOLDOS — Toldos & Carpas Profesionales'}">FULL TOLDOS — Toldos &amp; Carpas Profesionales</title>
+    <meta name="description" th:content="${metaDescription ?: 'Toldos, carpas e inflables publicitarios a medida en Perú. Fabricación propia, más de 25 años de experiencia, envíos a todo el país.'}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;600;700;800;900&family=Playfair+Display:wght@400;600;700;800;900&family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=Raleway:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{estilo.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-<div class="topbar-ft">
-    <div class="container">
-        <div class="topbar-inner">
-      <span class="topbar-item">
-        <i class="bi bi-truck-front-fill"></i>
-        <span th:text="${topbar['envios'] ?: 'Envíos a todo el Perú'}">Envíos a todo el Perú</span>
-      </span>
-            <span class="topbar-sep">·</span>
-            <span class="topbar-item">
-        <i class="bi bi-telephone-fill"></i>
-        <span th:text="${topbar['telefono'] ?: '+51 999 999 999'}">+51 999 999 999</span>
-      </span>
-            <span class="topbar-sep">·</span>
-            <span class="topbar-item">
-        <i class="bi bi-clock-fill"></i>
-        <span th:text="${topbar['horario'] ?: 'Lun–Sáb 8am–7pm'}">Lun–Sáb 8am–7pm</span>
-      </span>
-        </div>
-    </div>
-</div>
-
-<nav class="navbar-ft">
-    <div class="container">
-        <div class="navbar-inner">
-            <a href="#" class="logo-wrap" onclick="event.preventDefault();goHome()">
-                <img th:src="@{logofulltoldos.png}" src="logofulltoldos.png" alt="Full Toldos" class="logo-img">
-            </a>
-            <div class="nav-search-container">
-                <div class="nav-search-wrap">
-                    <select class="nav-search-cat" id="navSearchCat">
-                        <option value="">Todas las categorías</option>
-                    </select>
-                    <input type="text" class="nav-search-input" id="navSearchInput"
-                           placeholder="Buscar toldos, carpas, inflables..."
-                           onkeydown="handleNavSearchKey(event)"
-                           autocomplete="off">
-                    <button class="nav-search-btn" onclick="doNavSearch()">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-                <div class="nav-search-dropdown" id="navSearchDropdown"></div>
-            </div>
-            <div class="nav-right">
-
-
-                <div sec:authorize="!isAuthenticated()" class="micuenta-wrap">
-                    <button class="btn-micuenta" onclick="toggleMiCuentaMenu(event)">
-                        <i class="bi bi-person"></i>
-                        <span>Mi Cuenta</span>
-                        <i class="bi bi-chevron-down micuenta-arrow"></i>
-                    </button>
-                    <div class="micuenta-dropdown" id="miCuentaDropdown">
-                        <a th:href="@{/login}" class="micuenta-item">
-                            <i class="bi bi-box-arrow-in-right"></i>
-                            <div>
-                                <div class="micuenta-item-title">Iniciar sesión</div>
-                                <div class="micuenta-item-sub">Accede a tu cuenta</div>
-                            </div>
-                        </a>
-                        <div class="micuenta-divider"></div>
-                        <a th:href="@{/registro}" class="micuenta-item">
-                            <i class="bi bi-person-plus"></i>
-                            <div>
-                                <div class="micuenta-item-title">Registrarse</div>
-                                <div class="micuenta-item-sub">Crear cuenta nueva</div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-
-                <div sec:authorize="isAuthenticated()" class="user-nav-wrap">
-
-                    <a th:href="${#authorization.expression('hasRole(''ADMIN'')')} ? @{/admin/dashboard} : @{/cliente/inicio}" class="btn-hola-nav">
-                        <span class="user-avatar-mini"><i class="bi bi-person-fill"></i></span>
-                        <span>Hola, <strong th:text="${usuarioNombre != null ? usuarioNombre : #strings.capitalize(#strings.substringBefore(#strings.substringBefore(#authentication.name, ' '), '@'))}">Usuario</strong></span>
-                        <i class="bi bi-chevron-down user-drop-arrow"></i>
-                    </a>
-
-                    <div class="user-nav-dropdown">
-                        <div class="user-drop-head">
-                            <div class="user-drop-avatar"><i class="bi bi-person-circle"></i></div>
-                            <div>
-                                <div class="user-drop-name" th:text="${usuarioNombre != null ? usuarioNombre : #authentication.name}">Usuario</div>
-                                <div class="user-drop-sub" sec:authorize="hasRole('ADMIN')">Panel de administración</div>
-                                <div class="user-drop-sub" sec:authorize="hasRole('CLIENTE')">Mi cuenta Full Toldos</div>
-                            </div>
-                        </div>
-
-
-                        <div class="user-drop-menu" sec:authorize="hasRole('ADMIN')">
-                            <a th:href="@{/admin/dashboard}" class="user-drop-item">
-                                <i class="bi bi-grid-fill"></i> Panel admin
-                            </a>
-                            <a th:href="@{/admin/pedidos}" class="user-drop-item">
-                                <i class="bi bi-bag-check-fill"></i> Pedidos
-                            </a>
-                            <a th:href="@{/admin/cotizaciones}" class="user-drop-item">
-                                <i class="bi bi-file-earmark-text-fill"></i> Cotizaciones
-                            </a>
-                        </div>
-
-
-                        <div class="user-drop-menu" sec:authorize="hasRole('CLIENTE')">
-                            <a th:href="@{/cliente/inicio}" class="user-drop-item">
-                                <i class="bi bi-house-fill"></i> Inicio
-                            </a>
-                            <a th:href="@{/cliente/carrito}" class="user-drop-item">
-                                <i class="bi bi-bag-fill"></i> Mi carrito
-                            </a>
-                            <a th:href="@{/cliente/pedidos}" class="user-drop-item">
-                                <i class="bi bi-bag-check-fill"></i> Mis pedidos
-                            </a>
-                            <a th:href="@{/cliente/cotizaciones}" class="user-drop-item">
-                                <i class="bi bi-file-earmark-text-fill"></i> Mis cotizaciones
-                            </a>
-                            <a th:href="@{/cliente/perfil}" class="user-drop-item">
-                                <i class="bi bi-person-gear"></i> Mi perfil
-                            </a>
-                        </div>
-
-                        <div class="user-drop-divider"></div>
-                        <div class="user-drop-menu">
-                            <a th:href="@{/}" class="user-drop-item">
-                                <i class="bi bi-shop"></i> Ver tienda
-                            </a>
-                            <a th:href="${wspLink}" class="user-drop-item" target="_blank">
-                                <i class="bi bi-whatsapp" style="color:#25d366;"></i> WhatsApp ventas
-                            </a>
-                        </div>
-                        <div class="user-drop-divider"></div>
-                        <div class="user-drop-logout-area">
-                            <form th:action="@{/logout}" method="post" style="margin:0;">
-                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                <button type="submit" class="user-drop-logout">
-                                    <i class="bi bi-box-arrow-left"></i> Cerrar sesión
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cart-btn" onclick="openCart()">
-                    <i class="bi bi-bag"></i>
-                    <span class="cart-badge" id="cartCount">0</span>
-                    <span class="cart-total-label" id="cartTotalLabel">S/ 0.00</span>
-                </div>
-                <a href="#" onclick="event.preventDefault();openCotizModal()" class="btn-cotizar">
-                    <i class="bi bi-chat-text-fill"></i> Cotizar
-                </a>
-                <button class="mob-ham" onclick="openMobileMenu()" aria-label="Menú">
-                    <i class="bi bi-list"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="navbar-nav-row">
-        <div class="container">
-            <div class="nav-links">
-                <a href="#" onclick="event.preventDefault();goHome()">Inicio</a>
-                <div class="nav-dropdown">
-                    <a href="#" class="nav-dropdown-toggle" data-goto="cat">Categorías <i class="bi bi-chevron-down drop-arrow"></i></a>
-                    <div class="nav-dropdown-menu" id="navCatMenu"></div>
-                </div>
-                <div class="nav-dropdown">
-                    <a href="#productos" class="nav-dropdown-toggle">Productos <i class="bi bi-chevron-down drop-arrow"></i></a>
-                    <div class="nav-dropdown-menu nav-dropdown-wide" id="navProdMenu"></div>
-                </div>
-                <div class="nav-dropdown">
-                    <a href="#" class="nav-dropdown-toggle" data-goto="medida">Por Medida <i class="bi bi-chevron-down drop-arrow"></i></a>
-                    <div class="nav-dropdown-menu" id="navMedidaMenu"></div>
-                </div>
-                <a href="#" onclick="event.preventDefault();openGallery()">Galería</a>
-                <div class="nav-dropdown">
-                    <a href="#" class="nav-dropdown-toggle" data-goto="sobre">Sobre Nosotros <i class="bi bi-chevron-down drop-arrow"></i></a>
-                    <div class="nav-dropdown-menu nav-sobre-menu" id="navSobreMenu">
-                        <div class="nav-sobre-links">
-                            <a href="#" class="nav-sobre-link" onclick="event.preventDefault();closeAllDropdowns();openSobrePage()">
-                                <i class="bi bi-building"></i>
-                                <span>About Us</span>
-                            </a>
-                            <a href="#" class="nav-sobre-link" onclick="event.preventDefault();closeAllDropdowns();openSobrePage('resenas')">
-                                <i class="bi bi-star-fill"></i>
-                                <span>Preguntas frecuentes</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <a href="#" onclick="event.preventDefault();openContactoPage()">Contacto</a>
-            </div>
-        </div>
-    </div>
-</nav>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div id="mainView">
 
@@ -243,11 +52,18 @@
                                         <i th:class="'bi ' + ${slide.tagIcon}"></i>
                                         <span th:text="${slide.tagText}">Tag</span>
                                     </div>
-                                    <h1 class="slide-title" th:utext="${slide.titulo}">Título</h1>
-                                    <p class="slide-desc" th:text="${slide.descripcion}">Descripción</p>
+                                    <h1 class="slide-title" th:utext="${slide.titulo}"
+                                        th:with="tTitFam=${slide.fuenteTitulo != null ? slide.fuenteTitulo + (slide.fuenteTitulo == 'Playfair Display' ? ', serif' : ', sans-serif') : null},
+                                                 tTitStyle=${(slide.colorTitulo != null ? 'color:' + slide.colorTitulo + ';' : '') + (slide.tamanoTitulo != null ? 'font-size:' + slide.tamanoTitulo + ';' : '') + (tTitFam != null ? 'font-family:' + tTitFam + ';' : '')}"
+                                        th:style="${tTitStyle}">Título</h1>
+                                    <p class="slide-desc" th:text="${slide.descripcion}"
+                                       th:with="tDescFam=${slide.fuenteDescripcion != null ? slide.fuenteDescripcion + (slide.fuenteDescripcion == 'Playfair Display' ? ', serif' : ', sans-serif') : null},
+                                                tDescStyle=${(slide.colorDescripcion != null ? 'color:' + slide.colorDescripcion + ';' : '') + (slide.tamanoDescripcion != null ? 'font-size:' + slide.tamanoDescripcion + ';' : '') + (tDescFam != null ? 'font-family:' + tDescFam + ';' : '')}"
+                                       th:style="${tDescStyle}">Descripción</p>
                                     <div class="d-flex flex-wrap gap-3">
                                         <button class="btn-slide-primary"
                                                 th:attr="data-action=${slide.btnPrimaryAction}"
+                                                th:style="${slide.colorBtnPrimario != null ? 'background:' + slide.colorBtnPrimario : ''}"
                                                 onclick="openCatPage(this.dataset.action)"
                                                 th:if="${slide.btnPrimaryText != null}">
                                             <i th:class="'bi ' + ${slide.btnPrimaryIcon}"></i>
@@ -256,6 +72,7 @@
                                         <a th:href="${slide.btnSecondaryHref}"
                                            class="btn-slide-secondary"
                                            target="_blank"
+                                           th:style="${slide.colorBtnSecundario != null ? 'color:' + slide.colorBtnSecundario + ';border-color:' + slide.colorBtnSecundario : ''}"
                                            th:if="${slide.btnSecondaryText != null}">
                                             <i th:class="'bi ' + ${slide.btnSecondaryIcon}"></i>
                                             <span th:text="${slide.btnSecondaryText}">Acción</span>
@@ -440,7 +257,7 @@
                  th:class="${entStat.first} ? 'promo-row promo-row-top' : 'promo-row promo-row-bottom'">
                 <div th:each="b : ${entrada.value}"
                      class="promo-cell"
-                     th:style="'flex:' + ${b.flex}"
+                     th:style="'flex:0 0 ' + ${b.ancho} + '%'"
                      th:attr="data-accion=${b.btnAccion}"
                      onclick="handlePromoClick(this.dataset.accion)">
                     <img th:if="${b.imagenUrl != null}" th:src="${b.imagenUrl}" th:alt="${b.titulo}">
@@ -462,7 +279,7 @@
 
         <th:block th:unless="${promoFilas != null and !promoFilas.isEmpty()}">
             <div class="promo-row promo-row-top">
-                <div class="promo-cell" style="flex:3;" onclick="openCatPage('toldos')">
+                <div class="promo-cell" style="flex:0 0 60%;" onclick="openCatPage('toldos')">
                     <img src="/img/img13.png" alt="Toldos">
                     <div class="promo-overlay" style="background:linear-gradient(to right,rgba(20,80,20,0.82),rgba(20,80,20,0.18))">
                         <div class="promo-title">Toldos Resistentes para<br>Todo Tipo de Espacios</div>
@@ -470,7 +287,7 @@
                         <button class="promo-btn" onclick="event.stopPropagation();openCatPage('toldos')">VER PRODUCTOS ›</button>
                     </div>
                 </div>
-                <div class="promo-cell" style="flex:2;" onclick="openCatPage('lonas')">
+                <div class="promo-cell" style="flex:0 0 40%;" onclick="openCatPage('lonas')">
                     <img src="/img/img14.png" alt="Mallas">
                     <div class="promo-overlay" style="background:linear-gradient(to right,rgba(60,0,100,0.82),rgba(60,0,100,0.25))">
                         <div class="promo-title">Toldos Vela y<br>Mallas de Sombra</div>
@@ -480,7 +297,7 @@
                 </div>
             </div>
             <div class="promo-row promo-row-bottom">
-                <div class="promo-cell" style="flex:1;" onclick="openCatPage('carpas')">
+                <div class="promo-cell" style="flex:0 0 34%;" onclick="openCatPage('carpas')">
                     <img src="/img/img15.png" alt="Carpas">
                     <div class="promo-overlay" style="background:linear-gradient(to right,rgba(160,0,70,0.84),rgba(160,0,70,0.25))">
                         <div class="promo-title" style="font-size:0.97rem;">Toldos Plegables y Protección Solar</div>
@@ -488,7 +305,7 @@
                         <button class="promo-btn" onclick="event.stopPropagation();openCatPage('carpas')">EXPLORAR ›</button>
                     </div>
                 </div>
-                <div class="promo-cell" style="flex:1;" onclick="openCatPage('modulos')">
+                <div class="promo-cell" style="flex:0 0 33%;" onclick="openCatPage('modulos')">
                     <img src="/img/img16.png" alt="Gazebos">
                     <div class="promo-overlay" style="background:linear-gradient(to right,rgba(0,30,100,0.84),rgba(0,30,100,0.25))">
                         <div class="promo-title" style="font-size:0.97rem;">Gazebos y Coberturas Impermeables</div>
@@ -496,7 +313,7 @@
                         <button class="promo-btn" onclick="event.stopPropagation();openCatPage('modulos')">VER CATÁLOGO ›</button>
                     </div>
                 </div>
-                <div class="promo-cell" style="flex:1;" onclick="openCatPage('terminados')">
+                <div class="promo-cell" style="flex:0 0 33%;" onclick="openCatPage('terminados')">
                     <img src="/img/img17.png" alt="Accesorios">
                     <div class="promo-overlay" style="background:linear-gradient(to right,rgba(140,0,0,0.84),rgba(140,0,0,0.25))">
                         <div class="promo-title" style="font-size:0.97rem;">Accesorios y Complementos para Toldos</div>
@@ -773,223 +590,9 @@
     </section>
 
     <!-- ═══ FOOTER ═══ -->
-    <footer class="footer-main">
-        <div class="container">
-            <div class="row gy-4">
-                <div class="col-lg-4">
-                    <div class="footer-logo">
-                        <img th:src="@{/img/logofulltoldos.png}" src="logofulltoldos.png"
-                             alt="Full Toldos" class="footer-logo-img">
-                    </div>
-                    <div class="footer-tagline">Coberturas &amp; Estructuras · Desde 1999</div>
-                    <p class="footer-about">Fabricamos toldos, carpas, inflables y todo tipo de coberturas publicitarias con los más altos estándares de calidad y servicio.</p>
-                </div>
-                <div class="col-lg-2 col-6">
-                    <div class="footer-heading">Productos</div>
-                    <ul class="footer-links" id="footerProd">
-
-                        <th:block th:if="${footerCats != null}">
-                            <li th:each="fc : ${footerCats}">
-                                <a href="#productos"
-                                   th:attr="data-id=${fc.id}"
-                                   onclick="filterProducts(this.dataset.id)"
-                                   th:text="${fc.name}">
-                                    <i class="bi bi-chevron-right"></i> Categoría
-                                </a>
-                            </li>
-                        </th:block>
-                    </ul>
-                </div>
-
-                <div class="col-lg-2 col-6">
-                    <div class="footer-heading">Políticas</div>
-                    <ul class="footer-links">
-                        <li><a href="/cambios-y-devoluciones"><i class="bi bi-chevron-right"></i> Cambios y devoluciones</a></li>
-                        <li><a href="/terminos-y-condiciones"><i class="bi bi-chevron-right"></i> Términos y condiciones</a></li>
-                        <li><a href="/politica-de-privacidad"><i class="bi bi-chevron-right"></i> Política de privacidad</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-4">
-                    <div class="footer-heading">Newsletter</div>
-                    <p style="font-size:0.82rem;color:#888;margin-bottom:14px;font-weight:300;">
-                        Recibe novedades, catálogos y ofertas especiales.
-                    </p>
-                    <div style="display:flex;">
-                        <input type="email" class="form-inp" placeholder="tu@email.com"
-                               style="border-radius:8px 0 0 8px;border-right:none;border-color:#dde;background:#f4f5f8;color:#333;flex:1;">
-                        <button style="background:var(--azul-marino);color:white;border:none;padding:0 18px;border-radius:0 8px 8px 0;font-family:var(--font-mono);font-size:0.68rem;letter-spacing:1px;font-weight:700;cursor:pointer;"
-                                onclick="showToast('¡Suscrito! Gracias.')">OK</button>
-                    </div>
-                    <div style="margin-top:20px;">
-                        <div class="footer-heading">Redes Sociales</div>
-                        <div class="social-links">
-                            <a th:href="${redes['facebook']  ?: '#'}" class="soc-link"><i class="bi bi-facebook"></i></a>
-                            <a th:href="${redes['instagram'] ?: '#'}" class="soc-link"><i class="bi bi-instagram"></i></a>
-                            <a th:href="${redes['tiktok']    ?: '#'}" class="soc-link"><i class="bi bi-tiktok"></i></a>
-                            <a th:href="${redes['whatsapp']  ?: '#'}" class="soc-link"><i class="bi bi-whatsapp"></i></a>
-                            <a th:href="${redes['youtube']   ?: '#'}" class="soc-link"><i class="bi bi-youtube"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-      <span class="footer-copy"
-            th:text="'© ' + ${#dates.year(#dates.createNow())} + ' Full Toldos · Lima, Perú · Todos los derechos reservados'">
-        © 2026 Full Toldos · Lima, Perú · Todos los derechos reservados
-      </span>
-                <span style="font-size:0.72rem;color:rgba(255,255,255,0.2);font-family:var(--font-mono);"
-                      th:text="${ruc ?: 'RUC: 20XXXXXXXXX'}">RUC: 20XXXXXXXXX</span>
-            </div>
-        </div>
-    </footer>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
 </div><!-- /#mainView -->
-
-<!-- ═══ CATEGORY PAGE VIEW ═══ -->
-<div id="catPageView" style="display:none; background:#ffffff; min-height:100vh; padding-top:148px;">
-    <div class="cat-page-header">
-        <div class="container">
-            <h1 id="catPageTitle" class="cat-page-title"></h1>
-        </div>
-    </div>
-    <div class="cat-breadcrumb-bar">
-        <div class="container">
-            <div id="catBreadcrumb" class="cat-breadcrumb"></div>
-        </div>
-    </div>
-    <div class="container" style="padding:8px 12px 60px;">
-        <div class="row g-4">
-            <div class="col-lg-3">
-                <div class="sidebar-box">
-                    <div class="sidebar-title">Buscar</div>
-                    <div class="sidebar-search">
-                        <input type="text" id="catSearchInput" placeholder="Buscar productos..."
-                               onkeydown="if(event.key==='Enter')doCatSearch()">
-                        <button onclick="doCatSearch()">BUSCAR</button>
-                    </div>
-                </div>
-                <div class="sidebar-box">
-                    <div class="sidebar-title">Categorías</div>
-                    <div id="sidebarCatLinks"></div>
-                </div>
-                <div class="sidebar-box" id="sidebarFiltersBox"></div>
-            </div>
-            <div class="col-lg-9">
-                <div class="cat-desc-box" id="catDescBox"></div>
-                <div class="cat-toolbar">
-                    <div class="cat-toolbar-right">
-                        <div class="toolbar-show-group">
-                            <span>Show:</span>
-                            <button class="tsb active" onclick="setCatPerPage(9)">9</button>
-                            <button class="tsb" onclick="setCatPerPage(12)">12</button>
-                            <button class="tsb" onclick="setCatPerPage(18)">18</button>
-                            <button class="tsb" onclick="setCatPerPage(24)">24</button>
-                        </div>
-                        <div class="toolbar-view-group">
-                            <button class="tvb active" onclick="setCatGrid(3)" title="3 columnas"><i class="bi bi-grid-3x3-gap"></i></button>
-                            <button class="tvb" onclick="setCatGrid(4)" title="4 columnas"><i class="bi bi-grid-fill"></i></button>
-                            <button class="tvb" onclick="setCatGrid(2)" title="2 columnas"><i class="bi bi-layout-split"></i></button>
-                        </div>
-                        <select class="toolbar-sort-sel" onchange="setCatSort(this.value)">
-                            <option value="default">Orden predeterminado</option>
-                            <option value="name-asc">Nombre A-Z</option>
-                            <option value="name-desc">Nombre Z-A</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="catProductGrid" class="cat-page-grid cat-grid-3"></div>
-                <div id="catLoadMoreArea" style="text-align:center;margin-top:32px;display:none;">
-                    <button class="btn-slide-secondary" style="color:var(--azul-marino);border-color:var(--azul-claro);" onclick="catLoadMore()">
-                        <i class="bi bi-plus-circle"></i> Cargar más productos
-                    </button>
-                </div>
-                <div id="catTambienSection"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══ PRODUCT PAGE VIEW ═══ -->
-<div id="prodPageView" style="display:none; background:#ffffff; min-height:100vh; padding-top:148px;">
-    <div class="prod-page-topbar">
-        <div class="container">
-            <div id="prodBreadcrumb" class="prod-breadcrumb"></div>
-            <div class="prod-nav-arrows">
-                <button class="prod-nav-btn" id="prodNavPrevBtn" onclick="prodNavPrev()" title="Producto anterior"><i class="bi bi-chevron-left"></i></button>
-                <button class="prod-nav-btn" onclick="closeProdPage()" title="Volver a categoría"><i class="bi bi-grid-3x3-gap"></i></button>
-                <button class="prod-nav-btn" id="prodNavNextBtn" onclick="prodNavNext()" title="Producto siguiente"><i class="bi bi-chevron-right"></i></button>
-            </div>
-        </div>
-    </div>
-    <div class="container" style="padding:28px 12px 60px;">
-        <div class="row g-4 align-items-start">
-            <div class="col-lg-6 prod-img-col">
-                <div class="prod-img-section">
-                    <div class="prod-thumb-col">
-                        <button class="pthumb-arrow" id="pthumbUp" onclick="pthumbScroll(-1)"><i class="bi bi-chevron-up"></i></button>
-                        <div class="prod-thumb-viewport">
-                            <div class="prod-thumb-strip" id="prodThumbStrip"></div>
-                        </div>
-                        <button class="pthumb-arrow" id="pthumbDown" onclick="pthumbScroll(1)"><i class="bi bi-chevron-down"></i></button>
-                    </div>
-                    <div class="prod-main-img-area" onclick="openProdImgLightbox(currentImgIdx)">
-                        <img id="prodMainImg" src="" alt="">
-                        <div class="prod-img-expand-hint"><i class="bi bi-fullscreen"></i></div>
-                    </div>
-                </div>
-                <div class="prod-fullview-link" onclick="openGalleryModal()">
-                    <i class="bi bi-images"></i> Ver todos los medios
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="prod-info-card" id="prodInfoCard"></div>
-            </div>
-        </div>
-        <div id="prodTabsSection" style="margin-top:40px;"></div>
-        <div id="prodRelatedSection"></div>
-        <div id="prodTambienSection"></div>
-        <div id="prodVistoSection"></div>
-    </div>
-</div>
-
-<!-- ═══ GALLERY FULL VIEW MODAL ═══ -->
-<div id="galleryModal" class="gallery-modal-overlay" onclick="closeGalleryModal(event)">
-    <div class="gallery-modal-box">
-        <button class="gallery-modal-close" onclick="closeGalleryModal()"><i class="bi bi-x-lg"></i></button>
-        <!-- Tabs bar -->
-        <div class="gallery-modal-tabs-bar">
-            <div class="gallery-tabs">
-                <button class="gallery-tab active" id="tabVids" onclick="switchGalleryTab('vids')">VIDEOS</button>
-                <button class="gallery-tab" id="tabImgs" onclick="switchGalleryTab('imgs')">IMÁGENES</button>
-            </div>
-        </div>
-        <!-- Body: left player + right sidebar -->
-        <div class="gallery-modal-body">
-            <!-- Left: main viewer + meta -->
-            <div class="gallery-main-side">
-                <div class="gallery-main-view" id="galleryMainView">
-                    <img id="galleryMainImg" src="" alt="" style="display:none;">
-                    <div id="galleryMainVid" style="display:none; width:100%; height:100%; align-items:center; justify-content:center;"></div>
-                </div>
-                <div class="gallery-media-feedback">
-                    <div class="gallery-useful-row">
-                        <span>¿Te resultó útil?</span>
-                        <button class="gallery-like-btn" id="galleryLikeBtn" onclick="galleryToggleLike(this)">
-                            <i class="bi bi-hand-thumbs-up"></i> <span id="galleryLikeCount">0</span>
-                        </button>
-                    </div>
-                    <button class="gallery-share-btn" onclick="shareProduct()" title="Compartir">
-                        <i class="bi bi-share-fill"></i>
-                    </button>
-                </div>
-                <div class="gallery-media-title" id="galleryMediaTitle"></div>
-                <div class="gallery-media-author" id="galleryMediaAuthor"></div>
-            </div>
-            <!-- Right: sidebar list -->
-            <div class="gallery-sidebar-panel" id="galleryThumbPanel"></div>
-        </div>
-    </div>
-</div>
 
 <!-- ═══ CART DRAWER ═══ -->
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
@@ -1027,242 +630,6 @@
         <div class="gal-grid" id="galGrid"></div>
         <div id="galTambienSection"></div>
     </div>
-</div>
-
-<!-- ═══ SOBRE NOSOTROS PAGE VIEW ═══ -->
-<div id="sobrePageView" style="display:none; background:#fff; min-height:100vh; padding-top:148px;">
-
-  <!-- Breadcrumb + título -->
-  <div class="page-breadcrumb-wrap">
-    <div class="container">
-      <nav class="page-breadcrumb">
-        <a href="#" onclick="event.preventDefault();closeSobrePage()">Home</a>
-        <i class="bi bi-chevron-right"></i>
-        <span>Sobre nosotros</span>
-      </nav>
-      <h1 class="page-breadcrumb-title">Sobre nosotros</h1>
-    </div>
-  </div>
-
-  <section class="sobre-scroll-section">
-    <div class="container">
-      <div class="sobre-scroll-layout">
-
-        <!-- Imagen sticky -->
-        <div class="sobre-sticky-col">
-          <div class="sobre-sticky-img-box">
-            <img src="carpas2.png" alt="Full Toldos" class="sobre-sticky-img" id="sobreMainImg">
-          </div>
-        </div>
-
-
-        <div class="sobre-text-col">
-
-          <div class="sobre-text-block" data-img="carpas2.png">
-            <h2 class="sobre-block-hero-title">Fabricante y distribuidor de Toldos &amp; Carpas en Perú</h2>
-            <p class="sobre-block-sub">Fabricantes y distribuidores de toldos y carpas en Lima y todo el Perú.</p>
-            <p class="sobre-block-body">Bienvenido al sitio web oficial de Full Toldos, tu proveedor de confianza de coberturas y estructuras textiles de alta calidad en el Perú. Nos dedicamos a crear toldos, carpas y estructuras innovadoras que mejoran cada espacio con durabilidad, funcionalidad y facilidad de instalación.</p>
-          </div>
-
-          <div class="sobre-text-block" data-img="fulltolfdos12.png">
-            <h3 class="sobre-section-heading">Nuestra filosofía</h3>
-            <p class="sobre-block-body">En Full Toldos, creemos que los mejores espacios comienzan con coberturas de calidad. Nuestra marca se basa en la experiencia, la innovación y la artesanía peruana. Fabricamos toldos y carpas con lona PVC de alta resistencia y acero galvanizado que ofrecen durabilidad y protección en cualquier ambiente. Ya sea para un local comercial, un evento o una estructura industrial, Full Toldos tiene la solución que se adapta a tus necesidades exactas.</p>
-          </div>
-
-          <div class="sobre-text-block" data-img="carpas2.png">
-            <h3 class="sobre-section-heading">Compromiso con la calidad</h3>
-            <p class="sobre-block-body">La calidad es la base de todo lo que hacemos. Cada producto Full Toldos se somete a rigurosas pruebas y una meticulosa fabricación para garantizar los más altos estándares. Nuestro objetivo es ofrecer coberturas que maximicen la durabilidad, facilidad de uso y resistencia. Utilizamos materiales certificados — lonas PVC, acero galvanizado y textiles técnicos — para garantizar que nuestros productos cumplan con las exigencias del mercado peruano.</p>
-          </div>
-
-          <div class="sobre-text-block" data-img="fulltolfdos12.png">
-            <h3 class="sobre-section-heading">Diseñado para tu negocio y hogar</h3>
-            <p class="sobre-block-body">Una cobertura de calidad es más que protección: es una inversión. Los toldos y carpas de Full Toldos están diseñados para quienes valoran la funcionalidad y el diseño, ya sea para proteger un negocio, amenizar un evento o ampliar un espacio exterior. Ofrecemos el equilibrio perfecto entre resistencia y estética, ideal para negocios, familias y eventos en Lima y provincias.</p>
-          </div>
-
-          <div class="sobre-text-block" data-img="carpas2.png">
-            <h3 class="sobre-section-heading">Fabricación a medida</h3>
-            <p class="sobre-block-body">Full Toldos es más que una empresa: es un compromiso con la cobertura perfecta. Nuestros productos están diseñados con características bien pensadas — ventilación optimizada, estructuras resistentes y diseños personalizados — para garantizar la máxima protección en cualquier entorno. Fabricamos sin medidas estándar que no se adaptan a tu espacio; cada pedido es único y se confecciona según tus especificaciones exactas.</p>
-          </div>
-
-          <div class="sobre-text-block" data-img="fulltolfdos12.png">
-            <h3 class="sobre-section-heading">Cubrimos Lima y Provincias</h3>
-            <p class="sobre-block-body">Elegir Full Toldos significa elegir soluciones funcionales y bien diseñadas para cualquier espacio. Como fabricantes en Lima, atendemos pedidos en toda la región. Ya sea un toldo retráctil, una carpa armable o una estructura publicitaria, Full Toldos está aquí para apoyar tu proyecto. Nuestro equipo siempre está listo para ayudarte. Contáctanos en cualquier momento; estamos aquí para que tu experiencia sea lo más satisfactoria posible.</p>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Stats ── -->
-  <section class="sobre-stats-section">
-    <div class="container">
-      <div class="sobre-stats-grid">
-        <div class="sobre-stat-item">
-          <div class="sobre-stat-circle">
-            <i class="bi bi-award-fill"></i>
-            <span>25</span>
-          </div>
-          <div class="sobre-stat-label">25 AÑOS DE EXPERIENCIA</div>
-          <div class="sobre-stat-desc">— la columna vertebral de la misión de Full Toldos para ofrecer coberturas de calidad en todo el Perú.</div>
-        </div>
-        <div class="sobre-stat-item">
-          <div class="sobre-stat-circle">
-            <i class="bi bi-clock-fill"></i>
-            <span>48</span>
-          </div>
-          <div class="sobre-stat-label">48 HORAS</div>
-          <div class="sobre-stat-desc">— el tiempo promedio de fabricación para garantizar entrega puntual y calidad en cada pedido.</div>
-        </div>
-        <div class="sobre-stat-item">
-          <div class="sobre-stat-circle">
-            <i class="bi bi-people-fill"></i>
-            <span>5K+</span>
-          </div>
-          <div class="sobre-stat-label">más de 5.000 clientes</div>
-          <div class="sobre-stat-desc">— ya confían en Full Toldos para proteger sus negocios, hogares y eventos en todo el Perú.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Redes sociales -->
-    <div class="sobre-social-area">
-      <h3 class="sobre-social-title">Síguenos en redes sociales</h3>
-      <div class="sobre-social-icons">
-        <a href="#" class="sobre-soc" title="Facebook"><i class="bi bi-facebook"></i></a>
-        <a href="#" class="sobre-soc" title="Instagram"><i class="bi bi-instagram"></i></a>
-        <a href="#" class="sobre-soc" title="YouTube"><i class="bi bi-youtube"></i></a>
-        <a href="#" class="sobre-soc" title="TikTok"><i class="bi bi-tiktok"></i></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── FAQ ── -->
-  <section class="sobre-faq-section" id="resenas">
-    <div class="container">
-      <div class="sobre-faq-layout">
-        <!-- Izquierda -->
-        <div class="sobre-faq-left">
-          <div class="sobre-faq-tag">Preguntas frecuentes</div>
-          <h2 class="sobre-faq-heading">¿Tienes alguna pregunta? Estamos aquí para ayudarte.</h2>
-          <div class="sobre-team-row">
-            <div class="sobre-team-av"><i class="bi bi-person-fill"></i></div>
-            <div class="sobre-team-av"><i class="bi bi-person-fill"></i></div>
-            <div class="sobre-team-av"><i class="bi bi-person-fill"></i></div>
-          </div>
-          <div class="sobre-horario">
-            Horario de atención: lunes a sábado, de 8:00 a.m. a 7:00 p.m.<br>
-            <span>(Excepto feriados)</span>
-          </div>
-          <a href="#" class="sobre-contacto-btn" onclick="event.preventDefault();closeSobrePage();setTimeout(()=>document.querySelector('#contacto')?.scrollIntoView({behavior:'smooth'}),300)">CONTÁCTENOS</a>
-        </div>
-        <!-- Derecha: acordeón -->
-        <div class="sobre-faq-right">
-          <div class="sobre-faq-list">
-            <div class="sobre-faq-item">
-              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
-                ¿Cuántos años lleva Full Toldos en el mercado?
-                <i class="bi bi-chevron-down"></i>
-              </button>
-              <div class="sobre-faq-a">Full Toldos tiene más de 25 años fabricando toldos, carpas y estructuras textiles en el Perú. Nuestra experiencia nos avala como referentes del sector en Lima y provincias.</div>
-            </div>
-            <div class="sobre-faq-item">
-              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
-                ¿Cómo obtener una cotización personalizada?
-                <i class="bi bi-chevron-down"></i>
-              </button>
-              <div class="sobre-faq-a">Puedes solicitar tu cotización por WhatsApp o usando el formulario de contacto en nuestra web. Respondemos en menos de 24 horas con precios claros, sin intermediarios y sin compromiso.</div>
-            </div>
-            <div class="sobre-faq-item">
-              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
-                ¿Fabrican a medida?
-                <i class="bi bi-chevron-down"></i>
-              </button>
-              <div class="sobre-faq-a">Sí, todos nuestros productos se fabrican a medida. No trabajamos con medidas estándar que no se adapten a tu espacio. Desde estructuras pequeñas hasta grandes carpas industriales, todo se confecciona según tus especificaciones.</div>
-            </div>
-            <div class="sobre-faq-item">
-              <button class="sobre-faq-q" onclick="toggleSobreFaq(this)">
-                ¿Hacen envíos a provincias?
-                <i class="bi bi-chevron-down"></i>
-              </button>
-              <div class="sobre-faq-a">Sí, atendemos pedidos en todo el Perú. Coordinamos el envío e instalación (si se requiere) tanto en Lima como en provincias. Contáctanos para más detalles sobre tiempos y costos de envío a tu región.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<!-- ═══ CONTACTO PAGE VIEW ═══ -->
-<div id="contactoPageView" style="display:none; background:#f8f9fb; min-height:100vh; padding-top:148px;">
-
-    <!-- Breadcrumb + título -->
-    <div class="page-breadcrumb-wrap">
-        <div class="container">
-            <nav class="page-breadcrumb">
-                <a href="#" onclick="event.preventDefault();closeContactoPage()">Home</a>
-                <i class="bi bi-chevron-right"></i>
-                <span>Contacto</span>
-            </nav>
-            <h1 class="page-breadcrumb-title">Contacto</h1>
-        </div>
-    </div>
-
-    <section class="contacto-section">
-        <div class="container">
-            <div class="contacto-layout">
-
-                <!-- Izquierda: info -->
-                <div class="contacto-left">
-                    <div class="contacto-tag" th:text="${contactoForm.tag}">Contáctenos</div>
-                    <h2 class="contacto-title" th:text="${contactoForm.titulo}">¡Estamos aquí para ayudarte!</h2>
-                    <p class="contacto-desc" th:text="${contactoForm.descripcion}">Si tienes preguntas sobre tu pedido, necesitas ayuda con nuestros productos o simplemente deseas comunicarte con nosotros, no dudes en escribirnos.</p>
-
-                    <div class="contacto-info-item">
-                        <i class="bi bi-telephone-fill"></i>
-                        <div>
-                            <div class="contacto-info-label">Teléfono / WhatsApp</div>
-                            <a th:href="${wspLink}" href="#" class="contacto-info-val">+51 999 999 999</a>
-                        </div>
-                    </div>
-                    <div class="contacto-info-item">
-                        <i class="bi bi-clock-fill"></i>
-                        <div>
-                            <div class="contacto-info-label">Horario de atención</div>
-                            <div class="contacto-info-val">Lunes a sábado, de 8:00 a.m. a 7:00 p.m.</div>
-                            <div class="contacto-info-sub">(Excepto feriados)</div>
-                        </div>
-                    </div>
-                    <div class="contacto-info-item">
-                        <i class="bi bi-envelope-fill"></i>
-                        <div>
-                            <div class="contacto-info-label">Correo electrónico</div>
-                            <a href="mailto:ventas@fulltoldos.com" class="contacto-info-val">ventas@fulltoldos.com</a>
-                            <div class="contacto-info-sub">Normalmente respondemos dentro de 1 día hábil.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Derecha: formulario -->
-                <div class="contacto-form-panel">
-                    <form class="contacto-form" onsubmit="submitContacto(event)">
-                        <div class="contacto-form-row">
-                            <input type="text"  class="contacto-inp" name="nombre"  placeholder="Nombre"             required>
-                            <input type="email" class="contacto-inp" name="email"   placeholder="Correo electrónico" required>
-                        </div>
-                        <textarea class="contacto-inp contacto-textarea" name="mensaje" placeholder="Mensaje" rows="5" required></textarea>
-                        <button type="submit" class="contacto-submit-btn">
-                            <i class="bi bi-send-fill"></i> Enviar mensaje
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
 </div>
 
 <!-- ═══ LIGHTBOX ═══ -->

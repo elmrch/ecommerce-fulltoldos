@@ -13,11 +13,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/promos")
 public class PromoBloqueController {
 
-    @Autowired private PromoBloqueService service;
+    @Autowired
+    private PromoBloqueService service;
 
     @GetMapping
     public String lista(Model model) {
-        model.addAttribute("bloques", service.listarTodos());
+        var bloques = service.listarTodos();
+        model.addAttribute("bloques", bloques);
+        model.addAttribute("sumasPorFila", service.sumasPorFila(bloques));
         return "admin/promos/lista";
     }
 
@@ -26,6 +29,7 @@ public class PromoBloqueController {
         model.addAttribute("bloque", new PromoBloque());
         model.addAttribute("titulo", "Nuevo Bloque");
         model.addAttribute("accion", "nuevo");
+        model.addAttribute("sumasOtrasFilas", service.sumasPorFilaExcluyendo(null));
         return "admin/promos/form";
     }
 
@@ -35,6 +39,7 @@ public class PromoBloqueController {
             model.addAttribute("bloque", b);
             model.addAttribute("titulo", "Editar Bloque");
             model.addAttribute("accion", "editar");
+            model.addAttribute("sumasOtrasFilas", service.sumasPorFilaExcluyendo(id));
             return "admin/promos/form";
         }).orElseGet(() -> {
             flash.addFlashAttribute("error", "Bloque no encontrado");
@@ -49,8 +54,15 @@ public class PromoBloqueController {
                           RedirectAttributes flash) {
         try {
             bloque.setActivo("true".equals(activoParam));
-            service.guardar(bloque, imagen);
-            flash.addFlashAttribute("ok", "Bloque guardado correctamente");
+            PromoBloque guardado = service.guardar(bloque, imagen);
+            int suma = service.sumaAnchoFila(guardado.getFila());
+            if (suma != 100) {
+                flash.addFlashAttribute("error",
+                        "Bloque guardado, pero la Fila " + guardado.getFila() + " suma " + suma
+                                + "% (debe sumar 100%). Ajustar ancho.");
+            } else {
+                flash.addFlashAttribute("ok", "Bloque guardado correctamente");
+            }
         } catch (Exception e) {
             flash.addFlashAttribute("error", "Error: " + e.getMessage());
         }

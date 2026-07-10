@@ -47,6 +47,9 @@ public class ConfiguracionService {
         insertar("topbar.horario",       "Lun–Sáb 8am–7pm",         "Horario visible en la barra superior",    "contacto");
         insertar("topbar.envios",        "Envíos a todo el Perú",    "Texto de envíos en la barra superior",    "contacto");
         insertar("contacto.email",       "elmrchahua8@gmail.com",   "Correo que recibe suscripciones al newsletter y mensajes del formulario de contacto", "contacto");
+        insertar("topbar.color.fondo",   "#b9f6ca",                  "Color de fondo de la barra superior",     "contacto");
+        insertar("topbar.fuente",        "'Poppins', sans-serif",    "Fuente de la barra superior (CSS font-family)", "contacto");
+        insertar("topbar.color.fuente",  "#111111",                  "Color de letra de la barra superior",     "contacto");
 
         // Newsletter (sección del home)
         insertar("newsletter.titulo",        "Suscríbete a Nuestro Newsletter",                              "Título de la sección",                    "newsletter");
