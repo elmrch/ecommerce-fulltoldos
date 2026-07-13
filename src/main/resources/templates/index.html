@@ -25,26 +25,31 @@
                 <div th:each="slide, iterStat : ${slides}"
                      th:id="'slide-' + ${iterStat.index}"
                      th:class="'hero-slide' + (${iterStat.first} ? ' active' : '')">
-                    <div class="slide-bg"
-                         th:style="${slide.imagenUrl != null ? 'background-image:url(' + slide.imagenUrl + ');' : 'background:#0e3460;'}"></div>
-                    <div class="slide-overlay"></div>
-                    <a th:if="${slide.imagenLinkTipo == 'url'}"
-                       th:href="${slide.imagenLinkValor}" target="_blank" rel="noopener"
-                       class="slide-img-link" aria-label="Ver más"></a>
-                    <a th:if="${slide.imagenLinkTipo == 'whatsapp'}"
-                       th:href="|https://wa.me/${slide.imagenLinkValor}|" target="_blank" rel="noopener"
-                       class="slide-img-link" aria-label="Contactar por WhatsApp"></a>
-                    <a th:if="${slide.imagenLinkTipo == 'categoria'}"
-                       href="javascript:void(0)"
-                       th:attr="data-valor=${slide.imagenLinkValor}"
-                       onclick="openCatPage(this.dataset.valor)"
-                       class="slide-img-link" aria-label="Ver categoría"></a>
-                    <a th:if="${slide.imagenLinkTipo == 'producto'}"
-                       href="javascript:void(0)"
-                       th:attr="data-valor=${slide.imagenLinkValor}"
-                       onclick="openModal(parseInt(this.dataset.valor))"
-                       class="slide-img-link" aria-label="Ver producto"></a>
-                    <div class="container h-100 slide-content-wrap" style="position:relative;z-index:3;">
+                    <div class="slide-media">
+                        <div class="slide-bg-blur"
+                             th:style="${slide.imagenUrl != null ? 'background-image:url(' + slide.imagenUrl + ');' : 'background:#0e3460;'}"></div>
+                        <div class="slide-bg"
+                             th:style="${slide.imagenUrl != null ? 'background-image:url(' + slide.imagenUrl + ');' : 'background:#0e3460;'}"></div>
+                        <div class="slide-overlay"></div>
+                        <a th:if="${slide.imagenLinkTipo == 'url'}"
+                           th:href="${slide.imagenLinkValor}" target="_blank" rel="noopener"
+                           class="slide-img-link" aria-label="Ver más"></a>
+                        <a th:if="${slide.imagenLinkTipo == 'whatsapp'}"
+                           th:href="|https://wa.me/${slide.imagenLinkValor}|" target="_blank" rel="noopener"
+                           class="slide-img-link" aria-label="Contactar por WhatsApp"></a>
+                        <a th:if="${slide.imagenLinkTipo == 'categoria'}"
+                           href="javascript:void(0)"
+                           th:attr="data-valor=${slide.imagenLinkValor}"
+                           onclick="openCatPage(this.dataset.valor)"
+                           class="slide-img-link" aria-label="Ver categoría"></a>
+                        <a th:if="${slide.imagenLinkTipo == 'producto'}"
+                           href="javascript:void(0)"
+                           th:attr="data-valor=${slide.imagenLinkValor}"
+                           onclick="openModal(parseInt(this.dataset.valor))"
+                           class="slide-img-link" aria-label="Ver producto"></a>
+                    </div>
+                    <div class="container h-100 slide-content-wrap" style="position:relative;z-index:3;"
+                         th:if="${slide.mostrarTexto}">
                         <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
                                 <div class="slide-content">
@@ -98,8 +103,11 @@
 
                 <!-- SLIDE 1 -->
                 <div class="hero-slide active" id="slide-0">
-                    <div class="slide-bg" style="background-image:url('carpas2.png'); background-size:cover; background-position:top center;"></div>
-                    <div class="slide-overlay"></div>
+                    <div class="slide-media">
+                        <div class="slide-bg-blur" style="background-image:url('carpas2.png');"></div>
+                        <div class="slide-bg" style="background-image:url('carpas2.png'); background-size:cover; background-position:top center;"></div>
+                        <div class="slide-overlay"></div>
+                    </div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
@@ -123,8 +131,11 @@
 
                 <!-- SLIDE 2 -->
                 <div class="hero-slide" id="slide-1">
-                    <div class="slide-bg" style="background-image:url('envio2.png'); background-size:cover; background-position:top center;"></div>
-                    <div class="slide-overlay"></div>
+                    <div class="slide-media">
+                        <div class="slide-bg-blur" style="background-image:url('envio2.png');"></div>
+                        <div class="slide-bg" style="background-image:url('envio2.png'); background-size:cover; background-position:top center;"></div>
+                        <div class="slide-overlay"></div>
+                    </div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
@@ -142,8 +153,11 @@
 
                 <!-- SLIDE 3 -->
                 <div class="hero-slide" id="slide-2">
-                    <div class="slide-bg" style="background-image:url('carpas3.png'); background-size:cover; background-position:top center;"></div>
-                    <div class="slide-overlay"></div>
+                    <div class="slide-media">
+                        <div class="slide-bg-blur" style="background-image:url('carpas3.png');"></div>
+                        <div class="slide-bg" style="background-image:url('carpas3.png'); background-size:cover; background-position:top center;"></div>
+                        <div class="slide-overlay"></div>
+                    </div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
@@ -160,8 +174,11 @@
 
                 <!-- SLIDE 4 -->
                 <div class="hero-slide" id="slide-3">
-                    <div class="slide-bg" style="background-image:url('carpasvivir.png'); background-size:cover; background-position:top center;"></div>
-                    <div class="slide-overlay"></div>
+                    <div class="slide-media">
+                        <div class="slide-bg-blur" style="background-image:url('carpasvivir.png');"></div>
+                        <div class="slide-bg" style="background-image:url('carpasvivir.png'); background-size:cover; background-position:top center;"></div>
+                        <div class="slide-overlay"></div>
+                    </div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
@@ -178,8 +195,11 @@
 
                 <!-- SLIDE 5 -->
                 <div class="hero-slide" id="slide-4">
-                    <div class="slide-bg" style="background-image:url('carpasahorra.png'); background-size:cover; background-position:top center;"></div>
-                    <div class="slide-overlay"></div>
+                    <div class="slide-media">
+                        <div class="slide-bg-blur" style="background-image:url('carpasahorra.png');"></div>
+                        <div class="slide-bg" style="background-image:url('carpasahorra.png'); background-size:cover; background-position:top center;"></div>
+                        <div class="slide-overlay"></div>
+                    </div>
                     <div class="container h-100" style="position:relative;z-index:2;">
                         <div class="row align-items-end" style="height:100%;">
                             <div class="col-lg-6">
@@ -197,8 +217,10 @@
             </th:block>
         </div><!-- /#heroSlider -->
 
-        <button class="hero-prev" onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
-        <button class="hero-next" onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
+        <div class="hero-nav-bar">
+            <button class="hero-prev" onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
+            <button class="hero-next" onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
+        </div>
         <div class="hero-controls" id="heroDots">
             <th:block th:if="${slides != null and !slides.isEmpty()}">
                 <div th:each="slide, iterStat : ${slides}"
@@ -223,16 +245,17 @@
 
     <!-- ═══ CATEGORÍAS ═══ -->
     <section class="sbc-section" id="categorias">
-        <div class="sbc-wrapper">
-            <div class="sbc-left">
-                <div class="eyebrow" style="text-align:left;margin:0 0 12px;">Nuestras categorías</div>
-                <h2 class="sbc-title">Lo mejor de nuestros <span class="hl">Toldos &amp; Carpas</span></h2>
-                <p class="sbc-desc">Explora una selección cuidadosamente elegida de productos de alta calidad, diseñados para proteger y destacar cualquier espacio.</p>
-                <a href="#" onclick="openCatPage('');return false;" class="sbc-ver-todas">
-                    Ver todas las categorías <i class="bi bi-arrow-right"></i>
-                </a>
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <div class="eyebrow">Nuestras categorías</div>
+                    <h2 class="section-title" style="font-size:1.7rem;">LO MEJOR DE NUESTROS <span class="hl">TOLDOS &amp; CARPAS</span></h2>
+                    <div class="divider-blue" style="margin: 0 auto;"></div>
+                </div>
             </div>
+        </div>
 
+        <div class="sbc-wrapper">
             <div class="sbc-right">
                 <button class="sbc-arr sbc-arr-l" id="catPrevBtn" onclick="catSliderNav(-1)">
                     <i class="bi bi-chevron-left"></i>
@@ -257,12 +280,13 @@
                  th:class="${entStat.first} ? 'promo-row promo-row-top' : 'promo-row promo-row-bottom'">
                 <div th:each="b : ${entrada.value}"
                      class="promo-cell"
-                     th:style="'flex:0 0 ' + ${b.ancho} + '%'"
+                     th:style="|flex:0 0 ${b.ancho}%;height:${b.alturaEfectiva}px;|"
                      th:attr="data-accion=${b.btnAccion}"
                      onclick="handlePromoClick(this.dataset.accion)">
-                    <img th:if="${b.imagenUrl != null}" th:src="${b.imagenUrl}" th:alt="${b.titulo}">
+                    <img th:if="${b.imagenUrl != null}" th:src="${b.imagenUrl}" th:alt="${b.titulo}"
+                         th:style="|--promo-fit:${b.imagenAjuste != null ? b.imagenAjuste : 'cover'};--promo-zoom:${(b.imagenZoom != null ? b.imagenZoom : 100) / 100.0};--promo-pos-x:${(b.imagenPosX != null ? b.imagenPosX : 50)}%;--promo-pos-y:${(b.imagenPosY != null ? b.imagenPosY : 50)}%;|">
                     <div class="promo-overlay"
-                         th:style="${b.colorBase != null ? 'background:linear-gradient(to right,' + b.colorBase + 'D4,' + b.colorBase + '30)' : ''}">
+                         th:style="${(b.overlayVisible == null or b.overlayVisible) and b.colorBase != null ? 'background:linear-gradient(to right,' + b.colorBase + 'D4,' + b.colorBase + '30)' : ''}">
                         <div class="promo-title" th:text="${b.titulo}"></div>
                         <div class="promo-desc" th:if="${b.descripcion != null}" th:text="${b.descripcion}"></div>
                         <button class="promo-btn"

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -37,6 +37,7 @@
         <span class="nav-section-lbl">Tienda</span>
         <a th:href="@{/admin/slides}" class="nav-item active"><i class="bi bi-images"></i> Carrusel</a>
         <a th:href="@{/admin/promos}" class="nav-item"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
+        <a th:href="@{/admin/testimonios}" class="nav-item"><i class="bi bi-chat-quote-fill"></i> Testimonios</a>
         <span class="nav-section-lbl">Configuración</span>
         <a th:href="@{/admin/ajustes}" class="nav-item"><i class="bi bi-gear"></i> Ajustes</a>
         <a th:href="@{/admin/envios}" class="nav-item"><i class="bi bi-truck"></i> Envíos</a>
@@ -93,6 +94,18 @@
 
         <div class="settings-group">
             <div class="settings-group-header"><i class="bi bi-type"></i><span>Textos del slide</span></div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Mostrar textos</div>
+                    <div class="settings-desc">Desmarca esta opción si quieres el slide solo con la imagen, sin título, descripción ni botones</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" name="mostrarTexto" id="mostrarTextoCheck" th:checked="${slide.mostrarTexto}"
+                           value="true" style="width:18px;height:18px;cursor:pointer;">
+                    <label for="mostrarTextoCheck" style="font-size:0.9rem;cursor:pointer;">Visible</label>
+                </div>
+            </div>
 
             <div class="settings-row">
                 <div class="settings-lbl">

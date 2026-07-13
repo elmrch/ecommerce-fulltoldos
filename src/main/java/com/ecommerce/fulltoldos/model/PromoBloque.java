@@ -23,6 +23,30 @@ public class PromoBloque {
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;
 
+    /** Cómo encajar la imagen en el bloque: "cover" (recorta y llena) o "contain" (se ve completa). */
+    @Column(name = "imagen_ajuste", length = 20)
+    private String imagenAjuste = "cover";
+
+    /** Zoom de la imagen en porcentaje (50-200). 100 = tamaño normal. */
+    @Column(name = "imagen_zoom")
+    private Integer imagenZoom = 100;
+
+    /** Posición horizontal del recorte/encuadre (0=izquierda, 50=centro, 100=derecha). */
+    @Column(name = "imagen_pos_x")
+    private Integer imagenPosX = 50;
+
+    /** Posición vertical del recorte/encuadre (0=arriba, 50=centro, 100=abajo). */
+    @Column(name = "imagen_pos_y")
+    private Integer imagenPosY = 50;
+
+    /** Alto del bloque en px. Null = usa el alto por defecto de la fila (300px fila 1, 220px las demás). */
+    @Column(name = "altura_px")
+    private Integer alturaPx;
+
+    /** Si es false, no se muestra el tinte de color sobre la imagen. */
+    @Column(name = "overlay_visible")
+    private Boolean overlayVisible = true;
+
     @Column(name = "color_base", length = 20)
     private String colorBase = "#1a5276";
 
@@ -43,4 +67,9 @@ public class PromoBloque {
 
     @Column(nullable = false)
     private boolean activo = true;
+
+    public int getAlturaEfectiva() {
+        if (alturaPx != null && alturaPx > 0) return alturaPx;
+        return fila == 1 ? 300 : 220;
+    }
 }

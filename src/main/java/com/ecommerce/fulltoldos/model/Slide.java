@@ -76,6 +76,10 @@ public class Slide {
     @Column(nullable = false)
     private boolean activo = true;
 
+    /** Si es false, no se muestra el bloque de texto (título, descripción, tag, botones) sobre la imagen. */
+    @Column(name = "mostrar_texto", nullable = false)
+    private boolean mostrarTexto = true;
+
     @Column(name = "imagen_link_tipo", length = 50)
     private String imagenLinkTipo;
 

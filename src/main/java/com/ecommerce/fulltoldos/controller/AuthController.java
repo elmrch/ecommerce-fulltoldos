@@ -12,6 +12,7 @@ import com.ecommerce.fulltoldos.service.PreguntaFrecuenteService;
 import com.ecommerce.fulltoldos.service.ProductoService;
 import com.ecommerce.fulltoldos.service.PromoBloqueService;
 import com.ecommerce.fulltoldos.service.SlideService;
+import com.ecommerce.fulltoldos.service.TestimonioService;
 import com.ecommerce.fulltoldos.service.UsuarioService;
 import com.ecommerce.fulltoldos.util.SlugUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,9 @@ public class AuthController {
 
     @Autowired
     private PreguntaFrecuenteService preguntaFrecuenteService;
+
+    @Autowired
+    private TestimonioService testimonioService;
 
     // ── Página principal (tienda) ──
     @GetMapping("/")
@@ -120,6 +124,19 @@ public class AuthController {
             model.addAttribute("metaDescription", "Explora todo el catálogo de toldos, carpas e inflables publicitarios de Full Toldos.");
         }
         return "categoria";
+    }
+
+    @GetMapping("/ofertas")
+    public String ofertas(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
+        agregarDatosInicio(model);
+        if (usuarioLogueado != null) {
+            usuarioRepository.findByEmail(usuarioLogueado.getUsername())
+                    .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
+        }
+        model.addAttribute("pageTitle", "Ofertas — Full Toldos");
+        model.addAttribute("metaDescription",
+                "Aprovecha los descuentos especiales en toldos, carpas e inflables publicitarios de Full Toldos.");
+        return "ofertas";
     }
 
     /** Descripción corta para meta-tag SEO (~155 caracteres); usa el fallback si no hay descripción cargada. */
@@ -315,6 +332,7 @@ public class AuthController {
 
         model.addAttribute("historial", envioHistorialService.listarActivos());
         model.addAttribute("agencias", envioAgenciaService.listarActivos());
+        model.addAttribute("testimonios", testimonioService.listarActivos());
 
         model.addAttribute("heroBadge",      configService.get("envios.hero.badge",      "MONITOREO DE LOGÍSTICA EN VIVO"));
         model.addAttribute("heroTitulo1",    configService.get("envios.hero.titulo1",    "Enviamos tecnología"));

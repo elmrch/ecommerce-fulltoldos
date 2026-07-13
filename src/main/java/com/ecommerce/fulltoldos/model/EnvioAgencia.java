@@ -19,6 +19,9 @@ public class EnvioAgencia {
     @Column(name = "logo_url", length = 500)
     private String logoUrl;
 
+    @Column(length = 500)
+    private String url;
+
     @Column(nullable = false)
     private int orden = 0;
 

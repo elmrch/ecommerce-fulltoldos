@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${titulo + ' — Full Toldos'}">Testimonio — Full Toldos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link th:href="@{/estilo.css}" rel="stylesheet">
+</head>
+<body class="admin-page">
+
+<div class="mob-admin-bar">
+    <button class="mob-admin-ham" onclick="document.querySelector('.sidebar').classList.toggle('mob-open');document.getElementById('mobOverlay').classList.toggle('open')">
+        <i class="bi bi-list"></i>
+    </button>
+    <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+</div>
+<div class="mob-admin-overlay" id="mobOverlay" onclick="document.querySelector('.sidebar').classList.remove('mob-open');this.classList.remove('open')"></div>
+
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <img th:src="@{/logofulltoldos.png}" alt="Full Toldos">
+        <div class="sidebar-role"><i class="bi bi-shield-fill-check"></i> Panel Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+        <span class="nav-section-lbl">Principal</span>
+        <a th:href="@{/admin/dashboard}" class="nav-item"><i class="bi bi-grid-fill"></i> Dashboard</a>
+        <span class="nav-section-lbl">Gestión</span>
+        <a th:href="@{/admin/productos}" class="nav-item"><i class="bi bi-box-seam"></i> Productos</a>
+        <a th:href="@{/admin/categorias}" class="nav-item"><i class="bi bi-tags"></i> Categorías</a>
+        <a th:href="@{/admin/subcategorias}" class="nav-item"><i class="bi bi-diagram-3"></i> Subcategorías</a>
+        <a th:href="@{/admin/pedidos}" class="nav-item"><i class="bi bi-bag-check"></i> Pedidos</a>
+        <a th:href="@{/admin/cotizaciones}" class="nav-item"><i class="bi bi-file-earmark-text"></i> Cotizaciones</a>
+        <a th:href="@{/admin/usuarios}" class="nav-item"><i class="bi bi-people"></i> Usuarios</a>
+        <span class="nav-section-lbl">Tienda</span>
+        <a th:href="@{/admin/slides}" class="nav-item"><i class="bi bi-images"></i> Carrusel</a>
+        <a th:href="@{/admin/promos}" class="nav-item"><i class="bi bi-grid-3x2-gap-fill"></i> Banners</a>
+        <a th:href="@{/admin/envios}" class="nav-item"><i class="bi bi-truck"></i> Envíos</a>
+        <a th:href="@{/admin/nosotros}" class="nav-item"><i class="bi bi-building"></i> Nosotros</a>
+        <a th:href="@{/admin/faq}" class="nav-item"><i class="bi bi-question-circle"></i> Preguntas Frecuentes</a>
+        <a th:href="@{/admin/testimonios}" class="nav-item active"><i class="bi bi-chat-quote-fill"></i> Testimonios</a>
+        <span class="nav-section-lbl">Configuración</span>
+        <a th:href="@{/admin/ajustes}" class="nav-item"><i class="bi bi-gear"></i> Ajustes</a>
+        <a th:href="@{/}" class="nav-item"><i class="bi bi-shop"></i> Ver tienda</a>
+    </nav>
+    <div class="sidebar-foot">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;">
+            <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="user-email" th:text="${#authentication.name}">admin</div>
+        </div>
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="btn-logout"><i class="bi bi-box-arrow-left"></i> Cerrar sesión</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+        <a th:href="@{/admin/testimonios}" class="btn-icon" title="Volver"><i class="bi bi-arrow-left"></i></a>
+        <h1 class="page-title" style="margin:0;" th:text="${titulo}">Testimonio</h1>
+    </div>
+    <div class="page-sub" style="margin-bottom:20px;">Solo el nombre y el comentario son obligatorios.</div>
+
+    <form th:action="@{/admin/testimonios/guardar}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="id"    th:value="${testimonio.id}">
+        <input type="hidden" name="orden" th:value="${testimonio.orden}">
+        <input type="hidden" name="fotoUrl" th:value="${testimonio.fotoUrl}">
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-chat-quote"></i><span>Datos del testimonio</span></div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Nombre del cliente <span style="color:#e53e3e;">*</span></div>
+                </div>
+                <input class="settings-input" type="text" name="nombre" th:value="${testimonio.nombre}"
+                       placeholder="Ej: Carlos Mendoza" required>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Ciudad</div>
+                    <div class="settings-desc">Opcional. Ej: Cusco, Arequipa, Lima</div>
+                </div>
+                <input class="settings-input" type="text" name="ciudad" th:value="${testimonio.ciudad}"
+                       placeholder="Ej: Cusco">
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Comentario <span style="color:#e53e3e;">*</span></div>
+                </div>
+                <textarea class="settings-input" name="comentario" rows="3"
+                          placeholder="Ej: Llegó en 2 días a Cusco, excelente calidad de material."
+                          required th:text="${testimonio.comentario}"></textarea>
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Estrellas</div>
+                    <div class="settings-desc">Calificación de 1 a 5</div>
+                </div>
+                <select class="settings-input" name="estrellas">
+                    <option value="5" th:selected="${testimonio.estrellas == 5 or testimonio.id == null}">★★★★★ (5)</option>
+                    <option value="4" th:selected="${testimonio.estrellas == 4}">★★★★☆ (4)</option>
+                    <option value="3" th:selected="${testimonio.estrellas == 3}">★★★☆☆ (3)</option>
+                    <option value="2" th:selected="${testimonio.estrellas == 2}">★★☆☆☆ (2)</option>
+                    <option value="1" th:selected="${testimonio.estrellas == 1}">★☆☆☆☆ (1)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-image"></i><span>Foto (opcional)</span></div>
+
+            <div th:if="${testimonio.fotoUrl != null}" style="padding:16px 20px 0;">
+                <img th:src="${testimonio.fotoUrl}" alt="Actual"
+                     style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:1px solid #dde;display:block;margin-bottom:8px;">
+                <div style="font-size:0.78rem;color:#888;">Foto actual. Sube otra para reemplazarla.</div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Foto del cliente</div>
+                    <div class="settings-desc">JPG, PNG o WEBP. Si no subes ninguna, se muestran las iniciales del nombre</div>
+                </div>
+                <input type="file" name="foto" accept="image/*" class="settings-input"
+                       id="fotoInput" onchange="previewFoto(this)">
+            </div>
+            <div id="fotoPreviewWrap" style="padding:0 20px 16px;display:none;">
+                <img id="fotoPreview" src="" alt="Vista previa"
+                     style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #1565c0;">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-group-header"><i class="bi bi-toggle-on"></i><span>Visibilidad</span></div>
+            <div class="settings-row">
+                <div class="settings-lbl">
+                    <div>Mostrar en tienda</div>
+                    <div class="settings-desc">Solo los testimonios activos aparecen en la página de Envíos</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <input type="checkbox" name="activo" id="activoCheck" th:checked="${testimonio.activo}"
+                           value="true" style="width:18px;height:18px;cursor:pointer;">
+                    <label for="activoCheck" style="font-size:0.9rem;cursor:pointer;">Activo</label>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
+            <button type="submit" class="save-btn"><i class="bi bi-floppy"></i> Guardar testimonio</button>
+            <a th:href="@{/admin/testimonios}" class="save-btn" style="background:#64748b;text-decoration:none;">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</main>
+
+<script>
+function previewFoto(input) {
+    var wrap = document.getElementById('fotoPreviewWrap');
+    var prev = document.getElementById('fotoPreview');
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) { prev.src = e.target.result; wrap.style.display = 'block'; };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+</body>
+</html>

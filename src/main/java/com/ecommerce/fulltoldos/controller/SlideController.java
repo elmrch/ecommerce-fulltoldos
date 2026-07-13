@@ -57,9 +57,11 @@ public class SlideController {
     public String guardar(@ModelAttribute Slide slide,
                           @RequestParam(value = "imagen", required = false) MultipartFile imagen,
                           @RequestParam(value = "activo", required = false) String activoParam,
+                          @RequestParam(value = "mostrarTexto", required = false) String mostrarTextoParam,
                           RedirectAttributes flash) {
         try {
             slide.setActivo("true".equals(activoParam));
+            slide.setMostrarTexto("true".equals(mostrarTextoParam));
             slideService.guardar(slide, imagen);
             flash.addFlashAttribute("ok", slide.getId() == null ? "Slide creado" : "Slide actualizado");
         } catch (Exception e) {

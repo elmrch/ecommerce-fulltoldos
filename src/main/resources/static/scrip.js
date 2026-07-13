@@ -302,7 +302,7 @@ function getBadgesHTML(p) {
   let b = '';
   if (p.stock === 0)                        b += '<span class="prod-badge badge-agotado">AGOTADO</span>';
   if (p.esNuevo)                            b += '<span class="prod-badge badge-new">NUEVO</span>';
-  if (p.descuento && p.descuento > 0)       b += `<span class="prod-badge badge-sale">-${p.descuento}%</span>`;
+  if (p.descuento && p.descuento > 0)       b += `<span class="prod-badge badge-sale">Oferta -${p.descuento}%</span>`;
   if (p.esDestacado)                        b += '<span class="prod-badge badge-hot">POPULAR</span>';
   return b;
 }
@@ -311,21 +311,27 @@ function getCountdownHTML(p, idSuffix) {
   if (!p.fechaFinOferta || !p.descuento || p.descuento <= 0) return '';
   const end = new Date(p.fechaFinOferta);
   if (isNaN(end) || end <= new Date()) return '';
-  return `<div class="oferta-countdown" id="cd-${idSuffix}">
-    <i class="bi bi-clock-fill"></i> Oferta termina en:
-    <span class="cd-time" data-end="${end.getTime()}">--:--:--</span>
+  return `<div class="oferta-countdown" id="cd-${idSuffix}" data-end="${end.getTime()}">
+    <i class="bi bi-lightning-charge-fill cd-icon"></i>
+    <span class="cd-label">Termina en</span>
+    <span class="cd-boxes">
+      <span class="cd-box cd-h">00</span><span class="cd-colon">:</span><span class="cd-box cd-m">00</span><span class="cd-colon">:</span><span class="cd-box cd-s">00</span>
+    </span>
   </div>`;
 }
 
 function tickCountdowns() {
-  document.querySelectorAll('.cd-time').forEach(el => {
+  document.querySelectorAll('.oferta-countdown[data-end]').forEach(el => {
     const end = Number(el.dataset.end);
     const diff = end - Date.now();
-    if (diff <= 0) { el.closest('.oferta-countdown').style.display = 'none'; return; }
+    if (diff <= 0) { el.style.display = 'none'; return; }
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    const hEl = el.querySelector('.cd-h'), mEl = el.querySelector('.cd-m'), sEl = el.querySelector('.cd-s');
+    if (hEl) hEl.textContent = String(h).padStart(2,'0');
+    if (mEl) mEl.textContent = String(m).padStart(2,'0');
+    if (sEl) sEl.textContent = String(s).padStart(2,'0');
   });
 }
 setInterval(tickCountdowns, 1000);
@@ -1129,6 +1135,14 @@ const CAT_DESCS = {
 
 let cpCat = 'all', cpSearch = '', cpPerPage = 9, cpSort = 'default', cpGridCols = 3;
 let cpBadges = [], cpColors = [], cpMedida = '';
+let cpOnlyOfertas = false;
+
+function esOfertaVigente(p) {
+  if (!(p.descuento > 0)) return false;
+  if (!p.fechaFinOferta) return true;
+  const fin = new Date(p.fechaFinOferta);
+  return isNaN(fin) || fin > new Date();
+}
 
 const COLOR_NAMES = {
   '#1565c0':'Azul','#c62828':'Rojo','#2e7d32':'Verde',
@@ -1174,8 +1188,21 @@ function renderCategoryPage(catId, opts) {
   cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
   cpBadges = []; cpColors = [];
   cpMedida = opts.medida || '';
+  cpOnlyOfertas = false;
   const si = document.getElementById('catSearchInput');
   if(si) si.value = cpSearch;
+  buildSidebarCats();
+  renderCatPage();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/** Pinta la página de Ofertas (ofertas.html): reutiliza el shell de categoría, pero solo con productos en descuento vigente. */
+function renderOfertasPage() {
+  cpCat = 'all'; cpSearch = ''; cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
+  cpBadges = []; cpColors = []; cpMedida = '';
+  cpOnlyOfertas = true;
+  const si = document.getElementById('catSearchInput');
+  if(si) si.value = '';
   buildSidebarCats();
   renderCatPage();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -1203,17 +1230,20 @@ function buildSidebarCats() {
 
 function renderCatPage() {
   const cat = CATS.find(c => c.id === cpCat);
-  const catName = cat ? cat.name : 'Todos los Productos';
+  const catName = cpOnlyOfertas ? 'Ofertas' : (cat ? cat.name : 'Todos los Productos');
   document.getElementById('catPageTitle').textContent = catName;
   document.getElementById('catBreadcrumb').innerHTML =
     `<a href="#" onclick="closeCatPage();return false;">Inicio</a> / ${catName}`;
-  const desc = CAT_DESCS[cpCat] || `Explora todos los productos de la categoría ${catName}.`;
+  const desc = cpOnlyOfertas
+    ? 'Todos los productos con descuento especial, en un solo lugar.'
+    : (CAT_DESCS[cpCat] || `Explora todos los productos de la categoría ${catName}.`);
   document.getElementById('catDescBox').textContent = desc;
   document.querySelectorAll('.sidebar-cat-link').forEach(el => {
-    el.classList.toggle('active', el.dataset.catid === cpCat);
+    el.classList.toggle('active', !cpOnlyOfertas && el.dataset.catid === cpCat);
   });
 
   let prods = cpCat === 'all' ? [...PRODUCTS] : PRODUCTS.filter(p => p.cat === cpCat);
+  if(cpOnlyOfertas) prods = prods.filter(esOfertaVigente);
   if(cpSearch) {
     const q = cpSearch.toLowerCase();
     prods = prods.filter(p => p.name.toLowerCase().includes(q) || p.catName.toLowerCase().includes(q));
@@ -1229,7 +1259,9 @@ function renderCatPage() {
   grid.className = `cat-page-grid cat-grid-${cpGridCols}`;
 
   if(!shown.length) {
-    grid.innerHTML = `<div class="cat-no-results"><i class="bi bi-search" style="font-size:2.5rem;display:block;margin-bottom:14px;"></i>Sin resultados${cpSearch?' para "'+cpSearch+'"':''}</div>`;
+    grid.innerHTML = cpOnlyOfertas
+      ? `<div class="cat-no-results"><i class="bi bi-tag" style="font-size:2.5rem;display:block;margin-bottom:14px;"></i>No hay ofertas activas en este momento. ¡Vuelve pronto!</div>`
+      : `<div class="cat-no-results"><i class="bi bi-search" style="font-size:2.5rem;display:block;margin-bottom:14px;"></i>Sin resultados${cpSearch?' para "'+cpSearch+'"':''}</div>`;
   } else {
     grid.innerHTML = shown.map(p => `
       <div class="prod-card" onclick="openModal(${p.id})">
@@ -2451,6 +2483,11 @@ function buildMobileMenu() {
     <span><i class="bi bi-images" style="margin-right:8px;color:var(--azul-claro)"></i>Galería</span>
   </div>`;
 
+  // 5a. Ofertas
+  html += `<a href="/ofertas" class="mob-nav-link">
+    <span><i class="bi bi-tag-fill" style="margin-right:8px;color:#e53e3e"></i><span style="color:#e53e3e;font-weight:700;">Ofertas</span></span>
+  </a>`;
+
   // 5b. Envíos
   html += `<a href="/envios" class="mob-nav-link">
     <span><i class="bi bi-truck" style="margin-right:8px;color:var(--azul-claro)"></i>Envíos</span>
@@ -2723,6 +2760,8 @@ renderProducts();
       const p = findProductBySlug(prodId);
       if (p) renderProductPage(p);
     }, 100);
+  } else if (path.match(/^\/ofertas\/?$/)) {
+    setTimeout(function() { renderOfertasPage(); }, 100);
   } else if (catId) {
     setTimeout(function() {
       if (catId === 'all') { renderCategoryPage('all', catOpts); return; }

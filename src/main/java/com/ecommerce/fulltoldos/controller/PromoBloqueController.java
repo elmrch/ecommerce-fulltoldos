@@ -51,9 +51,11 @@ public class PromoBloqueController {
     public String guardar(@ModelAttribute PromoBloque bloque,
                           @RequestParam(value = "imagen", required = false) MultipartFile imagen,
                           @RequestParam(value = "activo", required = false) String activoParam,
+                          @RequestParam(value = "overlayVisible", required = false) String overlayVisibleParam,
                           RedirectAttributes flash) {
         try {
             bloque.setActivo("true".equals(activoParam));
+            bloque.setOverlayVisible("true".equals(overlayVisibleParam));
             PromoBloque guardado = service.guardar(bloque, imagen);
             int suma = service.sumaAnchoFila(guardado.getFila());
             if (suma != 100) {
