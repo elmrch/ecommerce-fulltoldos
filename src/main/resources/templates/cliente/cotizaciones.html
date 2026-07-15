@@ -63,10 +63,10 @@
                 <tr th:each="c : ${cotizaciones}">
                     <td th:text="${c.id}">1</td>
                     <td>
-                        <div th:text="${c.tipoToldo}">-</div>
-                        <div class="fecha-col" th:text="${c.medidas}">-</div>
+                        <div th:text="${c.tipoProducto}">-</div>
+                        <div class="fecha-col" th:text="${c.medidasTexto}">-</div>
                     </td>
-                    <td><div class="msg-col" th:text="${c.mensaje}">-</div></td>
+                    <td><div class="msg-col" th:text="${c.comentarios}">-</div></td>
                     <td class="fecha-col" th:text="${#temporals.format(c.fechaSolicitud, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                     <td><span class="badge-estado" th:classappend="'badge-' + ${c.estado}" th:text="${c.estado}">PENDIENTE</span></td>
                 </tr>

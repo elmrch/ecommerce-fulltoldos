@@ -3,6 +3,7 @@ package com.ecommerce.fulltoldos.controller;
 
 import com.ecommerce.fulltoldos.model.Producto;
 import com.ecommerce.fulltoldos.service.CategoriaService;
+import com.ecommerce.fulltoldos.service.FileStorageService;
 import com.ecommerce.fulltoldos.service.ProductoService;
 import com.ecommerce.fulltoldos.service.SubcategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ProductoController {
 
     @Autowired
     private SubcategoriaService subcategoriaService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @GetMapping
     public String listar(@RequestParam(defaultValue = "0") int pagina,
@@ -92,6 +96,8 @@ public class ProductoController {
                           String urlVideo,
                           @RequestParam(value = "videoFile", required = false)
                           MultipartFile videoFile,
+                          @RequestParam(value = "tecImagenFile", required = false)
+                          MultipartFile tecImagenFile,
                           RedirectAttributes flash) {
         try {
             categoriaService.buscarPorId(categoriaId).ifPresent(producto::setCategoria);
@@ -123,6 +129,14 @@ public class ProductoController {
 
             if (videoFile != null && !videoFile.isEmpty()) {
                 productoService.agregarVideoLocal(guardado.getId(), videoFile);
+            }
+
+            if (tecImagenFile != null && !tecImagenFile.isEmpty()) {
+                if (!fileStorageService.esImagenValida(tecImagenFile)) {
+                    throw new RuntimeException("Imagen de Tecnología no válida. Solo se permiten JPG, PNG o WEBP.");
+                }
+                String url = fileStorageService.guardarArchivo(tecImagenFile, "productos");
+                productoService.actualizarTecImagen(guardado.getId(), url);
             }
 
             flash.addFlashAttribute("exito",

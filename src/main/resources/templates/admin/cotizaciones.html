@@ -73,28 +73,32 @@
                     <th>Cliente</th>
                     <th>Contacto</th>
                     <th>Tipo / Medidas</th>
-                    <th>Mensaje</th>
+                    <th>Fotos</th>
                     <th>Fecha</th>
                     <th>Estado</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="c : ${cotizaciones}">
                     <td th:text="${c.id}">1</td>
                     <td>
-                        <div class="nombre-col" th:text="${c.nombre + ' ' + c.apellido}">Juan Pérez</div>
+                        <div class="nombre-col" th:text="${c.nombre}">Juan Pérez</div>
                         <div class="fecha-col" th:text="${c.empresa}" th:if="${c.empresa != null and !c.empresa.isEmpty()}"></div>
                     </td>
                     <td>
                         <div th:text="${c.correo}">correo@example.com</div>
-                        <div class="fecha-col" th:text="${c.telefono}">999999999</div>
+                        <div class="fecha-col" th:text="${c.celular}">999999999</div>
                     </td>
                     <td>
-                        <div th:text="${c.tipoToldo}">-</div>
-                        <div class="fecha-col" th:text="${c.medidas}">-</div>
+                        <div th:text="${c.tipoProducto}">-</div>
+                        <div class="fecha-col" th:text="${c.medidasTexto}">-</div>
                     </td>
                     <td>
-                        <div class="msg-col" th:text="${c.mensaje}">-</div>
+                        <span th:if="${#lists.isEmpty(c.listaImagenes)}" class="fecha-col">—</span>
+                        <span th:unless="${#lists.isEmpty(c.listaImagenes)}" class="fecha-col">
+                            <i class="bi bi-image"></i> <span th:text="${#lists.size(c.listaImagenes)}">0</span>
+                        </span>
                     </td>
                     <td class="fecha-col" th:text="${#temporals.format(c.fechaSolicitud, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                     <td>
@@ -111,11 +115,103 @@
                             <button type="submit"><i class="bi bi-check"></i></button>
                         </form>
                     </td>
+                    <td>
+                        <button type="button" class="btn-ver-cotiz" th:attr="onclick=|openCotizDetalle('cotizData${c.id}')|" title="Ver detalle">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
 </main>
+
+<!-- ═══ Datos completos por solicitud (ocultos, se copian al modal) ═══ -->
+<div style="display:none;">
+    <div th:each="c : ${cotizaciones}" th:id="'cotizData' + ${c.id}"
+         th:attr="data-nombre=${c.nombre},
+                   data-celular=${c.celular},
+                   data-tipo=${c.tipoProducto},
+                   data-medidas=${c.medidasTexto},
+                   data-comentarios=${c.comentarios != null and !c.comentarios.isEmpty() ? c.comentarios : 'Sin comentarios.'}">
+        <div class="cotizdet-grid">
+            <div class="cotizdet-item"><span>Cliente</span><b th:text="${c.nombre}">-</b></div>
+            <div class="cotizdet-item" th:if="${c.empresa != null and !c.empresa.isEmpty()}"><span>Empresa</span><b th:text="${c.empresa}">-</b></div>
+            <div class="cotizdet-item"><span>Correo</span><b th:text="${c.correo}">-</b></div>
+            <div class="cotizdet-item"><span>Celular</span><b th:text="${c.celular}">-</b></div>
+            <div class="cotizdet-item"><span>Tipo de producto</span><b th:text="${c.tipoProducto}">-</b></div>
+            <div class="cotizdet-item"><span>Medidas</span><b th:text="${c.medidasTexto}">-</b></div>
+            <div class="cotizdet-item"><span>Solicitado</span><b th:text="${#temporals.format(c.fechaSolicitud, 'dd/MM/yyyy HH:mm')}">-</b></div>
+        </div>
+        <div class="cotizdet-comentarios">
+            <span>Comentarios</span>
+            <p th:text="${c.comentarios != null and !c.comentarios.isEmpty() ? c.comentarios : 'Sin comentarios.'}">-</p>
+        </div>
+        <div class="cotizdet-fotos">
+            <span>Imágenes adjuntas</span>
+            <p th:if="${#lists.isEmpty(c.listaImagenes)}" class="fecha-col">Sin imágenes adjuntas.</p>
+            <div th:unless="${#lists.isEmpty(c.listaImagenes)}" class="cotizdet-fotos-grid">
+                <a th:each="img : ${c.listaImagenes}" th:href="@{${img}}" th:attr="download='cotizacion-' + ${c.id} + '.jpg'" target="_blank" class="cotizdet-foto">
+                    <img th:src="@{${img}}" alt="">
+                    <span><i class="bi bi-download"></i> Descargar</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Modal de detalle ═══ -->
+<div class="cotizdet-overlay" id="cotizDetOverlay" onclick="closeCotizDetalle(event)">
+    <div class="cotizdet-modal">
+        <button class="cotizdet-close" onclick="closeCotizDetalle()"><i class="bi bi-x-lg"></i></button>
+        <h3 class="cotizdet-title"><i class="bi bi-file-earmark-text-fill"></i> Detalle de la cotización</h3>
+        <div id="cotizDetBody"></div>
+        <button type="button" class="btn-wsp-cotiz" id="cotizWspBtn" onclick="sendCotizWsp()">
+            <i class="bi bi-whatsapp"></i> Enviar confirmación por WhatsApp
+        </button>
+    </div>
+</div>
+
+<script>
+let cotizCurrentSourceId = null;
+
+function openCotizDetalle(sourceId) {
+    cotizCurrentSourceId = sourceId;
+    document.getElementById('cotizDetBody').innerHTML = document.getElementById(sourceId).innerHTML;
+    document.getElementById('cotizDetOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeCotizDetalle(e) {
+    if (e && e.target !== document.getElementById('cotizDetOverlay')) return;
+    document.getElementById('cotizDetOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeCotizDetalle();
+});
+
+function cotizCleanPhone(raw) {
+    let digits = (raw || '').replace(/\D/g, '');
+    if (digits.length === 9) digits = '51' + digits; // celular peruano sin código de país
+    return digits;
+}
+
+function sendCotizWsp() {
+    if (!cotizCurrentSourceId) return;
+    const d = document.getElementById(cotizCurrentSourceId).dataset;
+    const telefono = cotizCleanPhone(d.celular);
+    if (!telefono) { alert('Este cliente no tiene un celular válido.'); return; }
+
+    const msg = '¡Hola ' + d.nombre + '! 👋 Somos FullToldos.\n\n' +
+        'Recibimos tu solicitud de cotización para tu proyecto personalizado:\n\n' +
+        '🏷️ Tipo: ' + d.tipo + '\n' +
+        '📏 Medidas: ' + d.medidas + '\n' +
+        '💬 Comentarios: ' + d.comentarios + '\n\n' +
+        'En breve un asesor te contactará para coordinar los detalles y enviarte tu cotización. ¡Gracias por confiar en FullToldos! 😊';
+
+    window.open('https://wa.me/' + telefono + '?text=' + encodeURIComponent(msg), '_blank');
+}
+</script>
 
 </body>
 </html>

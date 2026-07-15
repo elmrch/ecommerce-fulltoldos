@@ -66,7 +66,10 @@ public class ProductoServiceImpl implements ProductoService {
             existing.setMedidas(producto.getMedidas());
             existing.setColores(producto.getColores());
             existing.setCaracteristicas(producto.getCaracteristicas());
+            existing.setEspecificaciones(producto.getEspecificaciones());
+            existing.setAccesorios(producto.getAccesorios());
             existing.setActivo(producto.isActivo());
+            existing.setTecVisible(producto.isTecVisible());
             existing.setEsNuevo(producto.isEsNuevo());
             existing.setEsDestacado(producto.isEsDestacado());
             existing.setDescuento(producto.getDescuento());
@@ -97,6 +100,14 @@ public class ProductoServiceImpl implements ProductoService {
     public void cambiarEstado(Long id, boolean activo) {
         productoRepository.findById(id).ifPresent(p -> {
             p.setActivo(activo);
+            productoRepository.save(p);
+        });
+    }
+
+    @Override
+    public void actualizarTecImagen(Long productoId, String url) {
+        productoRepository.findById(productoId).ifPresent(p -> {
+            p.setTecImagenUrl(url);
             productoRepository.save(p);
         });
     }

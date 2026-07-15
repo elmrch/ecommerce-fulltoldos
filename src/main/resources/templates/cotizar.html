@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${pageTitle}">Cotiza tu proyecto a medida — Full Toldos</title>
+    <meta name="description" th:content="${metaDescription}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/estilo.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- ═══ PÁGINA COTIZAR ═══ -->
+<div class="cotizpg-wrap">
+    <div class="cotizpg-hero">
+        <div class="container">
+            <h1 class="cotizpg-title">Cotiza tu proyecto a medida</h1>
+            <p class="cotizpg-sub">Diseñamos y fabricamos toldos, carpas y estructuras personalizadas según tus medidas, materiales y necesidades. Completa este formulario para recibir una cotización sin compromiso.</p>
+            <a th:href="${wspLink}" class="cotizpg-wsp-direct" target="_blank">
+                <i class="bi bi-whatsapp"></i> Prefiero cotizar por WhatsApp
+            </a>
+        </div>
+    </div>
+
+    <div class="container cotizpg-body">
+        <!-- Confirmación (oculta hasta enviar) -->
+        <div class="cotizpg-confirm" id="cotizConfirm">
+            <i class="bi bi-check-circle-fill"></i>
+            <h2>¡Gracias! Hemos recibido tu solicitud.</h2>
+            <p>Un asesor de FullToldos se comunicará contigo por WhatsApp o correo para preparar una cotización personalizada.</p>
+            <a th:href="@{/}" class="cotizpg-back-btn"><i class="bi bi-house"></i> Volver al inicio</a>
+        </div>
+
+        <form id="cotizForm" class="cotizpg-form" onsubmit="submitCotizPage(event)" enctype="multipart/form-data">
+
+            <!-- 1. Tipo de producto -->
+            <section class="cotizpg-section">
+                <h2 class="cotizpg-section-title"><span class="cotizpg-num">1</span> Tipo de producto <span class="cotiz-req">*</span></h2>
+                <div class="cotizpg-chips">
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Toldo Retráctil" required><i class="bi bi-square"></i> Toldo Retráctil</label>
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Toldo Fijo"><i class="bi bi-square"></i> Toldo Fijo</label>
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Carpa Publicitaria"><i class="bi bi-square"></i> Carpa Publicitaria</label>
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Carpa para Eventos"><i class="bi bi-square"></i> Carpa para Eventos</label>
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Lona PVC"><i class="bi bi-square"></i> Lona PVC</label>
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Cobertor"><i class="bi bi-square"></i> Cobertor</label>
+                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Otro"><i class="bi bi-square"></i> Otro</label>
+                </div>
+                <div class="cotizpg-otro-box" id="otro-tipoProducto">
+                    <input type="text" class="cotiz-input" placeholder="Cuéntanos qué tipo de producto necesitas">
+                </div>
+            </section>
+
+            <!-- 2. Medidas -->
+            <section class="cotizpg-section">
+                <h2 class="cotizpg-section-title"><span class="cotizpg-num">2</span> Medidas</h2>
+                <p class="cotizpg-hint">¿No tienes las medidas exactas a la mano? Déjalo en blanco y adjunta una foto del espacio; nuestro equipo te ayuda a definirlas.</p>
+                <div class="cotizpg-row3">
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Ancho (m)</label>
+                        <input type="number" step="0.01" min="0" name="ancho" class="cotiz-input" placeholder="Ej: 4.5">
+                    </div>
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Largo (m)</label>
+                        <input type="number" step="0.01" min="0" name="largo" class="cotiz-input" placeholder="Ej: 6">
+                    </div>
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Altura (m, opcional)</label>
+                        <input type="number" step="0.01" min="0" name="altura" class="cotiz-input" placeholder="Ej: 2.5">
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Adjuntar imágenes -->
+            <section class="cotizpg-section">
+                <h2 class="cotizpg-section-title"><span class="cotizpg-num">3</span> Adjuntar imágenes</h2>
+                <p class="cotizpg-hint">Fotos del lugar, una referencia de medida (ej. con cinta métrica) o una imagen de inspiración del diseño que buscas. Hasta 5 imágenes, 8MB c/u.</p>
+                <div class="cotizpg-dropzone" id="cotizDrop">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <p>Arrastra tus fotos aquí o <span>haz clic para elegir</span></p>
+                    <input type="file" id="cotizFileInput" accept="image/*" multiple hidden>
+                </div>
+                <div class="cotizpg-hint" id="cotizUploadHint" style="margin-top:8px;">0 / 5 imágenes seleccionadas</div>
+                <div class="cotizpg-previews" id="cotizPreviews"></div>
+            </section>
+
+            <!-- 4. Comentarios -->
+            <section class="cotizpg-section">
+                <h2 class="cotizpg-section-title"><span class="cotizpg-num">4</span> Comentarios</h2>
+                <div class="cotiz-field">
+                    <textarea name="comentarios" class="cotiz-input cotiz-textarea" rows="4"
+                        placeholder="Describe tu proyecto, necesidades especiales, acabados, impresión de logo, etc."></textarea>
+                </div>
+            </section>
+
+            <!-- 5. Datos del cliente -->
+            <section class="cotizpg-section">
+                <h2 class="cotizpg-section-title"><span class="cotizpg-num">5</span> Datos del cliente</h2>
+                <div class="cotiz-row">
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Nombre <span class="cotiz-req">*</span></label>
+                        <input type="text" name="nombre" class="cotiz-input" required placeholder="Tu nombre completo">
+                    </div>
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Empresa (opcional)</label>
+                        <input type="text" name="empresa" class="cotiz-input" placeholder="Nombre de tu empresa">
+                    </div>
+                </div>
+                <div class="cotiz-row">
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Celular <span class="cotiz-req">*</span></label>
+                        <input type="tel" name="celular" class="cotiz-input" required placeholder="+51 999 000 000">
+                    </div>
+                    <div class="cotiz-field">
+                        <label class="cotiz-label">Correo electrónico <span class="cotiz-req">*</span></label>
+                        <input type="email" name="correo" class="cotiz-input" required placeholder="tu@correo.com">
+                    </div>
+                </div>
+            </section>
+
+            <button type="submit" class="cotiz-submit cotizpg-submit" id="cotizSubmitBtn">
+                <i class="bi bi-send-fill"></i> Solicitar Cotización
+            </button>
+            <p class="cotiz-note"><i class="bi bi-shield-check"></i> Tu información es privada y solo se usará para contactarte.</p>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/chrome :: chrome}"></div>
+
+</body>
+</html>

@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link th:href="@{/estilo.css}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 </head>
 <body class="admin-page">
 
@@ -126,11 +127,44 @@
                     <div class="form-hint">Se muestra en la tarjeta y en el info card del producto.</div>
                 </div>
                 <div class="col-12">
-                    <label class="form-label">Descripción larga <span style="color:#aaa;font-weight:400;text-transform:none;letter-spacing:0;">(Tabs del producto)</span></label>
-                    <textarea th:field="*{descripcionLarga}" class="form-control"
-                              placeholder="Contenido detallado: materiales, usos, garantía, instalación... Se muestra en los tabs de la página del producto."
-                              style="min-height:180px;"></textarea>
-                    <div class="form-hint">Aparece en el tab <strong>Descripción</strong> dentro de la página del producto. Puede ser tan largo como necesites.</div>
+                    <label class="form-label">Descripción larga <span style="color:#aaa;font-weight:400;text-transform:none;letter-spacing:0;">(sección Detalles del producto)</span></label>
+                    <div id="descLargaToolbar" class="ql-toolbar ql-snow">
+                        <span class="ql-formats">
+                            <select class="ql-header">
+                                <option value="2"></option>
+                                <option value="3"></option>
+                                <option selected="selected"></option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select class="ql-align"></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                            <button class="ql-blockquote"></button>
+                            <button class="ql-clean"></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button type="button" id="qlInsert2Col" title="Insertar dos columnas"><i class="bi bi-layout-split"></i></button>
+                        </span>
+                    </div>
+                    <div id="descLargaEditor"></div>
+                    <textarea th:field="*{descripcionLarga}" id="descripcionLargaHidden" style="display:none;"></textarea>
+                    <div class="form-hint">Aparece en la sección <strong>Detalles</strong> de la página del producto (columna izquierda). Usá el botón <i class="bi bi-layout-split"></i> para escribir en dos columnas, como en Word.</div>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Stock</label>
@@ -155,6 +189,22 @@
                               rows="4"
                               placeholder="Ej: Estructura aluminio anodizado, Lona PVC 300gr, Montaje sin herramientas"></textarea>
                     <div class="form-hint">Una característica por línea, o separadas por coma</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Especificaciones técnicas <span style="color:#aaa;font-weight:400;text-transform:none;letter-spacing:0;">(tabla en el producto)</span></label>
+                    <textarea th:field="*{especificaciones}" class="form-control"
+                              rows="4"
+                              placeholder="Modelo: Ambassador&#10;Categoría: Uso ligero&#10;Tamaño de carpa: 3x3 m&#10;Peso: 16 kg"></textarea>
+                    <div class="form-hint">Una fila por línea, formato <strong>Etiqueta: valor</strong>. Se muestra como tabla en la sección "Especificaciones técnicas".</div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Accesorios adicionales</label>
+                    <textarea th:field="*{accesorios}" class="form-control"
+                              rows="4"
+                              placeholder="Ej: Bolsa de transporte, Kit de anclaje, Paredes laterales, Iluminación LED"></textarea>
+                    <div class="form-hint">Un accesorio por línea, o separados por coma. Se muestra en columnas en la sección "Accesorios adicionales".</div>
                 </div>
 
                 <!-- Imágenes iniciales (solo en nuevo producto) -->
@@ -185,6 +235,45 @@
                                class="form-check-input" id="activoCheck">
                         <label class="form-check-label" for="activoCheck"
                                style="font-size:0.88rem;">Producto activo (visible en tienda)</label>
+                    </div>
+                </div>
+
+                <!-- ── Sección Tecnología (imagen antes de las tabs de descripción) ── -->
+                <div class="col-12" style="margin-top:8px;">
+                    <label class="form-label">Imagen de Tecnología (opcional)</label>
+                    <img th:if="${producto.tecImagenUrl != null}" th:src="${producto.tecImagenUrl}"
+                         style="max-height:120px;border-radius:8px;display:block;margin-bottom:8px;">
+                    <input type="file" name="tecImagenFile" class="form-control"
+                           accept="image/jpeg,image/png,image/webp">
+                    <div class="form-hint">Se muestra en la ficha del producto, justo antes de las tabs de descripción. Cada producto tiene la suya.</div>
+                    <div class="form-check" style="margin-top:8px;">
+                        <input type="checkbox" th:field="*{tecVisible}"
+                               class="form-check-input" id="tecVisibleCheck">
+                        <label class="form-check-label" for="tecVisibleCheck"
+                               style="font-size:0.88rem;">Mostrar sección Tecnología en este producto</label>
+                    </div>
+                </div>
+
+                <!-- ── Calificación (estrellas) ── -->
+                <div class="col-12" style="margin-top:8px;">
+                    <label class="form-label">Calificación (estrellas)</label>
+                    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;">
+                        <div style="max-width:220px;">
+                            <select th:field="*{rating}" class="form-select">
+                                <option value="0">Sin calificación</option>
+                                <option value="5">★★★★★ (5)</option>
+                                <option value="4">★★★★☆ (4)</option>
+                                <option value="3">★★★☆☆ (3)</option>
+                                <option value="2">★★☆☆☆ (2)</option>
+                                <option value="1">★☆☆☆☆ (1)</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" th:field="*{ratingVisible}"
+                                   class="form-check-input" id="ratingVisibleCheck">
+                            <label class="form-check-label" for="ratingVisibleCheck"
+                                   style="font-size:0.88rem;">Mostrar estrellas en este producto</label>
+                        </div>
                     </div>
                 </div>
 
@@ -375,6 +464,31 @@ document.getElementById('confirmYesBtn').addEventListener('click', function () {
     _bsModal.hide();
     if (_pendingForm) { _pendingForm.submit(); _pendingForm = null; }
 });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script>
+(function() {
+    var hidden = document.getElementById('descripcionLargaHidden');
+    var quill = new Quill('#descLargaEditor', {
+        theme: 'snow',
+        modules: { toolbar: '#descLargaToolbar' },
+        placeholder: 'Contenido detallado: materiales, usos, garantía, instalación...'
+    });
+    if (hidden.value) quill.clipboard.dangerouslyPasteHTML(hidden.value);
+    quill.on('text-change', function() { hidden.value = quill.root.innerHTML; });
+
+    document.getElementById('qlInsert2Col').addEventListener('click', function() {
+        var range = quill.getSelection(true);
+        quill.clipboard.dangerouslyPasteHTML(range.index,
+            '<div class="prod-2col"><div>Columna 1…</div><div>Columna 2…</div></div><p><br></p>');
+    });
+
+    // Asegurar que el contenido quede sincronizado justo antes de enviar el formulario
+    hidden.closest('form').addEventListener('submit', function() {
+        hidden.value = quill.root.innerHTML;
+    });
+})();
 </script>
 
 </body>

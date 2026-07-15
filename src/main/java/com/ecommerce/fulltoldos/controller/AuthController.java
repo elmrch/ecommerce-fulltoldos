@@ -139,6 +139,19 @@ public class AuthController {
         return "ofertas";
     }
 
+    @GetMapping("/cotizar")
+    public String cotizar(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
+        agregarDatosInicio(model);
+        if (usuarioLogueado != null) {
+            usuarioRepository.findByEmail(usuarioLogueado.getUsername())
+                    .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
+        }
+        model.addAttribute("pageTitle", "Cotiza tu proyecto a medida — Full Toldos");
+        model.addAttribute("metaDescription",
+                "Solicita una cotización sin compromiso para tu toldo, carpa o estructura a medida. Cuéntanos tus medidas, materiales y necesidades.");
+        return "cotizar";
+    }
+
     /** Descripción corta para meta-tag SEO (~155 caracteres); usa el fallback si no hay descripción cargada. */
     private static String descripcionCorta(String descripcion, String fallback) {
         String base = (descripcion != null && !descripcion.isBlank()) ? descripcion.trim() : fallback;
@@ -159,6 +172,9 @@ public class AuthController {
         topbar.put("fuente",      configService.get("topbar.fuente",       "'Poppins', sans-serif"));
         topbar.put("colorFuente", configService.get("topbar.color.fuente", "#111111"));
         model.addAttribute("topbar", topbar);
+
+        model.addAttribute("logo",         configService.get("sitio.logo",          "/logofulltoldos.png"));
+        model.addAttribute("logoPosicion", configService.get("sitio.logo.posicion", "left"));
 
         Map<String, String> redes = new HashMap<>();
         redes.put("whatsapp",  configService.get("redes.whatsapp",  "https://wa.me/" + wspNum));
@@ -290,11 +306,33 @@ public class AuthController {
                 }
                 m.put("videos", videos);
                 m.put("precio", p.getPrecio());
-                m.put("rating", null);
+                m.put("rating", (p.isRatingVisible() && p.getRating() != null && p.getRating() > 0) ? p.getRating() : null);
                 m.put("reviews", 0);
                 m.put("subcat", p.getSubcategoria() != null ? String.valueOf(p.getSubcategoria().getId()) : null);
                 m.put("subcatName", p.getSubcategoria() != null ? p.getSubcategoria().getNombre() : null);
                 m.put("unidad", p.getUnidadMedida() != null ? p.getUnidadMedida() : "UNIDAD");
+                m.put("tecImagen", p.getTecImagenUrl());
+                m.put("tecVisible", p.isTecVisible());
+                List<Map<String, String>> especificaciones = new ArrayList<>();
+                if (p.getEspecificaciones() != null && !p.getEspecificaciones().trim().isEmpty()) {
+                    Arrays.stream(p.getEspecificaciones().split("\n"))
+                        .map(String::trim).filter(s -> !s.isEmpty())
+                        .forEach(linea -> {
+                            int idx = linea.indexOf(':');
+                            Map<String, String> fila = new LinkedHashMap<>();
+                            fila.put("label", idx > -1 ? linea.substring(0, idx).trim() : linea);
+                            fila.put("value", idx > -1 ? linea.substring(idx + 1).trim() : "");
+                            especificaciones.add(fila);
+                        });
+                }
+                m.put("especificaciones", especificaciones);
+                List<String> accesorios = Collections.emptyList();
+                if (p.getAccesorios() != null && !p.getAccesorios().trim().isEmpty()) {
+                    accesorios = Arrays.stream(p.getAccesorios().split("[,\n]"))
+                        .map(String::trim).filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                }
+                m.put("accesorios", accesorios);
                 return m;
             }).collect(Collectors.toList());
 
@@ -425,6 +463,9 @@ public class AuthController {
         topbar.put("fuente",      configService.get("topbar.fuente",       "'Poppins', sans-serif"));
         topbar.put("colorFuente", configService.get("topbar.color.fuente", "#111111"));
         model.addAttribute("topbar", topbar);
+
+        model.addAttribute("logo",         configService.get("sitio.logo",          "/logofulltoldos.png"));
+        model.addAttribute("logoPosicion", configService.get("sitio.logo.posicion", "left"));
 
         Map<String, String> redes = new HashMap<>();
         redes.put("whatsapp",  configService.get("redes.whatsapp",  "https://wa.me/" + wspNum));

@@ -37,6 +37,9 @@ public interface ProductoService {
     void cambiarEstado(Long id, boolean activo);
 
 
+    void actualizarTecImagen(Long productoId, String url);
+
+
     ProductoMedia agregarImagen(Long productoId, MultipartFile archivo, boolean principal);
 
 

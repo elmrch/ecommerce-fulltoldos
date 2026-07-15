@@ -28,8 +28,8 @@
 <nav class="navbar-ft">
     <div class="container">
         <div class="navbar-inner">
-            <a href="#" class="logo-wrap" onclick="event.preventDefault();goHome()">
-                <img th:src="@{/logofulltoldos.png}" src="logofulltoldos.png" alt="Full Toldos" class="logo-img">
+            <a href="#" th:class="'logo-wrap logo-pos-' + ${logoPosicion}" onclick="event.preventDefault();goHome()">
+                <img th:src="${logo}" src="logofulltoldos.png" alt="Full Toldos" class="logo-img">
             </a>
             <div class="nav-search-container">
                 <div class="nav-search-wrap">
@@ -151,7 +151,7 @@
                     <span class="cart-badge" id="cartCount">0</span>
                     <span class="cart-total-label" id="cartTotalLabel">S/ 0.00</span>
                 </div>
-                <a href="#" onclick="event.preventDefault();openCotizModal()" class="btn-cotizar">
+                <a th:href="@{/cotizar}" class="btn-cotizar">
                     <i class="bi bi-chat-text-fill"></i> Cotizar
                 </a>
                 <button class="mob-ham" onclick="openMobileMenu()" aria-label="Menú">

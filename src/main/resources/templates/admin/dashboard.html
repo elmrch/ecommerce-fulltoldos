@@ -54,16 +54,22 @@
         <a th:href="@{/admin/slides}" class="nav-item">
             <i class="bi bi-images"></i> Carrusel
         </a>
-        <a th:href="@{/admin/testimonios}" class="nav-item"><i class="bi bi-chat-quote-fill"></i> Testimonios</a>
-        <span class="nav-section-lbl">Configuración</span>
-        <a th:href="@{/admin/ajustes}" class="nav-item">
-            <i class="bi bi-gear"></i> Ajustes
+        <a th:href="@{/admin/promos}" class="nav-item">
+            <i class="bi bi-grid-3x2-gap-fill"></i> Banners
         </a>
+        <a th:href="@{/admin/testimonios}" class="nav-item"><i class="bi bi-chat-quote-fill"></i> Testimonios</a>
         <a th:href="@{/admin/envios}" class="nav-item">
             <i class="bi bi-truck"></i> Envíos
         </a>
         <a th:href="@{/admin/nosotros}" class="nav-item">
-            <i class="bi bi-building"></i> Nosotros y Preguntas Frecuentes
+            <i class="bi bi-building"></i> Nosotros
+        </a>
+        <a th:href="@{/admin/faq}" class="nav-item">
+            <i class="bi bi-question-circle"></i> Preguntas Frecuentes
+        </a>
+        <span class="nav-section-lbl">Configuración</span>
+        <a th:href="@{/admin/ajustes}" class="nav-item">
+            <i class="bi bi-gear"></i> Ajustes
         </a>
         <a th:href="@{/}" class="nav-item">
             <i class="bi bi-shop"></i> Ver tienda
@@ -131,37 +137,146 @@
         </div>
     </div>
 
-    <!-- Acciones rápidas -->
-    <div class="section-title">Acciones rápidas</div>
-    <div class="action-grid">
-        <a th:href="@{/admin/categorias}" class="action-card">
-            <i class="bi bi-tags"></i>
-            <span>Categorías</span>
-        </a>
-        <a th:href="@{/admin/productos}" class="action-card">
-            <i class="bi bi-plus-square"></i>
-            <span>Agregar producto</span>
-        </a>
-        <a th:href="@{/admin/pedidos}" class="action-card">
-            <i class="bi bi-bag-check"></i>
-            <span>Ver pedidos</span>
-        </a>
-        <a th:href="@{/admin/cotizaciones}" class="action-card">
-            <i class="bi bi-file-earmark-plus"></i>
-            <span>Ver cotizaciones</span>
-        </a>
-        <a th:href="@{/admin/usuarios}" class="action-card">
-            <i class="bi bi-person-plus"></i>
-            <span>Ver clientes</span>
-        </a>
-        <a th:href="@{/}" class="action-card">
-            <i class="bi bi-shop"></i>
-            <span>Ver tienda</span>
-        </a>
-        <a th:href="@{/admin/ajustes}" class="action-card">
-            <i class="bi bi-gear"></i>
-            <span>Ajustes</span>
-        </a>
+    <!-- Todos los módulos -->
+    <div class="section-title">Todos los módulos</div>
+    <div class="modules-wrap">
+
+        <div class="module-group">
+            <div class="module-group-title"><i class="bi bi-box-seam"></i> Catálogo</div>
+            <div class="module-grid">
+                <a th:href="@{/admin/productos}" class="module-card">
+                    <span class="module-icon" style="background:#e3f2fd;color:#1949c9;"><i class="bi bi-box-seam"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Productos</span>
+                        <span class="module-desc">Catálogo, precios y fotos</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/categorias}" class="module-card">
+                    <span class="module-icon" style="background:#e3f2fd;color:#1949c9;"><i class="bi bi-tags"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Categorías</span>
+                        <span class="module-desc">Organiza el catálogo</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/subcategorias}" class="module-card">
+                    <span class="module-icon" style="background:#e3f2fd;color:#1949c9;"><i class="bi bi-diagram-3"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Subcategorías</span>
+                        <span class="module-desc">Divide cada categoría</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="module-group">
+            <div class="module-group-title"><i class="bi bi-graph-up-arrow"></i> Ventas</div>
+            <div class="module-grid">
+                <a th:href="@{/admin/pedidos}" class="module-card">
+                    <span class="module-icon" style="background:#e8f5e9;color:#2e7d32;"><i class="bi bi-bag-check-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Pedidos</span>
+                        <span class="module-desc">Ventas realizadas</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/cotizaciones}" class="module-card">
+                    <span class="module-icon" style="background:#fff3e0;color:#e65100;"><i class="bi bi-file-earmark-text-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Cotizaciones</span>
+                        <span class="module-desc">Solicitudes de clientes</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/usuarios}" class="module-card">
+                    <span class="module-icon" style="background:#f3e5f5;color:#6a1b9a;"><i class="bi bi-people-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Usuarios</span>
+                        <span class="module-desc">Clientes y administradores</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="module-group">
+            <div class="module-group-title"><i class="bi bi-shop-window"></i> Contenido de la tienda</div>
+            <div class="module-grid">
+                <a th:href="@{/admin/slides}" class="module-card">
+                    <span class="module-icon" style="background:#fce4ec;color:#ad1457;"><i class="bi bi-images"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Carrusel</span>
+                        <span class="module-desc">Banners del inicio</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/promos}" class="module-card">
+                    <span class="module-icon" style="background:#fce4ec;color:#ad1457;"><i class="bi bi-grid-3x2-gap-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Banners promo</span>
+                        <span class="module-desc">Bloques promocionales</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/testimonios}" class="module-card">
+                    <span class="module-icon" style="background:#fce4ec;color:#ad1457;"><i class="bi bi-chat-quote-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Testimonios</span>
+                        <span class="module-desc">Opiniones de clientes</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/nosotros}" class="module-card">
+                    <span class="module-icon" style="background:#fce4ec;color:#ad1457;"><i class="bi bi-building"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Nosotros</span>
+                        <span class="module-desc">Página "Sobre nosotros"</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/faq}" class="module-card">
+                    <span class="module-icon" style="background:#fce4ec;color:#ad1457;"><i class="bi bi-question-circle-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Preguntas frecuentes</span>
+                        <span class="module-desc">FAQ públicas</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="module-group">
+            <div class="module-group-title"><i class="bi bi-gear-wide-connected"></i> Operación y configuración</div>
+            <div class="module-grid">
+                <a th:href="@{/admin/envios}" class="module-card">
+                    <span class="module-icon" style="background:#e0f2f1;color:#00695c;"><i class="bi bi-truck"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Envíos</span>
+                        <span class="module-desc">Agencias y costos</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/admin/ajustes}" class="module-card">
+                    <span class="module-icon" style="background:#ede7f6;color:#4527a0;"><i class="bi bi-gear-fill"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Ajustes</span>
+                        <span class="module-desc">Configuración general</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+                <a th:href="@{/}" target="_blank" class="module-card">
+                    <span class="module-icon" style="background:#eceff1;color:#37474f;"><i class="bi bi-shop"></i></span>
+                    <span class="module-text">
+                        <span class="module-name">Ver tienda</span>
+                        <span class="module-desc">Abrir sitio público</span>
+                    </span>
+                    <i class="bi bi-chevron-right module-arrow"></i>
+                </a>
+            </div>
+        </div>
+
     </div>
 
 </main>

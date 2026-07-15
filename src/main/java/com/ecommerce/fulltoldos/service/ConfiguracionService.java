@@ -50,6 +50,8 @@ public class ConfiguracionService {
         insertar("topbar.color.fondo",   "#b9f6ca",                  "Color de fondo de la barra superior",     "contacto");
         insertar("topbar.fuente",        "'Poppins', sans-serif",    "Fuente de la barra superior (CSS font-family)", "contacto");
         insertar("topbar.color.fuente",  "#111111",                  "Color de letra de la barra superior",     "contacto");
+        insertar("sitio.logo",           "/logofulltoldos.png",      "Logo del sitio (barra de navegación)",    "logo");
+        insertar("sitio.logo.posicion",  "left",                     "Posición del logo en la barra: left, center o right", "logo");
 
         // Newsletter (sección del home)
         insertar("newsletter.titulo",        "Suscríbete a Nuestro Newsletter",                              "Título de la sección",                    "newsletter");

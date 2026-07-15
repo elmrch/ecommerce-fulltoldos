@@ -58,6 +58,8 @@ public class AdminController {
         model.addAttribute("bannerLinkTipo",  configService.get("banner.central.link.tipo", "whatsapp"));
         model.addAttribute("bannerLinkValor", configService.get("banner.central.link.valor",""));
         model.addAttribute("newsletterImagen", configService.get("newsletter.imagen", "/img/imgfooter.png"));
+        model.addAttribute("logoImagen",   configService.get("sitio.logo",          "/logofulltoldos.png"));
+        model.addAttribute("logoPosicion", configService.get("sitio.logo.posicion", "left"));
 
         model.addAttribute("buildBannerImagen",      configService.get("build.banner.imagen",      "/img/construimos.png"));
         model.addAttribute("buildBannerTitulo",       configService.get("build.banner.titulo",       "FABRICADO<br>MEJOR.<br>FABRICADO DE<br>FORMA DIFERENTE."));
@@ -133,6 +135,25 @@ public class AdminController {
             ra.addFlashAttribute("ok", "Banner actualizado.");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Error al guardar el banner: " + e.getMessage());
+        }
+        return "redirect:/admin/ajustes";
+    }
+
+    @PostMapping("/ajustes/logo")
+    public String guardarLogo(@RequestParam(value = "imagen", required = false) MultipartFile imagen,
+                               @RequestParam(value = "logoPosicion", defaultValue = "left") String posicion,
+                               RedirectAttributes ra) {
+        try {
+            if (imagen != null && !imagen.isEmpty()) {
+                if (!fileStorage.esImagenValida(imagen))
+                    throw new RuntimeException("Formato de imagen no válido");
+                String url = fileStorage.guardarArchivo(imagen, "logo");
+                configService.guardar("sitio.logo", url);
+            }
+            configService.guardar("sitio.logo.posicion", posicion);
+            ra.addFlashAttribute("ok", "Logo actualizado.");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Error al guardar el logo: " + e.getMessage());
         }
         return "redirect:/admin/ajustes";
     }

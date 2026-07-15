@@ -48,6 +48,12 @@ public class Producto extends AuditableEntity {
     @Column(columnDefinition = "TEXT")
     private String caracteristicas;
 
+    @Column(columnDefinition = "TEXT")
+    private String especificaciones;
+
+    @Column(columnDefinition = "TEXT")
+    private String accesorios;
+
     @Column(nullable = false)
     private boolean activo = true;
 
@@ -62,6 +68,18 @@ public class Producto extends AuditableEntity {
 
     @Column(name = "fecha_fin_oferta")
     private LocalDateTime fechaFinOferta;
+
+    @Column(name = "tec_imagen_url", length = 500)
+    private String tecImagenUrl;
+
+    @Column(name = "tec_visible", nullable = false)
+    private boolean tecVisible = false;
+
+    @Column(name = "rating")
+    private Integer rating = 0;
+
+    @Column(name = "rating_visible", nullable = false, columnDefinition = "boolean default false")
+    private boolean ratingVisible = false;
 
     @OneToMany(mappedBy = "producto",
             cascade = CascadeType.ALL,
@@ -129,6 +147,12 @@ public class Producto extends AuditableEntity {
     public String getCaracteristicas()             { return caracteristicas; }
     public void setCaracteristicas(String c)       { this.caracteristicas = c; }
 
+    public String getEspecificaciones()            { return especificaciones; }
+    public void setEspecificaciones(String e)      { this.especificaciones = e; }
+
+    public String getAccesorios()                  { return accesorios; }
+    public void setAccesorios(String a)            { this.accesorios = a; }
+
     public boolean isActivo()                      { return activo; }
     public void setActivo(boolean activo)          { this.activo = activo; }
 
@@ -143,6 +167,18 @@ public class Producto extends AuditableEntity {
 
     public LocalDateTime getFechaFinOferta()       { return fechaFinOferta; }
     public void setFechaFinOferta(LocalDateTime f) { this.fechaFinOferta = f; }
+
+    public String getTecImagenUrl()                { return tecImagenUrl; }
+    public void setTecImagenUrl(String url)         { this.tecImagenUrl = url; }
+
+    public boolean isTecVisible()                  { return tecVisible; }
+    public void setTecVisible(boolean tecVisible)  { this.tecVisible = tecVisible; }
+
+    public Integer getRating()                     { return rating; }
+    public void setRating(Integer rating)          { this.rating = rating; }
+
+    public boolean isRatingVisible()                    { return ratingVisible; }
+    public void setRatingVisible(boolean ratingVisible) { this.ratingVisible = ratingVisible; }
 
     public BigDecimal getPrecioConDescuento() {
         if (precio == null || precio.compareTo(BigDecimal.ZERO) == 0) return null;

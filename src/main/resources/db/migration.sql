@@ -9,19 +9,20 @@ CREATE TABLE IF NOT EXISTS public.configuracion (
 );
 
 -- ================================================================
--- Tabla: cotizaciones
+-- Tabla: cotizaciones ("Cotiza tu proyecto a medida")
 -- ================================================================
 CREATE TABLE IF NOT EXISTS public.cotizaciones (
     id               BIGSERIAL PRIMARY KEY,
     nombre           VARCHAR(100),
-    apellido         VARCHAR(100),
     correo           VARCHAR(150),
-    telefono         VARCHAR(30),
+    celular          VARCHAR(30),
     empresa          VARCHAR(150),
-    tipo_toldo       VARCHAR(100),
-    medidas          VARCHAR(100),
-    mensaje          TEXT,
-    como_sentero     VARCHAR(200),
+    tipo_producto    VARCHAR(100),
+    ancho            VARCHAR(30),
+    largo            VARCHAR(30),
+    altura           VARCHAR(30),
+    imagenes         TEXT,
+    comentarios      TEXT,
     fecha_solicitud  TIMESTAMP DEFAULT NOW(),
     estado           VARCHAR(20) DEFAULT 'PENDIENTE'
 );

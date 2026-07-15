@@ -32,7 +32,7 @@ function getStarsHTML(p) {
   for(let i=0;i<full;i++)  s += '<i class="bi bi-star-fill"></i>';
   if(half)                 s += '<i class="bi bi-star-half"></i>';
   for(let i=0;i<empty;i++) s += '<i class="bi bi-star"></i>';
-  s += `<span class="prod-reviews">${p.rating.toFixed(1)} (${p.reviews})</span></span>`;
+  s += `<span class="prod-reviews">${p.rating.toFixed(1)}${p.reviews ? ' (' + p.reviews + ')' : ''}</span></span>`;
   return s;
 }
 
@@ -466,15 +466,6 @@ function closeProdPage() {
   window.location.href = cat ? '/categoria/' + toSlug(cat.name) : '/';
 }
 
-function switchProdTab(tab, btn) {
-  document.querySelectorAll('.prod-tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.prod-tab-panel').forEach(p => p.style.display = 'none');
-  btn.classList.add('active');
-  const map = { desc:'prodTabDesc', details:'prodTabDetails', videos:'prodTabVideos' };
-  const el = document.getElementById(map[tab]);
-  if (el) el.style.display = 'block';
-}
-
 function renderProdPage(p) {
   // Breadcrumb
   document.getElementById('prodBreadcrumb').innerHTML =
@@ -617,52 +608,83 @@ function renderProdPage(p) {
     </div>
   `;
 
-  // ── Tabs: Descripción / Detalles / Videos ──
+  // ── Sección Tecnología (imagen propia por producto, antes de las tabs) ──
+  const tecEl = document.getElementById('prodTecSection');
+  if (tecEl) {
+    tecEl.innerHTML = (p.tecVisible && p.tecImagen)
+      ? `<div class="prod-tec-section" style="margin-top:40px;">
+           <img src="${p.tecImagen}" alt="Tecnología" style="width:100%;border-radius:12px;display:block;">
+         </div>`
+      : '';
+  }
+
+  // ── Detalles: ya no son tabs, todo el contenido se muestra apilado ──
   const hasVideos = p.videos && p.videos.length > 0;
+  const hasSpecs = p.especificaciones && p.especificaciones.length > 0;
+  const hasAccesorios = p.accesorios && p.accesorios.length > 0;
   const tabsEl = document.getElementById('prodTabsSection');
   if (tabsEl) {
+    const featuresHtml = (p.features && p.features.length)
+      ? p.features.map(f => {
+          const i = f.indexOf(':');
+          return i > -1
+            ? `<li><strong>${f.slice(0, i)}</strong>:${f.slice(i + 1)}</li>`
+            : `<li>${f}</li>`;
+        }).join('')
+      : '<li>No hay características registradas.</li>';
+
     tabsEl.innerHTML = `
-      <div class="prod-tabs">
-        <div class="prod-tabs-nav">
-          <button class="prod-tab-btn active" onclick="switchProdTab('desc',this)">
-            <i class="bi bi-file-text"></i> Descripción
-          </button>
-          <button class="prod-tab-btn" onclick="switchProdTab('details',this)">
-            <i class="bi bi-list-check"></i> Detalles del producto
-          </button>
-          ${hasVideos ? `<button class="prod-tab-btn" onclick="switchProdTab('videos',this)">
-            <i class="bi bi-play-circle"></i> Videos
-          </button>` : ''}
+      <div class="prod-detail-section">
+        <div class="prod-detail-bar">DETALLES</div>
+        <div class="prod-detail-body">
+          <div class="prod-detail-col">
+            <h4 class="prod-detail-heading">Detalles del producto</h4>
+            <div class="prod-detail-text">${p.descLarga || p.desc || 'Sin descripción disponible.'}</div>
+          </div>
+          <div class="prod-detail-col">
+            <h4 class="prod-detail-heading">Características principales</h4>
+            <ul class="prod-detail-list">${featuresHtml}</ul>
+            ${p.medidas && p.medidas.length ? `
+              <div class="prod-detail-subheading">Medidas disponibles</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+                ${p.medidas.map(m=>`<span class="medida-tag-detail">${m}</span>`).join('')}
+              </div>` : ''}
+            ${p.unidad ? `<div class="prod-detail-unidad"><strong>Unidad de medida:</strong> ${p.unidad}</div>` : ''}
+          </div>
         </div>
+      </div>
 
-        <div class="prod-tab-panel" id="prodTabDesc">
-          <div class="prod-tab-text">${p.descLarga || p.desc || 'Sin descripción disponible.'}</div>
+      ${hasSpecs ? `
+      <div class="prod-detail-section" style="margin-top:24px;">
+        <div class="prod-detail-bar">ESPECIFICACIONES TÉCNICAS</div>
+        <div class="prod-spec-table">
+          ${p.especificaciones.map(e => `
+            <div class="prod-spec-row">
+              <div class="prod-spec-label">${e.label}</div>
+              <div class="prod-spec-value">${e.value}</div>
+            </div>`).join('')}
         </div>
+      </div>` : ''}
 
-        <div class="prod-tab-panel" id="prodTabDetails" style="display:none;">
-          ${p.features && p.features.length ? `
-            <div class="prod-tab-sub">Características principales</div>
-            <ul class="prod-page-features">
-              ${p.features.map(f=>`<li><i class="bi bi-check-circle-fill"></i>${f}</li>`).join('')}
-            </ul>` : ''}
-          ${p.medidas && p.medidas.length ? `
-            <div class="prod-tab-sub" style="margin-top:20px;">Medidas disponibles</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
-              ${p.medidas.map(m=>`<span class="medida-tag-detail">${m}</span>`).join('')}
-            </div>` : ''}
-          ${p.unidad ? `
-            <div style="margin-top:20px;font-size:0.9rem;color:#555;">
-              <strong>Unidad de medida:</strong> ${p.unidad}
-            </div>` : ''}
+      ${hasAccesorios ? `
+      <div class="prod-detail-section" style="margin-top:24px;">
+        <div class="prod-detail-bar">ACCESORIOS ADICIONALES</div>
+        <div class="prod-detail-body">
+          <ul class="prod-accesorios-list">
+            ${p.accesorios.map(a => `<li>${a}</li>`).join('')}
+          </ul>
         </div>
+      </div>` : ''}
 
-        ${hasVideos ? `
-        <div class="prod-tab-panel" id="prodTabVideos" style="display:none;">
+      ${hasVideos ? `
+      <div class="prod-detail-section" style="margin-top:24px;">
+        <div class="prod-detail-bar">VIDEOS</div>
+        <div class="prod-detail-body">
           <div class="prod-tab-videos-grid">
             ${p.videos.map(v=>`<div class="prod-tab-video-wrap">${buildVideoPlayer(v,{})}</div>`).join('')}
           </div>
-        </div>` : ''}
-      </div>
+        </div>
+      </div>` : ''}
     `;
   }
 
@@ -936,19 +958,9 @@ function updateCartCount() {
   }
 }
 
-/* ═══ MODAL COTIZACIÓN ═══ */
-function openCotizModal() {
-  document.getElementById('cotizOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeCotizModal(e) {
-  if (e && e.target !== document.getElementById('cotizOverlay')) return;
-  document.getElementById('cotizOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
+/* ═══ PÁGINA COTIZAR (formulario "Cotiza tu proyecto a medida") ═══ */
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
-    closeCotizModal();
     const overlay = document.getElementById('wpopupOverlay');
     if (overlay && overlay.classList.contains('open')) {
       overlay.classList.remove('open');
@@ -957,13 +969,107 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-async function submitCotiz(e) {
+// Selección de chips (radio ocultos) en el formulario de cotización
+function cotizPickChip(el) {
+  const input = el.querySelector('input[type="radio"]');
+  if (!input) return;
+  const group = el.closest('.cotizpg-chips');
+  if (group) group.querySelectorAll('.cotizpg-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  input.checked = true;
+
+  // Si el campo tiene una caja "Otro" asociada, mostrarla solo cuando corresponde
+  const otroBox = document.getElementById('otro-' + input.name);
+  if (otroBox) {
+    if (input.value === 'Otro') {
+      otroBox.classList.add('open');
+      const txt = otroBox.querySelector('input[type="text"]');
+      if (txt) txt.focus();
+    } else {
+      otroBox.classList.remove('open');
+    }
+  }
+}
+
+// Antes de enviar: si el usuario eligió "Otro" y escribió algo, usar ese texto como valor real del campo
+function cotizResolveOtros(form) {
+  ['tipoProducto'].forEach(name => {
+    const checked = form.querySelector('input[name="' + name + '"]:checked');
+    if (!checked || checked.value !== 'Otro') return;
+    const otroBox = document.getElementById('otro-' + name);
+    const txt = otroBox ? otroBox.querySelector('input[type="text"]') : null;
+    if (txt && txt.value.trim()) checked.value = txt.value.trim();
+  });
+}
+
+// Subida de imágenes con preview (drag & drop + input file)
+const cotizFiles = [];
+const COTIZ_MAX_IMG = 5;
+const COTIZ_MAX_SIZE = 8 * 1024 * 1024; // 8MB
+
+function cotizInitUpload() {
+  const drop = document.getElementById('cotizDrop');
+  const input = document.getElementById('cotizFileInput');
+  if (!drop || !input) return;
+
+  drop.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => cotizAddFiles(input.files));
+
+  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault();
+    drop.classList.add('drag');
+  }));
+  ['dragleave', 'dragend'].forEach(ev => drop.addEventListener(ev, () => drop.classList.remove('drag')));
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('drag');
+    cotizAddFiles(e.dataTransfer.files);
+  });
+}
+
+function cotizAddFiles(fileList) {
+  for (const f of fileList) {
+    if (cotizFiles.length >= COTIZ_MAX_IMG) {
+      showToast('Máximo ' + COTIZ_MAX_IMG + ' imágenes.');
+      break;
+    }
+    if (!f.type.startsWith('image/')) { showToast(f.name + ' no es una imagen.'); continue; }
+    if (f.size > COTIZ_MAX_SIZE) { showToast(f.name + ' pesa más de 8MB.'); continue; }
+    cotizFiles.push(f);
+  }
+  cotizRenderPreviews();
+}
+
+function cotizRemoveFile(idx) {
+  cotizFiles.splice(idx, 1);
+  cotizRenderPreviews();
+}
+
+function cotizRenderPreviews() {
+  const wrap = document.getElementById('cotizPreviews');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  cotizFiles.forEach((f, idx) => {
+    const url = URL.createObjectURL(f);
+    const item = document.createElement('div');
+    item.className = 'cotizpg-thumb';
+    item.innerHTML = '<img src="' + url + '" alt="">' +
+      '<button type="button" class="cotizpg-thumb-x" onclick="cotizRemoveFile(' + idx + ')"><i class="bi bi-x-lg"></i></button>';
+    wrap.appendChild(item);
+  });
+  const hint = document.getElementById('cotizUploadHint');
+  if (hint) hint.textContent = cotizFiles.length + ' / ' + COTIZ_MAX_IMG + ' imágenes seleccionadas';
+}
+
+async function submitCotizPage(e) {
   e.preventDefault();
   const btn = document.getElementById('cotizSubmitBtn');
   ftSetBtnLoading(btn, 'Enviando...');
 
   const form = document.getElementById('cotizForm');
-  const data = new URLSearchParams(new FormData(form));
+  cotizResolveOtros(form);
+  const data = new FormData(form);
+  cotizFiles.forEach(f => data.append('imagenes', f));
 
   const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
@@ -971,15 +1077,15 @@ async function submitCotiz(e) {
   try {
     const res = await fetch('/cotizar', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrfToken },
+      headers: { [csrfHeader]: csrfToken },
       body: data
     });
     const json = await res.json();
     if (json.status === 'ok') {
-      showToast('¡Solicitud enviada! Abriendo WhatsApp...');
-      closeCotizModal();
-      form.reset();
-      setTimeout(() => window.open(json.wspUrl, '_blank'), 600);
+      form.style.display = 'none';
+      document.getElementById('cotizConfirm').style.display = 'flex';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => window.open(json.wspUrl, '_blank'), 700);
     } else {
       showToast('Error al enviar. Intente por WhatsApp.');
     }
@@ -3147,3 +3253,4 @@ function sizeCarrUpdate() {
 }
 
 document.addEventListener('DOMContentLoaded', initSizeCarr);
+document.addEventListener('DOMContentLoaded', cotizInitUpload);
