@@ -963,9 +963,130 @@ function updateCartCount() {
   }
 }
 
+/* ═══ MODAL DE COTIZACIÓN RÁPIDA ═══ */
+function openCotizModal() {
+  const overlay = document.getElementById('cotizOverlay');
+  if (!overlay) return;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCotizModal(e) {
+  const overlay = document.getElementById('cotizOverlay');
+  if (!overlay) return;
+  if (e && e.target !== overlay) return;
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+const cotizModalFiles = [];
+
+function cotizModalInitUpload() {
+  const drop = document.getElementById('cotizModalDrop');
+  const input = document.getElementById('cotizModalFileInput');
+  if (!drop || !input) return;
+
+  drop.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => cotizModalAddFiles(input.files));
+
+  ['dragover', 'dragenter'].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault();
+    drop.classList.add('drag');
+  }));
+  ['dragleave', 'dragend'].forEach(ev => drop.addEventListener(ev, () => drop.classList.remove('drag')));
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    drop.classList.remove('drag');
+    cotizModalAddFiles(e.dataTransfer.files);
+  });
+}
+
+function cotizModalAddFiles(fileList) {
+  for (const f of fileList) {
+    if (cotizModalFiles.length >= COTIZ_MAX_IMG) {
+      showToast('Máximo ' + COTIZ_MAX_IMG + ' imágenes.');
+      break;
+    }
+    if (!f.type.startsWith('image/')) { showToast(f.name + ' no es una imagen.'); continue; }
+    if (f.size > COTIZ_MAX_SIZE) { showToast(f.name + ' pesa más de 8MB.'); continue; }
+    cotizModalFiles.push(f);
+  }
+  cotizModalRenderPreviews();
+}
+
+function cotizModalRemoveFile(idx) {
+  cotizModalFiles.splice(idx, 1);
+  cotizModalRenderPreviews();
+}
+
+function cotizModalRenderPreviews() {
+  const wrap = document.getElementById('cotizModalPreviews');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  cotizModalFiles.forEach((f, idx) => {
+    const url = URL.createObjectURL(f);
+    const item = document.createElement('div');
+    item.className = 'cotizpg-thumb';
+    item.innerHTML = '<img src="' + url + '" alt="">' +
+      '<button type="button" class="cotizpg-thumb-x" onclick="cotizModalRemoveFile(' + idx + ')"><i class="bi bi-x-lg"></i></button>';
+    wrap.appendChild(item);
+  });
+  const hint = document.getElementById('cotizModalUploadHint');
+  if (hint) hint.textContent = cotizModalFiles.length + ' / ' + COTIZ_MAX_IMG + ' imágenes seleccionadas';
+}
+
+async function submitCotizModal(e) {
+  e.preventDefault();
+  const btn = document.getElementById('cotizModalSubmitBtn');
+  ftSetBtnLoading(btn, 'Enviando...');
+
+  const form = document.getElementById('cotizModalForm');
+  const data = new FormData(form);
+
+  // Unir nombre + apellido en un solo campo (el backend guarda un único "nombre")
+  const nombre = (data.get('nombre') || '').toString().trim();
+  const apellido = (data.get('apellido') || '').toString().trim();
+  data.set('nombre', apellido ? nombre + ' ' + apellido : nombre);
+  data.delete('apellido');
+
+  // Anteponer las medidas al texto de comentarios (el backend no tiene un campo de medida libre)
+  const medidas = (data.get('medidas') || '').toString().trim();
+  if (medidas) {
+    data.set('comentarios', 'Medidas: ' + medidas + '\n\n' + (data.get('comentarios') || ''));
+  }
+  data.delete('medidas');
+
+  cotizModalFiles.forEach(f => data.append('imagenes', f));
+
+  const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content || '';
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+
+  try {
+    const res = await fetch('/cotizar', {
+      method: 'POST',
+      headers: { [csrfHeader]: csrfToken },
+      body: data
+    });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      showToast('¡Solicitud enviada! Abriendo WhatsApp...');
+      closeCotizModal();
+      form.reset();
+      cotizModalFiles.length = 0;
+      cotizModalRenderPreviews();
+      setTimeout(() => window.open(json.wspUrl, '_blank'), 600);
+    } else {
+      showToast('Error al enviar. Intente por WhatsApp.');
+    }
+  } catch {
+    showToast('Error de conexión. Intente por WhatsApp.');
+  }
+  ftRestoreBtn(btn);
+}
+
 /* ═══ PÁGINA COTIZAR (formulario "Cotiza tu proyecto a medida") ═══ */
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    closeCotizModal();
     const overlay = document.getElementById('wpopupOverlay');
     if (overlay && overlay.classList.contains('open')) {
       overlay.classList.remove('open');
@@ -996,15 +1117,30 @@ function cotizPickChip(el) {
   }
 }
 
+function cotizTipoProductoChange(sel) {
+  const otroBox = document.getElementById('otro-' + sel.name);
+  if (!otroBox) return;
+  if (sel.value === 'Otro') {
+    otroBox.classList.add('open');
+    const txt = otroBox.querySelector('input[type="text"]');
+    if (txt) txt.focus();
+  } else {
+    otroBox.classList.remove('open');
+  }
+}
+
 // Antes de enviar: si el usuario eligió "Otro" y escribió algo, usar ese texto como valor real del campo
 function cotizResolveOtros(form) {
-  ['tipoProducto'].forEach(name => {
-    const checked = form.querySelector('input[name="' + name + '"]:checked');
-    if (!checked || checked.value !== 'Otro') return;
-    const otroBox = document.getElementById('otro-' + name);
-    const txt = otroBox ? otroBox.querySelector('input[type="text"]') : null;
-    if (txt && txt.value.trim()) checked.value = txt.value.trim();
-  });
+  const sel = form.querySelector('select[name="tipoProducto"]');
+  if (!sel || sel.value !== 'Otro') return;
+  const otroBox = document.getElementById('otro-tipoProducto');
+  const txt = otroBox ? otroBox.querySelector('input[type="text"]') : null;
+  if (txt && txt.value.trim()) {
+    const opt = document.createElement('option');
+    opt.value = txt.value.trim();
+    opt.selected = true;
+    sel.appendChild(opt);
+  }
 }
 
 // Subida de imágenes con preview (drag & drop + input file)
@@ -3268,3 +3404,4 @@ function sizeCarrUpdate() {
 
 document.addEventListener('DOMContentLoaded', initSizeCarr);
 document.addEventListener('DOMContentLoaded', cotizInitUpload);
+document.addEventListener('DOMContentLoaded', cotizModalInitUpload);

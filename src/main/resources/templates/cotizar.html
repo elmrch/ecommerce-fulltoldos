@@ -41,15 +41,16 @@
             <!-- 1. Tipo de producto -->
             <section class="cotizpg-section">
                 <h2 class="cotizpg-section-title"><span class="cotizpg-num">1</span> Tipo de producto <span class="cotiz-req">*</span></h2>
-                <div class="cotizpg-chips">
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Toldo Retráctil" required><i class="bi bi-square"></i> Toldo Retráctil</label>
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Toldo Fijo"><i class="bi bi-square"></i> Toldo Fijo</label>
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Carpa Publicitaria"><i class="bi bi-square"></i> Carpa Publicitaria</label>
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Carpa para Eventos"><i class="bi bi-square"></i> Carpa para Eventos</label>
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Lona PVC"><i class="bi bi-square"></i> Lona PVC</label>
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Cobertor"><i class="bi bi-square"></i> Cobertor</label>
-                    <label class="cotizpg-chip" onclick="cotizPickChip(this)"><input type="radio" name="tipoProducto" value="Otro"><i class="bi bi-square"></i> Otro</label>
-                </div>
+                <select class="cotiz-input cotiz-select" name="tipoProducto" required onchange="cotizTipoProductoChange(this)">
+                    <option value="" selected disabled>Seleccione...</option>
+                    <option value="Toldo Retráctil">Toldo Retráctil</option>
+                    <option value="Toldo Fijo">Toldo Fijo</option>
+                    <option value="Carpa Publicitaria">Carpa Publicitaria</option>
+                    <option value="Carpa para Eventos">Carpa para Eventos</option>
+                    <option value="Lona PVC">Lona PVC</option>
+                    <option value="Cobertor">Cobertor</option>
+                    <option value="Otro">Otro</option>
+                </select>
                 <div class="cotizpg-otro-box" id="otro-tipoProducto">
                     <input type="text" class="cotiz-input" placeholder="Cuéntanos qué tipo de producto necesitas">
                 </div>
@@ -92,7 +93,7 @@
             <section class="cotizpg-section">
                 <h2 class="cotizpg-section-title"><span class="cotizpg-num">4</span> Comentarios</h2>
                 <div class="cotiz-field">
-                    <textarea name="comentarios" class="cotiz-input cotiz-textarea" rows="4"
+                    <textarea name="comentarios" class="cotiz-input cotiz-textarea" rows="2"
                         placeholder="Describe tu proyecto, necesidades especiales, acabados, impresión de logo, etc."></textarea>
                 </div>
             </section>
