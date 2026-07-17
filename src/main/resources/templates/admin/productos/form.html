@@ -173,15 +173,22 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Medidas disponibles</label>
-                    <input type="text" th:field="*{medidas}" class="form-control"
-                           placeholder="Ej: 2x2m, 3x3m, 4x4m">
-                    <div class="form-hint">Separadas por coma</div>
+                    <textarea th:field="*{medidas}" class="form-control" rows="4"
+                              placeholder="2x2m: 350.00&#10;3x3m: 480.00&#10;4x4m: 620.00"></textarea>
+                    <div class="form-hint">Una medida por línea, formato <strong>Medida: Precio</strong> (S/). Si no pones precio, se usa el precio base del producto.</div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Colores disponibles</label>
-                    <input type="text" th:field="*{colores}" class="form-control"
-                           placeholder="Ej: Azul, Rojo, Blanco">
-                    <div class="form-hint">Separados por coma</div>
+                    <input type="hidden" th:field="*{colores}" id="coloresHidden">
+                    <div class="d-flex gap-2 align-items-center mb-2">
+                        <input type="color" id="colorPicker" value="#1949c9"
+                               class="form-control form-control-color" style="width:56px;">
+                        <button type="button" id="btnAgregarColor" class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-plus-lg"></i> Agregar color
+                        </button>
+                    </div>
+                    <div id="coloresChips" class="d-flex flex-wrap gap-2"></div>
+                    <div class="form-hint">Se guardan como códigos hex, uno por color agregado</div>
                 </div>
                 <div class="col-12">
                     <label class="form-label">Características principales</label>
@@ -464,6 +471,41 @@ document.getElementById('confirmYesBtn').addEventListener('click', function () {
     _bsModal.hide();
     if (_pendingForm) { _pendingForm.submit(); _pendingForm = null; }
 });
+
+// ── Selector de colores (chips de códigos hex) ──
+(function() {
+    var hidden = document.getElementById('coloresHidden');
+    var picker = document.getElementById('colorPicker');
+    var chipsBox = document.getElementById('coloresChips');
+    var btnAdd = document.getElementById('btnAgregarColor');
+    var colores = (hidden.value || '').split(',')
+        .map(function(c) { return c.trim(); })
+        .filter(function(c) { return c; });
+
+    function sync() {
+        hidden.value = colores.join(',');
+        chipsBox.innerHTML = colores.map(function(c, i) {
+            return '<span class="badge d-inline-flex align-items-center gap-2" ' +
+                'style="background:' + c + ';border:1px solid #ccc;color:#000;padding:6px 10px;">' +
+                c +
+                '<i class="bi bi-x-circle-fill" style="cursor:pointer;" ' +
+                'onclick="window._quitarColor(' + i + ')"></i></span>';
+        }).join('');
+    }
+    window._quitarColor = function(i) {
+        colores.splice(i, 1);
+        sync();
+    };
+    btnAdd.addEventListener('click', function() {
+        var c = picker.value;
+        if (c && colores.indexOf(c) === -1) {
+            colores.push(c);
+            sync();
+        }
+    });
+    hidden.closest('form').addEventListener('submit', sync);
+    sync();
+})();
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>

@@ -31,19 +31,21 @@
     <div class="container" style="padding:8px 12px 60px;">
         <div class="row g-4">
             <div class="col-lg-3">
-                <div class="sidebar-box">
-                    <div class="sidebar-title">Buscar</div>
-                    <div class="sidebar-search">
-                        <input type="text" id="catSearchInput" placeholder="Buscar productos..."
-                               onkeydown="if(event.key==='Enter')doCatSearch()">
-                        <button onclick="doCatSearch()">BUSCAR</button>
+                <div class="sidebar-sticky-wrap">
+                    <div class="sidebar-box">
+                        <div class="sidebar-title">Buscar</div>
+                        <div class="sidebar-search">
+                            <input type="text" id="catSearchInput" placeholder="Buscar productos..."
+                                   onkeydown="if(event.key==='Enter')doCatSearch()">
+                            <button onclick="doCatSearch()">BUSCAR</button>
+                        </div>
                     </div>
+                    <div class="sidebar-box">
+                        <div class="sidebar-title">Categorías</div>
+                        <div id="sidebarCatLinks"></div>
+                    </div>
+                    <div class="sidebar-box" id="sidebarFiltersBox"></div>
                 </div>
-                <div class="sidebar-box">
-                    <div class="sidebar-title">Categorías</div>
-                    <div id="sidebarCatLinks"></div>
-                </div>
-                <div class="sidebar-box" id="sidebarFiltersBox"></div>
             </div>
             <div class="col-lg-9">
                 <div class="cat-desc-box" id="catDescBox"></div>

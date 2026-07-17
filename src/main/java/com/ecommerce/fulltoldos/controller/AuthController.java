@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -161,7 +162,7 @@ public class AuthController {
     /** Datos comunes de la home (contacto, topbar, redes, newsletter, banners, nav, slides, promos) — compartidos por "/", "/producto/{slug}" y "/categoria/{slug}". */
     private void agregarDatosInicio(Model model) {
         // Datos de contacto desde la DB (editables desde /admin/ajustes)
-        String wspNum = configService.get("cotizacion.whatsapp", "51999999999");
+        String wspNum = configService.get("cotizacion.whatsapp", "51978391237");
         model.addAttribute("wspLink", "https://wa.me/" + wspNum);
 
         Map<String, String> topbar = new HashMap<>();
@@ -276,14 +277,39 @@ public class AuthController {
                         .collect(Collectors.toList());
                 }
                 m.put("features", features);
-                List<String> medidas = Collections.emptyList();
+                List<String> medidas = new ArrayList<>();
+                Map<String, BigDecimal> medidaPrecios = new LinkedHashMap<>();
                 if (p.getMedidas() != null && !p.getMedidas().trim().isEmpty()) {
-                    medidas = Arrays.stream(p.getMedidas().split(","))
+                    String rawMedidas = p.getMedidas();
+                    String[] lineasMedidas = rawMedidas.contains("\n")
+                        ? rawMedidas.split("\n") : rawMedidas.split(",");
+                    for (String linea : lineasMedidas) {
+                        String t = linea.trim();
+                        if (t.isEmpty()) continue;
+                        int idx = t.indexOf(':');
+                        String nombreMedida = idx > -1 ? t.substring(0, idx).trim() : t;
+                        if (nombreMedida.isEmpty()) continue;
+                        medidas.add(nombreMedida);
+                        if (idx > -1) {
+                            String precioStr = t.substring(idx + 1).trim()
+                                .replaceAll("[^0-9.]", "");
+                            if (!precioStr.isEmpty()) {
+                                try {
+                                    medidaPrecios.put(nombreMedida, new BigDecimal(precioStr));
+                                } catch (NumberFormatException ignored) { }
+                            }
+                        }
+                    }
+                }
+                m.put("medidas", medidas);
+                m.put("medidaPrecios", medidaPrecios);
+                List<String> colores = new ArrayList<>();
+                if (p.getColores() != null && !p.getColores().trim().isEmpty()) {
+                    colores = Arrays.stream(p.getColores().split(","))
                         .map(String::trim).filter(s -> !s.isEmpty())
                         .collect(Collectors.toList());
                 }
-                m.put("medidas", medidas);
-                m.put("colores", Collections.emptyList());
+                m.put("colores", colores);
                 // Principal primero, luego el resto en orden
                 List<String> imgs = new ArrayList<>();
                 if (p.getMedias() != null) {
@@ -452,7 +478,7 @@ public class AuthController {
     }
 
     private void addCommonAttrs(Model model) {
-        String wspNum = configService.get("cotizacion.whatsapp", "51999999999");
+        String wspNum = configService.get("cotizacion.whatsapp", "51978391237");
         model.addAttribute("wspLink", "https://wa.me/" + wspNum);
 
         Map<String, String> topbar = new HashMap<>();

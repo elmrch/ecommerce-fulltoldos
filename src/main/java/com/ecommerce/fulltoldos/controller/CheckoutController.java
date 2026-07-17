@@ -39,7 +39,7 @@ public class CheckoutController {
 
     @GetMapping("/checkout")
     public String checkout(@AuthenticationPrincipal UserDetails user, Model model) {
-        model.addAttribute("wspLink", "https://wa.me/" + configService.get("cotizacion.whatsapp", "51999999999"));
+        model.addAttribute("wspLink", "https://wa.me/" + configService.get("cotizacion.whatsapp", "51978391237"));
         model.addAttribute("culqiPublicKey", configService.get("pago.culqi.public_key", ""));
         model.addAttribute("costoEnvio", configService.get("pago.envio.costo", "15"));
         model.addAttribute("envioGratisDesde", configService.get("pago.envio.gratis_desde", "300"));
@@ -130,7 +130,7 @@ public class CheckoutController {
         resp.put("culqiEnabled", culqiService.estaConfigurado());
 
         if (!culqiService.estaConfigurado()) {
-            String wspNum = configService.get("cotizacion.whatsapp", "51999999999");
+            String wspNum = configService.get("cotizacion.whatsapp", "51978391237");
             StringBuilder sb = new StringBuilder("Hola Full Toldos! Confirmo mi pedido #" + pedido.getId() + ":\n");
             for (PedidoItem it : pedido.getItems()) {
                 sb.append("• ").append(it.getNombre()).append(" (x").append(it.getCantidad()).append(")\n");

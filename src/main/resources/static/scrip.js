@@ -36,9 +36,12 @@ function getStarsHTML(p) {
   return s;
 }
 
-function getPriceHTML(p, large) {
+function getPriceHTML(p, large, medida) {
   const pr = PRICES[p.id];
-  const precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
+  let precio = pr ? pr.precio : (p.precio != null && Number(p.precio) > 0 ? Number(p.precio) : null);
+  if (medida && p.medidaPrecios && p.medidaPrecios[medida] != null) {
+    precio = Number(p.medidaPrecios[medida]);
+  }
   if(precio == null) return `<span class="prod-price" style="color:var(--azul-claro);">Consultar</span>`;
   const sz = large ? 'font-size:2.2rem' : 'font-size:1.4rem';
   let oferta = p.precioOferta != null ? Number(p.precioOferta) : null;
@@ -67,8 +70,8 @@ function getCarPrice(p) {
 }
 function getWspCardBtn(p) {
   const msg = encodeURIComponent(`Hola Full Toldos! Me interesa: *${p.name}*. Quisiera una cotización.`);
-  return `<a class="btn-wsp-card" href="https://wa.me/51999999999?text=${msg}" target="_blank">
-    <i class="bi bi-whatsapp"></i> Pedir
+  return `<a class="btn-wsp-card" href="https://wa.me/51978391237?text=${msg}" target="_blank" onclick="event.stopPropagation()">
+    <i class="bi bi-whatsapp"></i> Pedido por WhatsApp
   </a>`;
 }
 
@@ -401,9 +404,8 @@ function renderProducts() {
         <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
         <div class="prod-name">${p.name}</div>
         ${getStarsHTML(p)}
-        <div class="prod-desc">${p.desc.substring(0,95)}...</div>
         ${getCountdownHTML(p, p.id)}
-        <div class="prod-footer">
+        <div class="prod-footer prod-footer-stack">
           <div>${getPriceHTML(p)}<div class="prod-price-note">desde med. base</div></div>
           ${getWspCardBtn(p)}
         </div>
@@ -530,6 +532,7 @@ function renderProdPage(p) {
     <span class="prod-page-section-lbl">Colores disponibles</span>
     <div class="color-selector" style="margin-bottom:20px;" id="ppColorSel">
       ${p.colores.map(c=>`<div class="color-opt ${c===selectedColor?'active':''}"
+        data-color="${c}"
         style="background:${c};border:2px solid ${c==='#ffffff'?'#ccc':'transparent'}"
         onclick="ppSelectColor('${c}')" title="${c}"></div>`).join('')}
     </div>` :
@@ -555,7 +558,7 @@ function renderProdPage(p) {
         onclick="ppSelectMedida('${m}')">${m}</button>`).join('')}
     </div>
     ${colorBlock}
-    ${getPriceHTML(p, true)}
+    <div id="ppPriceBlock">${getPriceHTML(p, true, selectedMedida)}</div>
     <div class="prod-page-price-note" style="margin-top:10px;">
       <i class="bi bi-info-circle-fill" style="color:var(--azul-claro)"></i>
       Medida seleccionada: <strong id="ppMedidaSelected" style="color:var(--azul-marino)">${selectedMedida}</strong>
@@ -719,7 +722,6 @@ function renderProdPage(p) {
                   <div class="prod-cat-tag">${rp.catName}${rp.subcatName ? ' › ' + rp.subcatName : ''}</div>
                   <div class="prod-name">${rp.name}</div>
                   ${getStarsHTML(rp)}
-                  <div class="prod-desc">${rp.desc.substring(0,82)}...</div>
                   <div class="prod-footer">
                     <div>
                       ${getPriceHTML(rp)}
@@ -729,6 +731,7 @@ function renderProdPage(p) {
                       <i class="bi bi-eye"></i> Ver
                     </button>
                   </div>
+                  <div style="margin-top:10px;">${getWspCardBtn(rp)}</div>
                 </div>
               </div>
             `).join('')}
@@ -768,11 +771,13 @@ function ppSelectMedida(m) {
   document.querySelectorAll('#ppMedidasGrid .medida-btn').forEach(b => b.classList.toggle('active', b.textContent.trim()===m));
   const el = document.getElementById('ppMedidaSelected');
   if(el) el.textContent = m;
+  const priceBlock = document.getElementById('ppPriceBlock');
+  if(priceBlock && currentModalProduct) priceBlock.innerHTML = getPriceHTML(currentModalProduct, true, selectedMedida);
 }
 
 function ppSelectColor(c) {
   selectedColor = c;
-  document.querySelectorAll('#ppColorSel .color-opt').forEach(o => o.classList.toggle('active', o.style.background===c));
+  document.querySelectorAll('#ppColorSel .color-opt').forEach(o => o.classList.toggle('active', o.dataset.color===c));
 }
 
 function ppQtyChange(d) {
@@ -787,7 +792,7 @@ function cotizarWspPage() {
   const p = currentModalProduct;
   if(!p) return;
   const msg = `Hola Full Toldos! Me interesa cotizar:%0A• *${p.name}*%0A• Medida: ${selectedMedida}%0A• Cantidad: 1 unidad%0APor favor envíame el precio.`;
-  window.open(`https://wa.me/51999999999?text=${msg}`,'_blank');
+  window.open(`https://wa.me/51978391237?text=${msg}`,'_blank');
 }
 
 function prodNavPrev() {
@@ -921,7 +926,7 @@ function selectColor(c) {
 function cotizarWsp(id) {
   const p = PRODUCTS.find(x=>x.id===id);
   const msg = `Hola Full Toldos! Me interesa cotizar:%0A• *${p.name}*%0A• Medida: ${selectedMedida}%0A• Cantidad: 1 unidad%0APor favor envíame el precio.`;
-  window.open(`https://wa.me/51999999999?text=${msg}`,'_blank');
+  window.open(`https://wa.me/51978391237?text=${msg}`,'_blank');
 }
 function addCartModal(id) {
   closeModal();
@@ -1177,7 +1182,7 @@ function removeItem(id) { cart = cart.filter(i=>i.id!==id); saveCart(); updateCa
 function clearCart() { cart = []; saveCart(); updateCartCount(); renderCart(); }
 function sendCartWsp() {
   const lines = cart.map(i=>`• *${i.name}* (x${i.qty})`).join('%0A');
-  window.open(`https://wa.me/51999999999?text=Hola Full Toldos! Deseo cotizar:%0A${lines}`,'_blank');
+  window.open(`https://wa.me/51978391237?text=Hola Full Toldos! Deseo cotizar:%0A${lines}`,'_blank');
 }
 
 // ═══════════════════════════ MATERIALS ═══════════════════════════
@@ -1387,8 +1392,7 @@ function renderCatPage() {
           <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
           <div class="prod-name">${p.name}</div>
           ${getStarsHTML(p)}
-          <div class="prod-desc">${p.desc.substring(0,95)}...</div>
-          <div class="prod-footer">
+          <div class="prod-footer prod-footer-stack">
             <div>
               ${getPriceHTML(p)}
               <div class="prod-price-note">desde med. base</div>
@@ -1530,21 +1534,26 @@ function buildMedidaDropdown() {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, 12);
 
-  // Pre-compute 2 product images per medida
+  // Pre-compute 3 product images per medida
   const medidaImgs = {};
   sorted.forEach(([m]) => {
-    medidaImgs[m] = PRODUCTS.filter(p => (p.medidas || []).includes(m) && p.imgs && p.imgs[0]).slice(0, 2);
+    medidaImgs[m] = PRODUCTS.filter(p => (p.medidas || []).includes(m) && p.imgs && p.imgs[0]).slice(0, 3);
   });
 
-  function buildMedImgs(prods) {
+  function buildMedImgs(prods, medida) {
     if (!prods.length) return `<p style="color:#aaa;font-size:0.83rem;grid-column:1/-1;">Sin productos para esta medida</p>`;
     return prods.map(p => `
-      <div class="nav-cat2-item" onclick="closeAllDropdowns();openProductPage(${p.id})">
-        <div class="nav-cat2-circle">
-          <img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">
+      <a class="nav-feat-card" onclick="closeAllDropdowns();openProductPage(${p.id});return false;" href="#">
+        <div class="nav-feat-img-wrap">
+          <img src="${p.imgs[0]}" alt="${p.name}" class="nav-feat-img"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="nav-feat-img-ph" style="display:none;position:absolute;inset:0;background:#f0f4ff;"><i class="bi ${p.icon||'bi-image'}"></i></div>
         </div>
-        <div class="nav-cat2-name">${p.name}</div>
-      </div>`).join('');
+        <div class="nav-feat-body">
+          <div class="nav-feat-name">${p.name}</div>
+          <div class="nav-feat-price">${getPriceHTML(p, false, medida)}</div>
+        </div>
+      </a>`).join('');
   }
 
   const btns = sorted.map(([m, cnt]) => `
@@ -1569,8 +1578,8 @@ function buildMedidaDropdown() {
           ¿Otra medida? <strong>Ver catálogo completo →</strong>
         </div>
       </div>
-      <div class="nav-medida-photos nav-cat2-circles" id="navMedidaPhotosArea">
-        ${buildMedImgs(defaultProds)}
+      <div class="nav-medida-photos nav-feat-grid" id="navMedidaPhotosArea">
+        ${buildMedImgs(defaultProds, sorted.length > 0 ? sorted[0][0] : '')}
       </div>
     </div>
   `;
@@ -1580,10 +1589,11 @@ function buildMedidaDropdown() {
     btn.addEventListener('mouseenter', () => {
       const area = document.getElementById('navMedidaPhotosArea');
       if (!area) return;
-      const prods = medidaImgs[btn.dataset.medida] || [];
+      const medida = btn.dataset.medida;
+      const prods = medidaImgs[medida] || [];
       area.style.opacity = '0';
       setTimeout(() => {
-        area.innerHTML = buildMedImgs(prods);
+        area.innerHTML = buildMedImgs(prods, medida);
         area.style.opacity = '1';
       }, 120);
     });
@@ -1602,23 +1612,28 @@ function buildNavDropdowns() {
 
     function buildCat2Right(catId, catName) {
       const prods = catId === 'all'
-        ? PRODUCTS.filter(p => p.imgs && p.imgs[0]).slice(0, 10)
-        : PRODUCTS.filter(p => String(p.cat) === String(catId) && p.imgs && p.imgs[0]).slice(0, 10);
-      const circles = prods.map(p => `
-        <div class="nav-cat2-item" onclick="closeAllDropdowns();openProductPage(${p.id})">
-          <div class="nav-cat2-circle">
-            <img src="${p.imgs[0]}" alt="${p.name}" loading="lazy">
+        ? PRODUCTS.filter(p => p.imgs && p.imgs[0]).slice(0, 9)
+        : PRODUCTS.filter(p => String(p.cat) === String(catId) && p.imgs && p.imgs[0]).slice(0, 9);
+      const cards = prods.map(p => `
+        <a class="nav-feat-card" onclick="closeAllDropdowns();openProductPage(${p.id});return false;" href="#">
+          <div class="nav-feat-img-wrap">
+            <img src="${p.imgs[0]}" alt="${p.name}" class="nav-feat-img"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="nav-feat-img-ph" style="display:none;position:absolute;inset:0;background:#f0f4ff;"><i class="bi ${p.icon||'bi-image'}"></i></div>
             ${p.esDestacado ? '<span class="nav-cat2-hot">HOT</span>' : (p.esNuevo ? '<span class="nav-cat2-hot nav-cat2-new">NEW</span>' : '')}
           </div>
-          <div class="nav-cat2-name">${p.name}</div>
-        </div>`).join('');
+          <div class="nav-feat-body">
+            <div class="nav-feat-name">${p.name}</div>
+            <div class="nav-feat-price">${getPriceHTML(p)}</div>
+          </div>
+        </a>`).join('');
       const link = catId === 'all' ? `openCatPage('all')` : `openCatPage('${catId}')`;
       return `
         <div class="nav-cat2-right-head" onclick="closeAllDropdowns();${link}">
           Todos ${catName} <i class="bi bi-chevron-right"></i>
         </div>
-        <div class="nav-cat2-circles">
-          ${circles || '<p style="color:#aaa;padding:24px 0;font-size:0.85rem;">Sin productos aún</p>'}
+        <div class="nav-feat-grid">
+          ${cards || '<p style="color:#aaa;padding:24px 0;font-size:0.85rem;">Sin productos aún</p>'}
         </div>`;
     }
 
@@ -1674,7 +1689,7 @@ function buildNavDropdowns() {
           <div class="nav-car-name">${p.name}</div>
           <div class="nav-car-cat">${p.catName}</div>
           <div class="nav-car-price">${getCarPrice(p)}</div>
-          <a class="nav-car-wsp-btn" href="https://wa.me/51999999999?text=${wspMsg}" target="_blank" onclick="event.stopPropagation()" title="Pedir por WhatsApp">
+          <a class="nav-car-wsp-btn" href="https://wa.me/51978391237?text=${wspMsg}" target="_blank" onclick="event.stopPropagation()" title="Pedir por WhatsApp">
             <i class="bi bi-whatsapp"></i>
           </a>
         </div>
@@ -1968,7 +1983,7 @@ function renderTprodGrid() {
         <div class="tprod-card-name">${p.name}</div>
         <div class="tprod-card-cat">${p.catName}</div>
         ${getPriceHTML(p)}
-        <button class="btn-wsp-tprod" onclick="event.stopPropagation();window.open('https://wa.me/51999999999?text=${wspMsg}','_blank')">
+        <button class="btn-wsp-tprod" onclick="event.stopPropagation();window.open('https://wa.me/51978391237?text=${wspMsg}','_blank')">
           <i class="bi bi-whatsapp"></i> Pedido por WhatsApp
         </button>
       </div>
@@ -2368,10 +2383,9 @@ function renderTambienInteresa(containerId, excludeCatId, excludeIds) {
                 <div class="prod-cat-tag">${p.catName}${p.subcatName ? ' › ' + p.subcatName : ''}</div>
                 <div class="prod-name">${p.name}</div>
                 ${getStarsHTML(p)}
-                <div class="prod-desc">${p.desc.substring(0,75)}...</div>
-                <div class="prod-footer">
+                <div class="prod-footer prod-footer-stack">
                   <div>${getPriceHTML(p)}</div>
-                  <span onclick="event.stopPropagation()">${getWspCardBtn(p)}</span>
+                  ${getWspCardBtn(p)}
                 </div>
               </div>
             </div>`).join('')}

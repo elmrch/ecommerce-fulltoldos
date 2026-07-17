@@ -78,8 +78,8 @@ public class CotizacionController {
         cotizacionRepository.save(cot);
 
         // Leer desde la base de datos (configurado en el dashboard)
-        String emailDestino = configService.get("cotizacion.email", "elmrchahua8@gmail.com");
-        String whatsappNum  = configService.get("cotizacion.whatsapp", "51999999999");
+        String emailDestino = configService.get("cotizacion.email", "ventas@fulltoldos.com");
+        String whatsappNum  = configService.get("cotizacion.whatsapp", "51978391237");
 
         if (mailSender != null) {
             try {

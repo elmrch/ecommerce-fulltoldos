@@ -56,7 +56,7 @@ public class ContactoController {
             return;
         }
         try {
-            String emailDestino = configService.get("contacto.email", "elmrchahua8@gmail.com");
+            String emailDestino = configService.get("contacto.email", "ventas@fulltoldos.com");
             SimpleMailMessage mail = new SimpleMailMessage();
             mail.setTo(emailDestino);
             if (replyTo != null && !replyTo.isBlank()) {

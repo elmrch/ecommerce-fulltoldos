@@ -41,12 +41,12 @@ public class ConfiguracionService {
 
     /** Inserta valores por defecto si la clave no existe todavía */
     public void initDefaults() {
-        insertar("cotizacion.email",     "elmrchahua8@gmail.com",   "Correo que recibe las cotizaciones",      "cotizacion");
-        insertar("cotizacion.whatsapp",  "51999999999",              "Número WhatsApp (con código de país)",    "cotizacion");
-        insertar("topbar.telefono",      "+51 999 999 999",          "Teléfono visible en la barra superior",   "contacto");
+        insertar("cotizacion.email",     "ventas@fulltoldos.com",   "Correo que recibe las cotizaciones",      "cotizacion");
+        insertar("cotizacion.whatsapp",  "51978391237",              "Número WhatsApp (con código de país)",    "cotizacion");
+        insertar("topbar.telefono",      "+51 978 391 237",          "Teléfono visible en la barra superior",   "contacto");
         insertar("topbar.horario",       "Lun–Sáb 8am–7pm",         "Horario visible en la barra superior",    "contacto");
         insertar("topbar.envios",        "Envíos a todo el Perú",    "Texto de envíos en la barra superior",    "contacto");
-        insertar("contacto.email",       "elmrchahua8@gmail.com",   "Correo que recibe suscripciones al newsletter y mensajes del formulario de contacto", "contacto");
+        insertar("contacto.email",       "ventas@fulltoldos.com",   "Correo que recibe suscripciones al newsletter y mensajes del formulario de contacto", "contacto");
         insertar("topbar.color.fondo",   "#b9f6ca",                  "Color de fondo de la barra superior",     "contacto");
         insertar("topbar.fuente",        "'Poppins', sans-serif",    "Fuente de la barra superior (CSS font-family)", "contacto");
         insertar("topbar.color.fuente",  "#111111",                  "Color de letra de la barra superior",     "contacto");
@@ -71,7 +71,7 @@ public class ConfiguracionService {
         insertar("contacto.email.asunto",     "Nuevo mensaje de contacto de {nombre} — Full Toldos", "Asunto del correo. Puedes usar {nombre}", "contacto_form");
         insertar("contacto.email.cuerpo",     "Nombre: {nombre}\nCorreo: {email}\n\nMensaje:\n{mensaje}", "Cuerpo del correo. Usa {nombre}, {email} y {mensaje}", "contacto_form");
 
-        insertar("redes.whatsapp",       "https://wa.me/51999999999","Enlace de WhatsApp",                      "redes");
+        insertar("redes.whatsapp",       "https://wa.me/51978391237","Enlace de WhatsApp",                      "redes");
         insertar("redes.facebook",       "#",                        "Enlace de Facebook",                      "redes");
         insertar("redes.instagram",      "#",                        "Enlace de Instagram",                     "redes");
         insertar("redes.tiktok",         "#",                        "Enlace de TikTok",                        "redes");
