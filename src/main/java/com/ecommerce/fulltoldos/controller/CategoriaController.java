@@ -60,6 +60,11 @@ public class CategoriaController {
                           MultipartFile imagenFile,
                           RedirectAttributes flash) {
         try {
+            // Evita crear duplicados por doble clic o reenvío del formulario
+            if (categoria.getId() == null && categoriaService.existeNombre(categoria.getNombre())) {
+                flash.addFlashAttribute("exito", "Categoría creada");
+                return "redirect:/admin/categorias";
+            }
             // Si subió una imagen nueva
             if (imagenFile != null && !imagenFile.isEmpty()) {
                 if (!fileStorageService.esImagenValida(imagenFile)) {
