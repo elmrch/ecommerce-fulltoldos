@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 "/contacto",
                                 "/sobre-nosotros",
                                 "/producto/**", "/categoria/**",
+                                "/api/catalogo/**",
                                 "/sitemap.xml", "/robots.txt",
                                 "/css/**", "/js/**", "/img/**",
                                 "/uploads/**",

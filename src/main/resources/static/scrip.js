@@ -1380,7 +1380,7 @@ const CAT_DESCS = {
   lonas:'Lonas PVC, mallas y textiles técnicos para coberturas y publicidad. Venta por metro o en rollo. La mayor variedad de materiales para toldos y carpas.',
 };
 
-let cpCat = 'all', cpSearch = '', cpPerPage = 9, cpSort = 'default', cpGridCols = 3;
+let cpCat = 'all', cpSearch = '', cpPageSize = 9, cpPage = 0, cpSort = 'default', cpGridCols = 3;
 let cpBadges = [], cpColors = [], cpMedida = '';
 let cpOnlyOfertas = false;
 
@@ -1432,7 +1432,7 @@ function renderCategoryPage(catId, opts) {
   opts = opts || {};
   cpCat = catId || 'all';
   cpSearch = opts.search || '';
-  cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
+  cpPageSize = 9; cpPage = 0; cpSort = 'default'; cpGridCols = 3;
   cpBadges = []; cpColors = [];
   cpMedida = opts.medida || '';
   cpOnlyOfertas = false;
@@ -1445,7 +1445,7 @@ function renderCategoryPage(catId, opts) {
 
 /** Pinta la página de Ofertas (ofertas.html): reutiliza el shell de categoría, pero solo con productos en descuento vigente. */
 function renderOfertasPage() {
-  cpCat = 'all'; cpSearch = ''; cpPerPage = 9; cpSort = 'default'; cpGridCols = 3;
+  cpCat = 'all'; cpSearch = ''; cpPageSize = 9; cpPage = 0; cpSort = 'default'; cpGridCols = 3;
   cpBadges = []; cpColors = []; cpMedida = '';
   cpOnlyOfertas = true;
   const si = document.getElementById('catSearchInput');
@@ -1475,7 +1475,36 @@ function buildSidebarCats() {
   `).join('');
 }
 
-function renderCatPage() {
+let cpReqId = 0;
+let cpFacets = { badges: { new: 0, hot: 0, sale: 0 }, colors: [] };
+
+function buildCatQueryParams() {
+  const params = new URLSearchParams();
+  params.set('cat', cpCat);
+  if (cpSearch) params.set('q', cpSearch);
+  params.set('sort', cpSort);
+  cpBadges.forEach(b => params.append('badges', b));
+  cpColors.forEach(c => params.append('colors', c));
+  if (cpMedida) params.set('medida', cpMedida);
+  if (cpOnlyOfertas) params.set('ofertas', 'true');
+  params.set('page', cpPage);
+  params.set('size', cpPageSize);
+  return params;
+}
+
+/** Mezcla los productos recibidos por AJAX en PRODUCTS (mismo offset de id que DB_PRODUCTS) para que el modal/carrito los encuentren por id. */
+function mergeCatalogItems(items) {
+  const known = new Set(PRODUCTS.map(p => p.id));
+  items.forEach(p => {
+    p.id = 100000 + Number(p.id);
+    if (!known.has(p.id)) {
+      PRODUCTS.push(p);
+      known.add(p.id);
+    }
+  });
+}
+
+async function renderCatPage() {
   const cat = CATS.find(c => c.id === cpCat);
   const catName = cpOnlyOfertas ? 'Ofertas' : (cat ? cat.name : 'Todos los Productos');
   document.getElementById('catPageTitle').textContent = catName;
@@ -1489,21 +1518,26 @@ function renderCatPage() {
     el.classList.toggle('active', !cpOnlyOfertas && el.dataset.catid === cpCat);
   });
 
-  let prods = cpCat === 'all' ? [...PRODUCTS] : PRODUCTS.filter(p => p.cat === cpCat);
-  if(cpOnlyOfertas) prods = prods.filter(esOfertaVigente);
-  if(cpSearch) {
-    const q = cpSearch.toLowerCase();
-    prods = prods.filter(p => p.name.toLowerCase().includes(q) || p.catName.toLowerCase().includes(q));
-  }
-  if(cpBadges.length) prods = prods.filter(p => p.badge && cpBadges.includes(p.badge));
-  if(cpColors.length) prods = prods.filter(p => p.colores && p.colores.some(c => cpColors.includes(c)));
-  if(cpMedida)        prods = prods.filter(p => p.medidas && p.medidas.includes(cpMedida));
-  if(cpSort === 'name-asc') prods.sort((a,b) => a.name.localeCompare(b.name));
-  if(cpSort === 'name-desc') prods.sort((a,b) => b.name.localeCompare(a.name));
-
-  const shown = prods.slice(0, cpPerPage);
   const grid = document.getElementById('catProductGrid');
   grid.className = `cat-page-grid cat-grid-${cpGridCols}`;
+  const reqId = ++cpReqId;
+  grid.innerHTML = `<div class="cat-loading" style="grid-column:1/-1;text-align:center;padding:40px;color:#888;"><i class="bi bi-hourglass-split"></i> Cargando productos...</div>`;
+
+  let data;
+  try {
+    const res = await fetch('/api/catalogo/productos?' + buildCatQueryParams().toString());
+    data = await res.json();
+  } catch (e) {
+    if (reqId !== cpReqId) return;
+    grid.innerHTML = `<div class="cat-no-results">No se pudieron cargar los productos. Intenta de nuevo.</div>`;
+    return;
+  }
+  if (reqId !== cpReqId) return; // una búsqueda/filtro más reciente ya está en curso
+
+  mergeCatalogItems(data.items);
+  cpFacets = data.facets || { badges: {new:0,hot:0,sale:0}, colors: [] };
+
+  const shown = data.items;
 
   if(!shown.length) {
     grid.innerHTML = cpOnlyOfertas
@@ -1540,44 +1574,74 @@ function renderCatPage() {
     `).join('');
     initProdImgCycle(grid);
   }
-  document.getElementById('catLoadMoreArea').style.display = (cpPerPage < prods.length) ? 'block' : 'none';
-  document.querySelectorAll('.tsb').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === cpPerPage));
+  renderCatPagination(data);
+  document.querySelectorAll('.tsb').forEach(b => b.classList.toggle('active', parseInt(b.textContent) === cpPageSize));
   document.querySelectorAll('.tvb').forEach((b,i) => b.classList.toggle('active', [3,4,2][i] === cpGridCols));
   const sortSel = document.querySelector('.toolbar-sort-sel');
   if(sortSel) sortSel.value = cpSort;
   buildSidebarFilters();
   // Productos de otras categorías como sugerencias
-  const shownIds = (cpCat==='all' ? PRODUCTS : PRODUCTS.filter(p=>p.cat===cpCat))
-    .slice(0, cpPerPage).map(p=>p.id);
+  const shownIds = shown.map(p => p.id);
   renderTambienInteresa('catTambienSection', cpCat==='all' ? null : cpCat, shownIds);
+}
+
+/** Pinta la barra de paginación numérica (Página X de Y, con botones de página) usando los mismos estilos que /admin/productos. */
+function renderCatPagination(data) {
+  const area = document.getElementById('catPaginationArea');
+  if (!area) return;
+
+  const totalPages = data.totalPages || 0;
+  if (totalPages <= 1) { area.style.display = 'none'; area.innerHTML = ''; return; }
+
+  const cur = cpPage;
+  const pages = new Set([0, totalPages - 1]);
+  for (let i = cur - 1; i <= cur + 1; i++) if (i >= 0 && i < totalPages) pages.add(i);
+  const sorted = [...pages].sort((a, b) => a - b);
+
+  let numsHtml = '';
+  let prev = null;
+  sorted.forEach(p => {
+    if (prev !== null && p - prev > 1) numsHtml += `<span class="page-btn" style="border:none;cursor:default;">…</span>`;
+    numsHtml += `<button class="page-btn ${p === cur ? 'active' : ''}" onclick="goToCatPage(${p})">${p + 1}</button>`;
+    prev = p;
+  });
+
+  area.style.display = 'flex';
+  area.innerHTML = `
+    <div class="page-info">Página ${cur + 1} de ${totalPages} — ${data.total} producto${data.total === 1 ? '' : 's'}</div>
+    <div class="page-btns">
+      <button class="page-btn" ${cur === 0 ? 'disabled' : ''} onclick="goToCatPage(${cur - 1})"><i class="bi bi-chevron-left"></i></button>
+      ${numsHtml}
+      <button class="page-btn" ${cur >= totalPages - 1 ? 'disabled' : ''} onclick="goToCatPage(${cur + 1})"><i class="bi bi-chevron-right"></i></button>
+    </div>
+  `;
+}
+
+function goToCatPage(n) {
+  if (n < 0) return;
+  cpPage = n;
+  renderCatPage();
+  const grid = document.getElementById('catProductGrid');
+  if (grid) grid.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function doCatSearch() {
   cpSearch = (document.getElementById('catSearchInput').value || '').trim();
-  cpPerPage = 9;
+  cpPage = 0;
   renderCatPage();
 }
-function setCatPerPage(n) { cpPerPage = n; renderCatPage(); }
-function setCatSort(val) { cpSort = val; renderCatPage(); }
+function setCatPerPage(n) { cpPageSize = n; cpPage = 0; renderCatPage(); }
+function setCatSort(val) { cpSort = val; cpPage = 0; renderCatPage(); }
 function setCatGrid(cols) { cpGridCols = cols; renderCatPage(); }
-function catLoadMore() { cpPerPage += 6; renderCatPage(); }
 
 // ═══════════════════════════ SIDEBAR FILTROS ═══════════════════════════
 function buildSidebarFilters() {
   const box = document.getElementById('sidebarFiltersBox');
   if(!box) return;
 
-  // Base products for counting (sin badge/color filters aplicados)
-  let base = cpCat === 'all' ? [...PRODUCTS] : PRODUCTS.filter(p => p.cat === cpCat);
-  if(cpSearch) {
-    const q = cpSearch.toLowerCase();
-    base = base.filter(p => p.name.toLowerCase().includes(q) || p.catName.toLowerCase().includes(q));
-  }
-
-  const bCount = { new:0, hot:0, sale:0 };
-  base.forEach(p => { if(p.badge) bCount[p.badge]++; });
-
-  const allColors = [...new Set(base.flatMap(p => p.colores.filter(c => c[0]==='#')))];
+  // Contadores calculados por el servidor sobre el conjunto ya filtrado por categoría/búsqueda/medida/oferta
+  const bCount = cpFacets.badges || { new:0, hot:0, sale:0 };
+  const allColors = cpFacets.colors || [];
 
   const activeCount = cpBadges.length + cpColors.length + (cpMedida ? 1 : 0);
   const badgeDef = [
@@ -1635,20 +1699,22 @@ function buildSidebarFilters() {
 
 function toggleCpBadge(badge) {
   cpBadges = cpBadges.includes(badge) ? cpBadges.filter(b=>b!==badge) : [...cpBadges, badge];
-  cpPerPage = 9;
+  cpPage = 0;
   renderCatPage();
 }
 function toggleCpColor(color) {
   cpColors = cpColors.includes(color) ? cpColors.filter(c=>c!==color) : [...cpColors, color];
-  cpPerPage = 9;
+  cpPage = 0;
   renderCatPage();
 }
 function clearAllFilters() {
   cpBadges = []; cpColors = []; cpMedida = '';
+  cpPage = 0;
   renderCatPage();
 }
 function clearMedidaFilter() {
   cpMedida = '';
+  cpPage = 0;
   renderCatPage();
 }
 

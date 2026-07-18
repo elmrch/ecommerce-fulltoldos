@@ -155,4 +155,43 @@
         </plugins>
     </build>
 
+    <profiles>
+        <!-- Perfil INACTIVO por defecto. "mvn package" y "mvn spring-boot:run" normales no lo
+             ejecutan y quedan exactamente igual que antes. Solo minifica scrip.js/estilo.css
+             (en el jar, sobrescribiendo target/classes/static con el mismo nombre; los fuentes
+             en src/main/resources/static NUNCA se tocan) cuando se pide explícitamente:
+                 mvn clean package -Pprod-minify
+             Requiere Node/npm instalados y haber corrido "npm install" una vez (instala terser
+             y clean-css-cli, ver package.json). Si Node no está disponible, simplemente no uses
+             este perfil — el build normal sigue funcionando igual. -->
+        <profile>
+            <id>prod-minify</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <executions>
+                            <execution>
+                                <id>minify-static-assets</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>npm</executable>
+                                    <arguments>
+                                        <argument>run</argument>
+                                        <argument>minify</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>

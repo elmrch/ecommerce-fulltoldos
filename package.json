@@ -1,0 +1,14 @@
+{
+  "name": "fulltoldos-static-assets",
+  "private": true,
+  "description": "Minificación de scrip.js y estilo.css para el build de producción (mvn package -Pprod-minify). No afecta el desarrollo local ni mvn spring-boot:run.",
+  "scripts": {
+    "minify:js": "terser target/classes/static/scrip.js -o target/classes/static/scrip.js --compress --comments false",
+    "minify:css": "cleancss -o target/classes/static/estilo.css target/classes/static/estilo.css",
+    "minify": "npm run minify:js && npm run minify:css"
+  },
+  "devDependencies": {
+    "clean-css-cli": "^5.6.3",
+    "terser": "^5.36.0"
+  }
+}

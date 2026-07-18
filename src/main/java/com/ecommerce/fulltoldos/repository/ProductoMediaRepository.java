@@ -19,6 +19,9 @@ public interface ProductoMediaRepository extends JpaRepository<ProductoMedia, Lo
     List<ProductoMedia> findByProductoIdOrderByOrdenAsc(Long productoId);
 
 
+    List<ProductoMedia> findByProductoIdInOrderByOrdenAsc(List<Long> productoIds);
+
+
     List<ProductoMedia> findByProductoIdAndTipoOrderByOrdenAsc(Long productoId, String tipo);
 
 

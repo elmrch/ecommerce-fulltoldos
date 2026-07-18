@@ -1,6 +1,8 @@
 package com.ecommerce.fulltoldos.service;
 
 
+import com.ecommerce.fulltoldos.dto.CatalogoFiltro;
+import com.ecommerce.fulltoldos.dto.CatalogoResultado;
 import com.ecommerce.fulltoldos.model.Producto;
 import com.ecommerce.fulltoldos.model.ProductoMedia;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,9 @@ public interface ProductoService {
 
 
     Page<Producto> listarTodos(Pageable pageable);
+
+
+    CatalogoResultado buscarCatalogo(CatalogoFiltro filtro, int page, int size);
 
 
     List<Producto> listarActivos();

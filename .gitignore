@@ -34,3 +34,9 @@ build/
 
 ### Uploads (contenido subido desde el dashboard, no es código) ###
 /uploads/
+
+### Node (usado solo para minificar scrip.js/estilo.css en el build de Docker) ###
+/node_modules/
+
+### Node (usado solo para minificar scrip.js/estilo.css en el build de Docker) ###
+/node_modules/
