@@ -203,14 +203,30 @@ function catSliderNav(dir) {
 }
 
 function initCatInfinite() {
-  if (window.innerWidth <= 768) return;
+  console.log('[catInfinite] llamado, innerWidth=', window.innerWidth);
+  if (window.innerWidth <= 768) { console.log('[catInfinite] abortado: mobile (<=768)'); return; }
   requestAnimationFrame(function() {
     var track = document.getElementById('catGrid');
-    if (!track || !track.children.length) return;
-    _catOrigWidth = track.scrollWidth + 28;
+    var viewport = track && track.parentElement;
+    console.log('[catInfinite] track=', track, 'viewport=', viewport, 'children antes=', track && track.children.length);
+    if (!track || !viewport || !track.children.length) { console.log('[catInfinite] abortado: sin track/viewport/children'); return; }
+    // No usar track.scrollWidth: el track es flex sin ancho propio, así que se
+    // estira al ancho del viewport y scrollWidth termina midiendo esa caja
+    // (siempre ~igual al viewport) en vez del contenido real de las tarjetas.
+    var n = track.children.length;
+    var cardW = track.children[0].getBoundingClientRect().width;
+    var gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    var contentWidth = cardW * n + gap * (n - 1);
+    _catOrigWidth = contentWidth + 28;
+    console.log('[catInfinite] n=', n, 'cardW=', cardW, 'gap=', gap, 'contentWidth=', contentWidth, '_catOrigWidth=', _catOrigWidth, 'viewport.clientWidth=', viewport.clientWidth);
+    // Si las tarjetas ya caben en el viewport no hace falta loop infinito;
+    // clonar igual dejaría los clones visibles pegados al original (se ven duplicadas).
+    if (_catOrigWidth <= viewport.clientWidth) { console.log('[catInfinite] NO clona: cabe en el viewport'); return; }
+    console.log('[catInfinite] CLONANDO', n, 'tarjetas porque', _catOrigWidth, '>', viewport.clientWidth);
     Array.from(track.children).forEach(function(item) {
       track.appendChild(item.cloneNode(true));
     });
+    console.log('[catInfinite] children despues de clonar=', track.children.length);
   });
 }
 
@@ -264,6 +280,7 @@ function buildCats() {
   });
 
   const catGrid = document.getElementById('catGrid');
+  console.log('[buildCats] CATS.length=', CATS.length, 'CATS=', JSON.parse(JSON.stringify(CATS)));
   if (!catGrid) return;
   catGrid.innerHTML = CATS.map(c => {
     var min = minPriceByCat[c.id];
