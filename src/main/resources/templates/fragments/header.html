@@ -4,6 +4,18 @@
 <body>
 <th:block th:fragment="header">
 
+<script type="application/ld+json" th:if="${siteUrl != null}" th:inline="javascript">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Full Toldos",
+  "url": [[${siteUrl}]],
+  "logo": [[${orgLogo}]],
+  "telephone": [[${topbar != null ? topbar['telefono'] : null}]],
+  "sameAs": [[${redesSameAs != null ? redesSameAs : {}}]]
+}
+</script>
+
 <div class="topbar-ft" th:style="'background:' + ${topbar.colorFondo} + ';'">
     <div class="container">
         <div class="topbar-inner" th:style="'font-family:' + ${topbar.fuente} + ';color:' + ${topbar.colorFuente} + ';'">

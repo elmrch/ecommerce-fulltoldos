@@ -15,6 +15,8 @@ import com.ecommerce.fulltoldos.service.SlideService;
 import com.ecommerce.fulltoldos.service.TestimonioService;
 import com.ecommerce.fulltoldos.service.UsuarioService;
 import com.ecommerce.fulltoldos.util.SlugUtil;
+import com.ecommerce.fulltoldos.util.UrlUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -73,8 +75,9 @@ public class AuthController {
 
     // ── Página principal (tienda) ──
     @GetMapping("/")
-    public String inicio(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
-        agregarDatosInicio(model);
+    public String inicio(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model,
+                          HttpServletRequest request) {
+        agregarDatosInicio(model, request);
 
         // Nombre real del usuario logueado (para el saludo "Hola, ___" del navbar)
         if (usuarioLogueado != null) {
@@ -87,13 +90,14 @@ public class AuthController {
 
     @GetMapping("/producto/{slug}")
     public String productoPorSlug(@PathVariable String slug,
-                                   @AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
+                                   @AuthenticationPrincipal UserDetails usuarioLogueado, Model model,
+                                   HttpServletRequest request) {
         Producto p = productoService.listarActivos().stream()
                 .filter(x -> SlugUtil.toSlug(x.getNombre()).equals(slug))
                 .findFirst().orElse(null);
         if (p == null) return "redirect:/";
 
-        agregarDatosInicio(model);
+        agregarDatosInicio(model, request);
         if (usuarioLogueado != null) {
             usuarioRepository.findByEmail(usuarioLogueado.getUsername())
                     .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
@@ -101,18 +105,30 @@ public class AuthController {
 
         model.addAttribute("pageTitle", p.getNombre() + " — Full Toldos");
         model.addAttribute("metaDescription", descripcionCorta(p.getDescripcion(), p.getNombre()));
+        if (p.getImagenPrincipal() != null) {
+            model.addAttribute("ogImage", UrlUtil.baseUrl(request) + p.getImagenPrincipal());
+        }
+
+        // Para el schema.org/Product y BreadcrumbList (JSON-LD) del <head>.
+        model.addAttribute("producto", p);
+        model.addAttribute("precioFinal", p.getPrecioConDescuento() != null ? p.getPrecioConDescuento() : p.getPrecio());
+        if (p.getCategoria() != null) {
+            model.addAttribute("categoriaNombre", p.getCategoria().getNombre());
+            model.addAttribute("categoriaSlug", SlugUtil.toSlug(p.getCategoria().getNombre()));
+        }
         return "producto";
     }
 
     @GetMapping("/categoria/{slug}")
     public String categoriaPorSlug(@PathVariable String slug,
-                                    @AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
+                                    @AuthenticationPrincipal UserDetails usuarioLogueado, Model model,
+                                    HttpServletRequest request) {
         Categoria c = "all".equals(slug) ? null : categoriaService.listarActivas().stream()
                 .filter(x -> SlugUtil.toSlug(x.getNombre()).equals(slug))
                 .findFirst().orElse(null);
         if (c == null && !"all".equals(slug)) return "redirect:/";
 
-        agregarDatosInicio(model);
+        agregarDatosInicio(model, request);
         if (usuarioLogueado != null) {
             usuarioRepository.findByEmail(usuarioLogueado.getUsername())
                     .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
@@ -122,6 +138,8 @@ public class AuthController {
             model.addAttribute("pageTitle", c.getNombre() + " — Full Toldos");
             model.addAttribute("metaDescription", descripcionCorta(c.getDescripcion(),
                     "Compra " + c.getNombre() + " en Full Toldos. Fabricación a medida, envíos a todo el Perú."));
+            model.addAttribute("categoriaNombre", c.getNombre());
+            model.addAttribute("categoriaSlug", slug);
         } else {
             model.addAttribute("pageTitle", "Todos los productos — Full Toldos");
             model.addAttribute("metaDescription", "Explora todo el catálogo de toldos, carpas e inflables publicitarios de Full Toldos.");
@@ -130,8 +148,9 @@ public class AuthController {
     }
 
     @GetMapping("/ofertas")
-    public String ofertas(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
-        agregarDatosInicio(model);
+    public String ofertas(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model,
+                           HttpServletRequest request) {
+        agregarDatosInicio(model, request);
         if (usuarioLogueado != null) {
             usuarioRepository.findByEmail(usuarioLogueado.getUsername())
                     .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
@@ -143,8 +162,9 @@ public class AuthController {
     }
 
     @GetMapping("/cotizar")
-    public String cotizar(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
-        agregarDatosInicio(model);
+    public String cotizar(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model,
+                           HttpServletRequest request) {
+        agregarDatosInicio(model, request);
         if (usuarioLogueado != null) {
             usuarioRepository.findByEmail(usuarioLogueado.getUsername())
                     .ifPresent(u -> model.addAttribute("usuarioNombre", u.getNombre()));
@@ -155,6 +175,24 @@ public class AuthController {
         return "cotizar";
     }
 
+    /** Open Graph / Twitter Card por defecto (para que se vea bien al compartir en WhatsApp/Facebook).
+     *  Las páginas que tienen imagen propia (ej. producto) sobreescriben "ogImage" después de llamar a este método. */
+    private void agregarOg(Model model, HttpServletRequest request) {
+        String baseUrl = UrlUtil.baseUrl(request);
+        model.addAttribute("siteUrl", baseUrl);
+        model.addAttribute("ogUrl", baseUrl + request.getRequestURI());
+        String logoUrl = baseUrl + configService.get("sitio.logo", "/logofulltoldos.png");
+        model.addAttribute("orgLogo", logoUrl);
+        model.addAttribute("ogImage", logoUrl);
+    }
+
+    /** Filtra los links de redes sociales que sí son URLs reales (no el "#" de relleno) para usarlos en JSON-LD (sameAs). */
+    private List<String> redesValidas(Map<String, String> redes) {
+        return redes.values().stream()
+                .filter(v -> v != null && v.startsWith("http"))
+                .collect(Collectors.toList());
+    }
+
     /** Descripción corta para meta-tag SEO (~155 caracteres); usa el fallback si no hay descripción cargada. */
     private static String descripcionCorta(String descripcion, String fallback) {
         String base = (descripcion != null && !descripcion.isBlank()) ? descripcion.trim() : fallback;
@@ -162,10 +200,12 @@ public class AuthController {
     }
 
     /** Datos comunes de la home (contacto, topbar, redes, newsletter, banners, nav, slides, promos) — compartidos por "/", "/producto/{slug}" y "/categoria/{slug}". */
-    private void agregarDatosInicio(Model model) {
+    private void agregarDatosInicio(Model model, HttpServletRequest request) {
         // Datos de contacto desde la DB (editables desde /admin/ajustes)
         String wspNum = configService.get("cotizacion.whatsapp", "51978391237");
         model.addAttribute("wspLink", "https://wa.me/" + wspNum);
+
+        agregarOg(model, request);
 
         Map<String, String> topbar = new HashMap<>();
         topbar.put("telefono", configService.get("topbar.telefono", "+51 999 999 999"));
@@ -186,6 +226,7 @@ public class AuthController {
         redes.put("tiktok",    configService.get("redes.tiktok",    "#"));
         redes.put("youtube",   configService.get("redes.youtube",   "#"));
         model.addAttribute("redes", redes);
+        model.addAttribute("redesSameAs", redesValidas(redes));
 
         Map<String, String> newsletter = new HashMap<>();
         newsletter.put("titulo",       configService.get("newsletter.titulo",      "Suscríbete a Nuestro Newsletter"));
@@ -256,26 +297,26 @@ public class AuthController {
     }
 
     @GetMapping("/politica-de-privacidad")
-    public String politicaPrivacidad(Model model) {
-        addCommonAttrs(model);
+    public String politicaPrivacidad(Model model, HttpServletRequest request) {
+        addCommonAttrs(model, request);
         return "politica-privacidad";
     }
 
     @GetMapping("/terminos-y-condiciones")
-    public String terminosYCondiciones(Model model) {
-        addCommonAttrs(model);
+    public String terminosYCondiciones(Model model, HttpServletRequest request) {
+        addCommonAttrs(model, request);
         return "terminos-y-condiciones";
     }
 
     @GetMapping("/cambios-y-devoluciones")
-    public String cambiosYDevoluciones(Model model) {
-        addCommonAttrs(model);
+    public String cambiosYDevoluciones(Model model, HttpServletRequest request) {
+        addCommonAttrs(model, request);
         return "cambios-y-devoluciones";
     }
 
     @GetMapping("/envios")
-    public String envios(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
-        addCommonAttrs(model);
+    public String envios(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model, HttpServletRequest request) {
+        addCommonAttrs(model, request);
         agregarDatosNav(model);
 
         if (usuarioLogueado != null) {
@@ -316,8 +357,8 @@ public class AuthController {
     }
 
     @GetMapping("/contacto")
-    public String contacto(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
-        addCommonAttrs(model);
+    public String contacto(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model, HttpServletRequest request) {
+        addCommonAttrs(model, request);
         agregarDatosNav(model);
 
         if (usuarioLogueado != null) {
@@ -335,8 +376,8 @@ public class AuthController {
     }
 
     @GetMapping("/sobre-nosotros")
-    public String sobreNosotros(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model) {
-        addCommonAttrs(model);
+    public String sobreNosotros(@AuthenticationPrincipal UserDetails usuarioLogueado, Model model, HttpServletRequest request) {
+        addCommonAttrs(model, request);
         agregarDatosNav(model);
 
         if (usuarioLogueado != null) {
@@ -366,7 +407,9 @@ public class AuthController {
         return "sobre-nosotros";
     }
 
-    private void addCommonAttrs(Model model) {
+    private void addCommonAttrs(Model model, HttpServletRequest request) {
+        agregarOg(model, request);
+
         String wspNum = configService.get("cotizacion.whatsapp", "51978391237");
         model.addAttribute("wspLink", "https://wa.me/" + wspNum);
 
@@ -389,6 +432,7 @@ public class AuthController {
         redes.put("tiktok",    configService.get("redes.tiktok",    "#"));
         redes.put("youtube",   configService.get("redes.youtube",   "#"));
         model.addAttribute("redes", redes);
+        model.addAttribute("redesSameAs", redesValidas(redes));
 
         model.addAttribute("ruc", configService.get("empresa.ruc", "RUC: 20XXXXXXXXX"));
 
