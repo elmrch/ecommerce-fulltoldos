@@ -201,7 +201,7 @@ function renderSummary() {
         return `<div class="ck-summary-item">
             <div class="ck-summary-thumb">${img}</div>
             <div class="ck-summary-info">
-                <div class="ck-summary-name">${it.name}</div>
+                <div class="ck-summary-name">${it.name}${it.medida ? ' <small style="color:#888;">(' + it.medida + ')</small>' : ''}</div>
                 <div class="ck-summary-qty">Cantidad: ${it.qty}</div>
             </div>
             <div class="ck-summary-price">${precio > 0 ? 'S/' + fmt(precio * it.qty) : '—'}</div>
@@ -224,7 +224,7 @@ async function confirmarPedido() {
     const cart = loadCart();
     if (!cart.length) { alert('Tu carrito está vacío.'); return; }
 
-    const items = cart.map(it => ({ id: it.id, name: it.name, img: (it.imgs && it.imgs[0]) || null, precio: it.precio || 0, qty: it.qty }));
+    const items = cart.map(it => ({ id: it.id, name: it.medida ? `${it.name} (${it.medida})` : it.name, img: (it.imgs && it.imgs[0]) || null, precio: it.precio || 0, qty: it.qty }));
 
     const form = new URLSearchParams();
     form.set('nombre', document.getElementById('ckNombre').value.trim());

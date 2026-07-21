@@ -591,7 +591,7 @@ function renderProdPage(p) {
         </div>
         ${p.stock === 0
           ? `<button class="btn-cart-page btn-cart-agotado" disabled>AGOTADO</button>`
-          : `<button class="btn-cart-page" onclick="addCartById(${p.id});showToast('${p.name} agregado al carrito')">AÑADIR AL CARRITO</button>`}
+          : `<button class="btn-cart-page" onclick="addCartById(${p.id}, selectedMedida);showToast('${p.name} agregado al carrito')">AÑADIR AL CARRITO</button>`}
       </div>
       <button class="btn-wsp-page" onclick="cotizarWspPage()">
         <i class="bi bi-whatsapp"></i> COMPRAR EN WHATSAPP
@@ -879,8 +879,8 @@ function renderModal(p) {
         </div>
       `}
 
-      <div class="modal-price-row">
-        ${getPriceHTML(p, false)}
+      <div class="modal-price-row" id="modalPriceBlock">
+        ${getPriceHTML(p, false, selectedMedida)}
         <div class="modal-price-note">Sin IGV · desde med. base</div>
       </div>
       <div style="background:#f0f7ff;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:0.8rem;color:#546e7a;display:flex;align-items:center;gap:8px;">
@@ -935,6 +935,9 @@ function selectMedida(m) {
   document.querySelectorAll('.medida-btn').forEach(b => b.classList.toggle('active', b.textContent.trim()===m));
   const el = document.getElementById('medidaSelected');
   if(el) el.textContent = m;
+  const priceBlock = document.getElementById('modalPriceBlock');
+  if(priceBlock && currentModalProduct) priceBlock.innerHTML = getPriceHTML(currentModalProduct, false, selectedMedida) +
+    '<div class="modal-price-note">Sin IGV · desde med. base</div>';
 }
 function selectColor(c) {
   selectedColor = c;
@@ -947,18 +950,22 @@ function cotizarWsp(id) {
 }
 function addCartModal(id) {
   closeModal();
-  addCartById(id);
+  addCartById(id, selectedMedida);
 }
 
 // ═══════════════════════════ CART ═══════════════════════════
 function addCart(e, id) { e.stopPropagation(); addCartById(id); }
-function addCartById(id) {
+function addCartById(id, medida) {
   const p = PRODUCTS.find(x=>x.id===id);
   if(!p) return;
   if(p.stock === 0) { showToast('Este producto está agotado'); return; }
-  const ex = cart.find(i=>i.id===id);
+  const medidaSel = medida || '';
+  const precioFinal = (medidaSel && p.medidaPrecios && p.medidaPrecios[medidaSel] != null)
+    ? Number(p.medidaPrecios[medidaSel])
+    : (p.precio != null ? Number(p.precio) : null);
+  const ex = cart.find(i=>i.id===id && (i.medida||'')===medidaSel);
   if(ex) ex.qty++;
-  else cart.push({...p, qty:1});
+  else cart.push({...p, medida: medidaSel, precio: precioFinal, qty:1});
   saveCart();
   updateCartCount();
   showToast(`${p.name} agregado al carrito`);
@@ -1292,16 +1299,16 @@ function renderCart() {
     <div class="cart-item">
       <div class="cart-item-thumb">${img}</div>
       <div class="cart-item-info">
-        <div class="cart-item-nm">${item.name.toUpperCase()}</div>
+        <div class="cart-item-nm">${item.name.toUpperCase()}${item.medida ? ` <span style="font-weight:400;color:#888;">· ${item.medida}</span>` : ''}</div>
         <div class="cart-item-price">${subtotalItem}</div>
       </div>
       <div class="cart-item-actions">
         <div class="cart-qty-ctrl">
-          <button class="cart-qty-btn" onclick="changeQty(${item.id},-1)"><i class="bi bi-dash"></i></button>
+          <button class="cart-qty-btn" onclick="changeQty(${item.id},-1,'${item.medida||''}')"><i class="bi bi-dash"></i></button>
           <span class="cart-qty-num">${item.qty}</span>
-          <button class="cart-qty-btn" onclick="changeQty(${item.id},1)"><i class="bi bi-plus"></i></button>
+          <button class="cart-qty-btn" onclick="changeQty(${item.id},1,'${item.medida||''}')"><i class="bi bi-plus"></i></button>
         </div>
-        <button class="cart-del" onclick="removeItem(${item.id})"><i class="bi bi-x-lg"></i></button>
+        <button class="cart-del" onclick="removeItem(${item.id},'${item.medida||''}')"><i class="bi bi-x-lg"></i></button>
       </div>
     </div>`;
   }).join('');
@@ -1324,17 +1331,22 @@ function renderCart() {
     </button>
   `;
 }
-function changeQty(id, d) {
-  const item = cart.find(i=>i.id===id);
+function changeQty(id, d, medida) {
+  const medidaSel = medida || '';
+  const item = cart.find(i=>i.id===id && (i.medida||'')===medidaSel);
   if(!item) return;
   item.qty += d;
-  if(item.qty <= 0) cart = cart.filter(i=>i.id!==id);
+  if(item.qty <= 0) cart = cart.filter(i=>!(i.id===id && (i.medida||'')===medidaSel));
   saveCart(); updateCartCount(); renderCart();
 }
-function removeItem(id) { cart = cart.filter(i=>i.id!==id); saveCart(); updateCartCount(); renderCart(); }
+function removeItem(id, medida) {
+  const medidaSel = medida || '';
+  cart = cart.filter(i=>!(i.id===id && (i.medida||'')===medidaSel));
+  saveCart(); updateCartCount(); renderCart();
+}
 function clearCart() { cart = []; saveCart(); updateCartCount(); renderCart(); }
 function sendCartWsp() {
-  const lines = cart.map(i=>`• *${i.name}* (x${i.qty})`).join('%0A');
+  const lines = cart.map(i=>`• *${i.name}*${i.medida ? ' (' + i.medida + ')' : ''} (x${i.qty})`).join('%0A');
   window.open(`https://wa.me/51978391237?text=Hola Full Toldos! Deseo cotizar:%0A${lines}`,'_blank');
 }
 

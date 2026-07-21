@@ -126,17 +126,19 @@ function loadCart() {
 }
 function saveCart(c) { localStorage.setItem(CART_KEY, JSON.stringify(c)); }
 
-function changeQty(id, delta) {
+function changeQty(id, delta, medida) {
+    const medidaSel = medida || '';
     let cart = loadCart();
-    const item = cart.find(i => i.id === id);
+    const item = cart.find(i => i.id === id && (i.medida||'') === medidaSel);
     if (!item) return;
     item.qty = Math.max(1, item.qty + delta);
     saveCart(cart);
     renderCartPage();
 }
 
-function removeItem(id) {
-    saveCart(loadCart().filter(i => i.id !== id));
+function removeItem(id, medida) {
+    const medidaSel = medida || '';
+    saveCart(loadCart().filter(i => !(i.id === id && (i.medida||'') === medidaSel)));
     renderCartPage();
 }
 
@@ -149,7 +151,7 @@ function applyCoupon() {
 function sendCartWsp() {
     const cart = loadCart();
     if (!cart.length) return;
-    const lines = cart.map(i => `• *${i.name}* (x${i.qty})`).join('%0A');
+    const lines = cart.map(i => `• *${i.name}*${i.medida ? ' (' + i.medida + ')' : ''} (x${i.qty})`).join('%0A');
     window.open('https://wa.me/51978391237?text=Hola Full Toldos! Deseo cotizar:%0A' + lines, '_blank');
 }
 
@@ -185,19 +187,20 @@ function renderCartPage() {
         const img = (item.imgs && item.imgs[0])
             ? `<img src="${item.imgs[0]}" alt="${item.name}" onerror="this.style.display='none'">`
             : `<i class="bi ${item.icon || 'bi-box'}" style="font-size:2rem;color:#1949c9"></i>`;
+        const medidaAttr = item.medida || '';
         return `
         <div class="cart-row">
             <div class="cart-row-del">
-                <button onclick="removeItem(${item.id})" title="Eliminar"><i class="bi bi-x-lg"></i></button>
+                <button onclick="removeItem(${item.id},'${medidaAttr}')" title="Eliminar"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="cart-row-img">${img}</div>
-            <div class="cart-row-name">${item.name.toUpperCase()}</div>
+            <div class="cart-row-name">${item.name.toUpperCase()}${item.medida ? `<br><small style="color:#888;font-weight:400;">${item.medida}</small>` : ''}</div>
             <div class="cart-row-price">${precio > 0 ? 'S/' + fmt(precio) : 'Consultar'}</div>
             <div class="cart-row-qty">
                 <div class="qty-ctrl">
-                    <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+                    <button class="qty-btn" onclick="changeQty(${item.id}, -1,'${medidaAttr}')">-</button>
                     <span class="qty-val">${item.qty}</span>
-                    <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                    <button class="qty-btn" onclick="changeQty(${item.id}, 1,'${medidaAttr}')">+</button>
                 </div>
             </div>
             <div class="cart-row-subtotal">${precio > 0 ? 'S/' + fmt(subtotal) : '—'}</div>
