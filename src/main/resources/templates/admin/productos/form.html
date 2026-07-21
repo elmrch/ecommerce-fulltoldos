@@ -173,9 +173,12 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Medidas disponibles</label>
-                    <textarea th:field="*{medidas}" class="form-control" rows="4"
-                              placeholder="2x2m: 350.00&#10;3x3m: 480.00&#10;4x4m: 620.00"></textarea>
-                    <div class="form-hint">Una medida por línea, formato <strong>Medida: Precio</strong> (S/). Si no pones precio, se usa el precio base del producto.</div>
+                    <input type="hidden" th:field="*{medidas}" id="medidasHidden">
+                    <div id="medidasFilas" class="d-flex flex-column gap-2 mb-2"></div>
+                    <button type="button" id="btnAgregarMedida" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-plus-lg"></i> Agregar medida
+                    </button>
+                    <div class="form-hint">Escribí la medida (ej: 2x2m) y, si querés, un precio distinto para ella. Si dejás el precio vacío, esa medida usa el precio base del producto.</div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Colores disponibles</label>
@@ -505,6 +508,71 @@ document.getElementById('confirmYesBtn').addEventListener('click', function () {
     });
     hidden.closest('form').addEventListener('submit', sync);
     sync();
+})();
+
+// ── Medidas disponibles (filas Medida + Precio opcional) ──
+(function() {
+    var hidden   = document.getElementById('medidasHidden');
+    var filasBox = document.getElementById('medidasFilas');
+    var btnAdd   = document.getElementById('btnAgregarMedida');
+
+    function escAttr(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function parseInicial(v) {
+        return (v || '').split(/\r?\n/)
+            .map(function(l) { return l.trim(); })
+            .filter(function(l) { return l; })
+            .map(function(l) {
+                var idx = l.indexOf(':');
+                return idx > -1
+                    ? { nombre: l.substring(0, idx).trim(), precio: l.substring(idx + 1).trim().replace(/[^0-9.]/g, '') }
+                    : { nombre: l, precio: '' };
+            });
+    }
+
+    var medidas = parseInicial(hidden.value);
+    if (!medidas.length) medidas.push({ nombre: '', precio: '' });
+
+    function sync() {
+        hidden.value = medidas
+            .filter(function(m) { return m.nombre.trim(); })
+            .map(function(m) { return m.precio ? (m.nombre.trim() + ': ' + m.precio) : m.nombre.trim(); })
+            .join('\n');
+    }
+    function render() {
+        filasBox.innerHTML = medidas.map(function(m, i) {
+            return '<div class="d-flex gap-2 align-items-center">' +
+                '<input type="text" class="form-control form-control-sm" style="max-width:130px;" ' +
+                    'placeholder="Ej: 2x2m" value="' + escAttr(m.nombre) + '" ' +
+                    'oninput="window._medidaCambio(' + i + ',\'nombre\',this.value)">' +
+                '<div class="input-group input-group-sm" style="max-width:150px;">' +
+                    '<span class="input-group-text">S/</span>' +
+                    '<input type="number" step="0.01" min="0" class="form-control" placeholder="opcional" ' +
+                        'value="' + escAttr(m.precio) + '" oninput="window._medidaCambio(' + i + ',\'precio\',this.value)">' +
+                '</div>' +
+                '<button type="button" class="btn btn-outline-danger btn-sm" onclick="window._medidaQuitar(' + i + ')" title="Quitar medida">' +
+                    '<i class="bi bi-x-lg"></i>' +
+                '</button>' +
+            '</div>';
+        }).join('');
+        sync();
+    }
+    window._medidaCambio = function(i, campo, val) {
+        medidas[i][campo] = val;
+        sync();
+    };
+    window._medidaQuitar = function(i) {
+        medidas.splice(i, 1);
+        if (!medidas.length) medidas.push({ nombre: '', precio: '' });
+        render();
+    };
+    btnAdd.addEventListener('click', function() {
+        medidas.push({ nombre: '', precio: '' });
+        render();
+    });
+    hidden.closest('form').addEventListener('submit', sync);
+    render();
 })();
 </script>
 

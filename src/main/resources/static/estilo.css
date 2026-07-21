@@ -1752,9 +1752,8 @@ button:disabled .ft-spin-icon { opacity:0.9; }
 }
 .nav-cat2-inner {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   background: #fff;
-  min-height: 380px;
 }
 /* Panel izquierdo */
 .nav-cat2-left {
